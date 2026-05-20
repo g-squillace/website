@@ -184,6 +184,17 @@ const iubendaBanner = {
     <script is:inline src="https://cs.iubenda.com/autoblocking/4537765.js"></script>
     <script is:inline src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
 
+    {/* Google Analytics 4. Posizionato DOPO l'autoblocking Iubenda: Iubenda
+        riconosce automaticamente googletagmanager.com e blocca lo script
+        fino al consenso. Senza consenso, niente cookie GA4. */}
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-C6KMJ4K1MV"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-C6KMJ4K1MV');
+    </script>
+
     {/* CSS override Iubenda. La dashboard Iubenda a volte ignora i colori dal
         JS config, il `!important` qui garantisce che vincano comunque.
         I valori sono interpolati dal const `iubendaBanner` in frontmatter,
