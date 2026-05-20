@@ -1,9 +1,3 @@
-// One-shot generator per:
-//   - favicon PNG variants (16/32/180/192/512)
-//   - OG image canonica 1200x630 da SEO.jpg
-//
-// Usa sharp (già nelle devDependencies). Run: node scripts/generate-static-assets.mjs
-
 import sharp from 'sharp';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -31,8 +25,6 @@ for (const { name, size } of faviconTargets) {
   console.log(`✓ ${name} (${size}×${size})`);
 }
 
-// OG image canonica 1200×630 (1.91:1) — Facebook/Twitter ottimale
-// SEO.jpg è 1920×1280 (3:2): center-crop preserva il logo centrale
 await sharp(resolve(PUBLIC, 'SEO.jpg'))
   .resize(1200, 630, { fit: 'cover', position: 'center' })
   .jpeg({ quality: 85, mozjpeg: true })

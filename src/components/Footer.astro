@@ -6,7 +6,6 @@ const currentYear = new Date().getFullYear();
 ---
 
 <footer class="relative bg-orange text-white pt-0 pb-fluid-3 overflow-hidden">
-  <!-- Marquee testuale in cima -->
   <div
     class="relative z-[2] overflow-hidden py-fluid-2 border-b-2 border-white/25 mb-fluid-3 motion-reduce:[&_>_*]:!animate-none"
     aria-hidden="true"
@@ -34,7 +33,6 @@ const currentYear = new Date().getFullYear();
   </div>
 
   <div class="page relative z-[2] flex flex-col gap-fluid-5">
-    <!-- Banner CTA compatto -->
     <section class="grid grid-cols-1 gap-fluid-4 items-end md:grid-cols-[2fr_1fr]" aria-label="Contatto">
       <h2 class="font-display text-4xl text-yellow leading-[0.95] m-0 tracking-[-0.02em]">
         Hai un progetto<br />in mente?
@@ -57,9 +55,43 @@ const currentYear = new Date().getFullYear();
       </div>
     </section>
 
-    <!-- Riga finale super-compatta -->
     <div class="flex flex-wrap justify-between items-center gap-fluid-3 pt-fluid-3 border-t-2 border-white/25 text-white text-xs">
       <p class="m-0">© {currentYear} {SITE.name}</p>
+
+      <nav aria-label="Privacy e cookie" class="m-0">
+        <ul class="list-none m-0 p-0 flex flex-wrap gap-fluid-3 items-center">
+          <li>
+            <a
+              href="https://www.iubenda.com/privacy-policy/16220679"
+              target="_blank"
+              rel="noopener"
+              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow"
+            >
+              Privacy Policy
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.iubenda.com/privacy-policy/16220679/cookie-policy"
+              target="_blank"
+              rel="noopener"
+              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow"
+            >
+              Cookie Policy
+            </a>
+          </li>
+          <li>
+            <button
+              type="button"
+              data-iubenda-preferences
+              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow bg-transparent border-0 p-0 font-inherit cursor-pointer"
+            >
+              Modifica preferenze privacy
+            </button>
+          </li>
+        </ul>
+      </nav>
+
       {
         SOCIAL.length > 0 && (
           <ul class="list-none m-0 p-0 flex gap-fluid-3" aria-label="Social">
@@ -81,3 +113,14 @@ const currentYear = new Date().getFullYear();
     </div>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-iubenda-preferences]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const api = (window as unknown as { _iub?: { cs?: { api?: { openPreferences?: () => void } } } })._iub?.cs?.api;
+      if (api?.openPreferences) {
+        api.openPreferences();
+      }
+    });
+  });
+</script>

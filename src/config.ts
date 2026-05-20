@@ -1,9 +1,3 @@
-/**
- * Configurazione sito centrale.
- * Tutto quello che è "globale" (nome, navigazione, contatti, social)
- * sta qui, così si modifica in un solo posto.
- */
-
 export const SITE = {
   name: 'Guido Squillace',
   tagline: 'Sviluppo siti web e applicazioni su misura',
@@ -30,12 +24,7 @@ export const NAV: ReadonlyArray<{ href: string; label: string }> = [
 ];
 
 export const CONTACT = {
-  email: 'ciao@guidosquillace.it', // TODO: sostituire con l'email reale
-  // Aggiungere qui altri canali (telefono, calendly, ecc.) quando definiti
+  email: 'ciao@guidosquillace.it',
 } as const;
 
-export const SOCIAL: ReadonlyArray<{ href: string; label: string }> = [
-  // TODO: aggiungere link reali
-  // { href: 'https://www.linkedin.com/in/...', label: 'LinkedIn' },
-  // { href: 'https://github.com/...', label: 'GitHub' },
-];
+export const SOCIAL: ReadonlyArray<{ href: string; label: string }> = [];

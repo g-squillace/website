@@ -13,8 +13,6 @@ interface Props {
   ogType?: 'website' | 'article' | 'profile';
 }
 
-// Default noindex su build non-production di Netlify (deploy-preview, branch-deploy).
-// Local dev/build → indexable (lo decide chi sviluppa); Netlify produzione → indexable.
 const netlifyContext = process.env.CONTEXT;
 const isPreviewContext = Boolean(netlifyContext && netlifyContext !== 'production');
 
@@ -89,9 +87,6 @@ const jsonLd = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    {/* Favicon set: SVG primario (browsers moderni), PNG 32/16 fallback,
-        apple-touch per iOS home screen, manifest per Android/PWA install.
-        theme-color/msapplication colorano la barra del browser su mobile. */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -101,9 +96,6 @@ const jsonLd = {
     <meta name="apple-mobile-web-app-title" content={SITE.name} />
     <meta name="application-name" content={SITE.name} />
 
-    {/* Preload critical fonts — abbassa il FOUT su Figtree (body) e Dazzle Unicase (h1/h2).
-        `crossorigin` è obbligatorio anche per font same-origin (la CORS request del CSS
-        loader non riusa il preload senza). Cache headers in netlify.toml. */}
     <link
       rel="preload"
       href="/fonts/Figtree/Figtree-VariableFont_wght.woff2"
@@ -145,10 +137,6 @@ const jsonLd = {
 
     <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
 
-    {/* Google Consent Mode v2 — DEVE precedere qualsiasi script di tracking.
-        Setta "denied" di default: senza consenso GA4 non scrive cookie né PII,
-        ma può fire eventi cookieless (utili per attribution/conversion modeling).
-        Il callback Iubenda sotto fa l'update a "granted" quando l'utente accetta. */}
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -164,20 +152,10 @@ const jsonLd = {
       });
     </script>
 
-    {/* Iubenda Cookie Solution.
-        Colori del banner via JS config (no CSS override). Se i colori non si
-        applicano: dashboard Iubenda → Cookie Solution → Customization → mettere
-        "Use the script configuration" (o equivalente) oppure ricreare gli stessi
-        colori in dashboard. La dashboard ha sempre priorità sul JS. */}
     <script is:inline>
       window._iub = window._iub || [];
       window._iub.csConfiguration = {
-        askConsentAtCookiePolicyUpdate: true,
-        floatingPreferencesButtonDisplay: false,
-        perPurposeConsent: true,
         siteId: 4537765,
-        storage: { useSiteId: true },
-        whitelabel: false,
         cookiePolicyId: 16220679,
         banner: {
           acceptButtonDisplay: true,
@@ -198,8 +176,6 @@ const jsonLd = {
           rejectButtonCaptionColor: '#111111',
         },
         callback: {
-          // Update Google Consent Mode v2 quando l'utente accetta i cookie.
-          // GA4 era in "denied" di default → ora può tracciare normalmente.
           onConsentGiven: function () {
             if (typeof gtag === 'function') {
               gtag('consent', 'update', {
@@ -219,10 +195,6 @@ const jsonLd = {
     <script is:inline src="https://cs.iubenda.com/autoblocking/4537765.js"></script>
     <script is:inline src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
 
-    {/* Google Analytics 4. Posizionato DOPO l'autoblocking Iubenda: l'autoblocking
-        riconosce googletagmanager.com e tiene lo script in stallo fino al consenso.
-        Doppio livello: autoblocking (no caricamento) + Consent Mode v2 (denied
-        di default anche se caricato). */}
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-C6KMJ4K1MV"></script>
     <script is:inline>
       gtag('js', new Date());
@@ -242,11 +214,6 @@ const jsonLd = {
     </main>
     <Footer />
 
-    {/* @property override per le custom properties transform di Tailwind v4.
-        Tailwind genera @property con syntax:"*" (non-interpolabile dal browser).
-        Messi qui (fine body, dopo i <link> CSS nel head) per garantire che
-        siano l'ULTIMA dichiarazione → CSS spec: last @property declaration wins.
-        Senza questo, transition su scale/translate/rotate sono istantanee. */}
     <style is:inline>
       @property --tw-translate-x { syntax: "<length-percentage>"; inherits: false; initial-value: 0; }
       @property --tw-translate-y { syntax: "<length-percentage>"; inherits: false; initial-value: 0; }

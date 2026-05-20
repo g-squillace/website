@@ -5,22 +5,17 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# Astro asset hashes → cache aggressivo, content-hash garantisce la freschezza
 [[headers]]
   for = "/_astro/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Font files — cache aggressivo. Il nome del file è la versione di fatto;
-# se cambia il font, cambia anche il path. Senza questo, ogni nav scarica
-# di nuovo i font e dà FOUT visibile.
 [[headers]]
   for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Access-Control-Allow-Origin = "*"
 
-# Favicon/icone/OG image/manifest — cache lunga, raramente cambiano.
 [[headers]]
   for = "/*.png"
   [headers.values]
@@ -42,9 +37,6 @@
     Cache-Control = "public, max-age=86400"
     Content-Type = "application/manifest+json"
 
-# Security headers — applicati a tutto. Niente X-Frame-Options "DENY"
-# (rompe l'iframe DatoCMS per draft mode futuro); uso CSP frame-ancestors
-# che permette self + DatoCMS.
 [[headers]]
   for = "/*"
   [headers.values]
