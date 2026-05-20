@@ -352,13 +352,15 @@ const marqueeItems = [
             const prev = wrap.querySelector('[data-marquee-prev]');
             const next = wrap.querySelector('[data-marquee-next]');
             if (!track || !prev || !next) return;
+            const defaultDuration = track.style.animationDuration;
+            const defaultDirection = track.style.animationDirection || 'normal';
             const setFast = (reverse) => {
               track.style.animationDuration = '14s';
               track.style.animationDirection = reverse ? 'reverse' : 'normal';
             };
             const reset = () => {
-              track.style.animationDuration = '';
-              track.style.animationDirection = '';
+              track.style.animationDuration = defaultDuration;
+              track.style.animationDirection = defaultDirection;
             };
             const bindBoost = (btn, reverse) => {
               btn.addEventListener('mouseenter', () => setFast(reverse));
