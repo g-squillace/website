@@ -76,20 +76,6 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [personLd, websiteLd],
 };
-
-// Iubenda banner colors — single source of truth.
-// Cambia qui per aggiornare contemporaneamente JS config (lette via define:vars)
-// e CSS override (interpolato via template literal sotto). Una sola fonte di verità.
-const iubendaBanner = {
-  background: '#ffb5d2',
-  text: '#ffffff',
-  acceptBg: '#ffb5d2',
-  acceptText: '#0900ff',
-  customizeBg: '#ffb5d2',
-  customizeText: '#0900ff',
-  rejectBg: '#ffb5d2',
-  rejectText: '#111111',
-};
 ---
 
 <!doctype html>
@@ -144,13 +130,31 @@ const iubendaBanner = {
 
     <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
 
+    {/* Google Consent Mode v2 — DEVE precedere qualsiasi script di tracking.
+        Setta "denied" di default: senza consenso GA4 non scrive cookie né PII,
+        ma può fire eventi cookieless (utili per attribution/conversion modeling).
+        Il callback Iubenda sotto fa l'update a "granted" quando l'utente accetta. */}
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'granted',
+        wait_for_update: 500,
+      });
+    </script>
+
     {/* Iubenda Cookie Solution.
-        Colori letti da `iubendaBanner` (frontmatter) → cambia là per propagare
-        a JS config + CSS override insieme. is:inline + define:vars iniettano
-        l'oggetto come variabile JS nel browser. */}
-    <script is:inline define:vars={{ iubendaBanner }}>
-      // `define:vars` avvolge questo script in una IIFE → `var` diventa locale.
-      // Scrivo direttamente su `window._iub` per garantire scope globale.
+        Colori del banner via JS config (no CSS override). Se i colori non si
+        applicano: dashboard Iubenda → Cookie Solution → Customization → mettere
+        "Use the script configuration" (o equivalente) oppure ricreare gli stessi
+        colori in dashboard. La dashboard ha sempre priorità sul JS. */}
+    <script is:inline>
       window._iub = window._iub || [];
       window._iub.csConfiguration = {
         askConsentAtCookiePolicyUpdate: true,
@@ -169,14 +173,30 @@ const iubendaBanner = {
           position: 'float-bottom-center',
           rejectButtonDisplay: true,
           showTitle: false,
-          backgroundColor: iubendaBanner.background,
-          textColor: iubendaBanner.text,
-          acceptButtonColor: iubendaBanner.acceptBg,
-          acceptButtonCaptionColor: iubendaBanner.acceptText,
-          customizeButtonColor: iubendaBanner.customizeBg,
-          customizeButtonCaptionColor: iubendaBanner.customizeText,
-          rejectButtonColor: iubendaBanner.rejectBg,
-          rejectButtonCaptionColor: iubendaBanner.rejectText,
+          backgroundColor: '#ffb5d2',
+          textColor: '#ffffff',
+          acceptButtonColor: '#ffb5d2',
+          acceptButtonCaptionColor: '#0900ff',
+          customizeButtonColor: '#ffb5d2',
+          customizeButtonCaptionColor: '#0900ff',
+          rejectButtonColor: '#ffb5d2',
+          rejectButtonCaptionColor: '#111111',
+        },
+        callback: {
+          // Update Google Consent Mode v2 quando l'utente accetta i cookie.
+          // GA4 era in "denied" di default → ora può tracciare normalmente.
+          onConsentGiven: function () {
+            if (typeof gtag === 'function') {
+              gtag('consent', 'update', {
+                ad_storage: 'granted',
+                ad_user_data: 'granted',
+                ad_personalization: 'granted',
+                analytics_storage: 'granted',
+                functionality_storage: 'granted',
+                personalization_storage: 'granted',
+              });
+            }
+          },
         },
       };
       window._iub.csLangConfiguration = { it: { cookiePolicyId: 16220679 } };
@@ -184,65 +204,15 @@ const iubendaBanner = {
     <script is:inline src="https://cs.iubenda.com/autoblocking/4537765.js"></script>
     <script is:inline src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
 
-    {/* Google Analytics 4. Posizionato DOPO l'autoblocking Iubenda: Iubenda
-        riconosce automaticamente googletagmanager.com e blocca lo script
-        fino al consenso. Senza consenso, niente cookie GA4. */}
+    {/* Google Analytics 4. Posizionato DOPO l'autoblocking Iubenda: l'autoblocking
+        riconosce googletagmanager.com e tiene lo script in stallo fino al consenso.
+        Doppio livello: autoblocking (no caricamento) + Consent Mode v2 (denied
+        di default anche se caricato). */}
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-C6KMJ4K1MV"></script>
     <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-C6KMJ4K1MV');
     </script>
-
-    {/* CSS override Iubenda. La dashboard Iubenda a volte ignora i colori dal
-        JS config, il `!important` qui garantisce che vincano comunque.
-        I valori sono interpolati dal const `iubendaBanner` in frontmatter,
-        così JS e CSS restano sempre sincronizzati. */}
-    <style is:inline set:html={`
-      #iubenda-cs-banner,
-      #iubenda-cs-banner .iubenda-cs-content,
-      #iubenda-cs-banner .iubenda-cs-container,
-      .iub-cs-content,
-      #iubenda-cs-banner .iubenda-cs-rationale {
-        background-color: ${iubendaBanner.background} !important;
-        color: ${iubendaBanner.text} !important;
-      }
-      #iubenda-cs-banner *,
-      #iubenda-cs-banner p,
-      #iubenda-cs-banner a:not([class*='accept-btn']):not([class*='reject-btn']):not([class*='customize-btn']) {
-        color: ${iubendaBanner.text} !important;
-      }
-      #iubenda-cs-banner a {
-        text-decoration: underline;
-        text-underline-offset: 3px;
-      }
-      .iubenda-cs-accept-btn,
-      #iubenda-cs-banner [class*='accept-btn'] {
-        background-color: ${iubendaBanner.acceptBg} !important;
-        color: ${iubendaBanner.acceptText} !important;
-        border: 0 !important;
-      }
-      .iubenda-cs-customize-btn,
-      #iubenda-cs-banner [class*='customize-btn'] {
-        background-color: ${iubendaBanner.customizeBg} !important;
-        color: ${iubendaBanner.customizeText} !important;
-        border: 0 !important;
-      }
-      .iubenda-cs-reject-btn,
-      #iubenda-cs-banner [class*='reject-btn'] {
-        background-color: ${iubendaBanner.rejectBg} !important;
-        color: ${iubendaBanner.rejectText} !important;
-        border: 0 !important;
-      }
-      /* Hide any residual floating preferences button */
-      .iubenda-tp-btn,
-      .iubenda-cs-preferences-link,
-      #iubenda-cs-preferences-link,
-      [data-cs-cmd='openPreferences'] {
-        display: none !important;
-      }
-    `} />
   </head>
   <body>
     <a
