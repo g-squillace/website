@@ -11,7 +11,8 @@
     "build:fresh": "rm -rf .astro/content-assets .astro/data-store.json && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "import:projects": "node --env-file=.env scripts/import-projects.mjs"
+    "import:projects": "node --env-file=.env scripts/import-projects.mjs",
+    "assets:generate": "node scripts/generate-static-assets.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.0",

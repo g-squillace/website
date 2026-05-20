@@ -13,9 +13,9 @@ export const SITE = {
   locale: 'it-IT',
   author: 'Guido Squillace',
   ogImage: {
-    path: '/SEO.jpg',
-    width: 1920,
-    height: 1280,
+    path: '/og-image.jpg',
+    width: 1200,
+    height: 630,
     type: 'image/jpeg',
     alt: 'Guido Squillace, web developer — logo su sfondo di codice sorgente',
   },

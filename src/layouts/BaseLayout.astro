@@ -13,12 +13,17 @@ interface Props {
   ogType?: 'website' | 'article' | 'profile';
 }
 
+// Default noindex su build non-production di Netlify (deploy-preview, branch-deploy).
+// Local dev/build → indexable (lo decide chi sviluppa); Netlify produzione → indexable.
+const netlifyContext = process.env.CONTEXT;
+const isPreviewContext = Boolean(netlifyContext && netlifyContext !== 'production');
+
 const {
   title,
   description = SITE.description,
   image,
   imageAlt,
-  noindex = false,
+  noindex = isPreviewContext,
   ogType = 'website',
 } = Astro.props;
 
@@ -84,7 +89,17 @@ const jsonLd = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    {/* Favicon set: SVG primario (browsers moderni), PNG 32/16 fallback,
+        apple-touch per iOS home screen, manifest per Android/PWA install.
+        theme-color/msapplication colorano la barra del browser su mobile. */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#ff5354" />
+    <meta name="apple-mobile-web-app-title" content={SITE.name} />
+    <meta name="application-name" content={SITE.name} />
 
     {/* Preload critical fonts — abbassa il FOUT su Figtree (body) e Dazzle Unicase (h1/h2).
         `crossorigin` è obbligatorio anche per font same-origin (la CORS request del CSS
