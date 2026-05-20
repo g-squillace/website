@@ -2,7 +2,7 @@ export const SITE = {
   name: 'Guido Squillace',
   tagline: 'Sviluppo siti web e applicazioni su misura',
   description:
-    'Sviluppatore web freelance. Siti vetrina, e-commerce, web app e gestionali su misura. Si parte dal budget, da un\'idea, o da un brief già definito.',
+    'Sviluppatore web frontend. Siti vetrina, e-commerce, web app e gestionali su misura. Si parte dal budget, da un\'idea, o da un brief già definito.',
   url: 'https://www.guidosquillace.it',
   locale: 'it-IT',
   author: 'Guido Squillace',

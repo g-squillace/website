@@ -50,7 +50,7 @@ const personLd = {
   name: SITE.author,
   url: SITE.url,
   image: new URL(SITE.ogImage.path, SITE.url).toString(),
-  jobTitle: 'Web developer freelance',
+  jobTitle: 'Sviluppatore web frontend',
   email: `mailto:${CONTACT.email}`,
   description: SITE.description,
   knowsAbout: [
@@ -155,9 +155,7 @@ const jsonLd = {
         security_storage: 'granted',
         wait_for_update: 500,
       });
-    </script>
 
-    <script is:inline>
       window._iub = window._iub || [];
       window._iub.csConfiguration = {
         siteId: 4537765,
@@ -204,13 +202,31 @@ const jsonLd = {
         },
       };
       window._iub.csLangConfiguration = { it: { cookiePolicyId: 16220679 } };
-    </script>
-    <script is:inline src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
 
-    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-C6KMJ4K1MV"></script>
-    <script is:inline>
-      gtag('js', new Date());
-      gtag('config', 'G-C6KMJ4K1MV');
+      function loadThirdPartyScripts() {
+        var iub = document.createElement('script');
+        iub.src = 'https://cdn.iubenda.com/cs/iubenda_cs.js';
+        iub.async = true;
+        iub.charset = 'UTF-8';
+        document.head.appendChild(iub);
+
+        var gtm = document.createElement('script');
+        gtm.src = 'https://www.googletagmanager.com/gtag/js?id=G-C6KMJ4K1MV';
+        gtm.async = true;
+        gtm.onload = function () {
+          gtag('js', new Date());
+          gtag('config', 'G-C6KMJ4K1MV');
+        };
+        document.head.appendChild(gtm);
+      }
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadThirdPartyScripts, { timeout: 2500 });
+      } else {
+        window.addEventListener('load', function () {
+          setTimeout(loadThirdPartyScripts, 200);
+        });
+      }
     </script>
   </head>
   <body>
