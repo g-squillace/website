@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+interface Service {
+  id: string;
+  name: string;
+  intro: string;
+  whenItFits: string[];
+  includes: string[];
+  startsFrom?: string;
+  variant: 'orange' | 'pink' | 'yellow' | 'blue' | 'beige';
+}
+
+const services: Service[] = [
+  { id: 'siti-vetrina', name: 'Siti vetrina', variant: 'orange',
+    intro: 'La tua presenza online di base, fatta bene. Il sito che racconta cosa fai e perché qualcuno dovrebbe sceglierti — leggibile, veloce, trovabile.',
+    whenItFits: ['Hai un\'attività e ti serve un punto di riferimento online','Il sito che hai è vecchio, lento, o non si vede bene da telefono','Vuoi essere trovato su Google per quello che fai'],
+    includes: ['Progetto a partire dai tuoi contenuti reali','Ottimizzazione SEO di base (struttura, meta, performance)','Pannello di gestione contenuti se serve','Form di contatto e integrazioni essenziali'],
+    startsFrom: 'Tempi tipici: 1-3 settimane' },
+  { id: 'ecommerce', name: 'E-commerce', variant: 'pink',
+    intro: 'Negozi online che vendono davvero. Niente template gonfi e mille plugin che si rompono: catalogo solido, checkout senza attriti, integrato con quello che usi già.',
+    whenItFits: ['Vendi prodotti fisici o digitali e vuoi farlo direttamente online','Il tuo e-commerce esistente perde vendite per lentezza o complicazioni','Hai bisogno di integrare il negozio con gestionale, fatturazione, magazzino'],
+    includes: ['Configurazione catalogo, varianti, prezzi e disponibilità','Checkout ottimizzato per la conversione','Pagamenti (Stripe, PayPal, contrassegno) e spedizioni','Integrazioni con gestionali e canali di pagamento esistenti'],
+    startsFrom: 'Tempi tipici: 3-8 settimane in base al catalogo' },
+  { id: 'web-app', name: 'Web app su misura', variant: 'yellow',
+    intro: 'Quando il software che esiste non fa quello che ti serve. Strumenti web pensati per un problema specifico: configuratori, calcolatori, portali clienti, dashboard.',
+    whenItFits: ['Hai un processo che tieni in piedi con Excel e mail','Devi dare ai tuoi clienti uno strumento che oggi non esiste','Vuoi automatizzare qualcosa che oggi qualcuno fa a mano'],
+    includes: ['Analisi del processo attuale e definizione del perimetro','Sviluppo dell\'applicazione (frontend + backend)','Autenticazione utenti e gestione ruoli','Integrazione con servizi terzi (API, pagamenti, email)'],
+    startsFrom: 'Tempi tipici: dalle 4 settimane in su' },
+  { id: 'gestionali', name: 'Gestionali interni', variant: 'blue',
+    intro: 'Software che fa funzionare meglio l\'azienda dietro le quinte. CRM su misura, gestione ordini, anagrafiche, flussi di approvazione — costruiti su come lavori tu, non su come dovresti lavorare per usare un prodotto generico.',
+    whenItFits: ['I gestionali generici sul mercato non si adattano al tuo modo di lavorare','Le tue persone passano ore a fare avanti e indietro tra fogli e software','Hai dati sparsi in posti diversi che non parlano fra loro'],
+    includes: ['Mappatura dei processi e dei dati esistenti','Sviluppo del gestionale con interfaccia su misura','Importazione dati legacy e integrazione con sistemi esistenti','Formazione del team e supporto post-rilascio'],
+    startsFrom: 'Tempi tipici: dalle 6 settimane in su' },
+  { id: 'landing', name: 'Landing page', variant: 'beige',
+    intro: 'Una pagina, un obiettivo. Per una campagna, il lancio di un prodotto, l\'acquisizione di contatti. Pensata e scritta per convertire, non per essere bella e basta.',
+    whenItFits: ['Stai lanciando un nuovo prodotto o servizio','Hai una campagna pubblicitaria attiva e ti serve dove portare il traffico','Vuoi testare un\'idea sul mercato senza costruire un sito completo'],
+    includes: ['Copywriting orientato alla conversione','Design e sviluppo della pagina (mobile-first)','Form e tracciamento conversioni','A/B test sui punti chiave (su richiesta)'],
+    startsFrom: 'Tempi tipici: 1-2 settimane' },
+  { id: 'manutenzione', name: 'Manutenzione ed evoluzione', variant: 'orange',
+    intro: 'Hai già un sito che funziona ma va curato. Aggiornamenti, nuove funzionalità, ottimizzazioni, sicurezza. Senza dover ricominciare da capo.',
+    whenItFits: ['Il tuo sito attuale funziona ma ha bisogno di evolvere','Lo sviluppatore precedente non è più disponibile','Vuoi qualcuno che ci guardi con costanza, non solo a emergenza scoppiata'],
+    includes: ['Audit dello stato attuale (codice, performance, sicurezza)','Interventi di manutenzione programmata','Nuove funzionalità e correzioni bug','Reporting periodico su quello che è stato fatto'],
+    startsFrom: 'Pacchetti orari mensili o interventi a progetto' },
+];
+
+const pillClass = (variant: Service['variant']) => ({
+  orange: 'bg-orange text-black rotate-[-1.5deg]',
+  pink: 'bg-pink text-blue rotate-[1.5deg]',
+  yellow: 'bg-yellow text-blue rotate-[-1deg]',
+  blue: 'bg-blue text-yellow rotate-[1deg]',
+  beige: 'bg-beige text-fg rotate-[-0.5deg] border-2 border-fg',
+})[variant];
+
+const cardClass = (variant: Service['variant']) => ({
+  orange: 'bg-orange text-black',
+  pink: 'bg-pink text-blue',
+  yellow: 'bg-yellow text-blue',
+  blue: 'bg-blue text-yellow',
+  beige: 'bg-beige text-fg',
+})[variant];
+
+// I titoli sono text-3xl (~30px): rientrano in "large text" WCAG, soglia AA = 3:1.
+// Su orange #ff5354, bianco passa (~3.3:1) — quindi solo qui torno bianco per
+// mantenere il contrast brand del titolo. Il body resta nero (servono 4.5:1).
+const titleClass = (variant: Service['variant']) => ({
+  orange: 'text-white',
+  pink: 'text-blue',
+  yellow: 'text-blue',
+  blue: 'text-yellow',
+  beige: 'text-fg',
+})[variant];
+---
+
+<BaseLayout
+  title="Servizi: siti web, e-commerce e web app"
+  description="Siti vetrina, e-commerce, web app, gestionali, landing page e manutenzione di siti esistenti. Sviluppo freelance su misura per ogni esigenza e budget."
+>
+  <section class="bg-orange pt-fluid-6 pb-fluid-7">
+    <div class="page">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-black mb-fluid-4">Servizi</p>
+      <h1 class="text-5xl text-yellow mb-fluid-4 leading-[0.95] animate-fade-up motion-reduce:animate-none">
+        Cosa posso<br /><em class="italic text-pink">fare per te</em>.
+      </h1>
+      <p class="text-lg text-black m-0 max-w-prose">
+        Sei tipi di lavoro, una sola filosofia: capire cosa ti serve davvero
+        prima di scrivere una riga di codice. Qui sotto i dettagli di ognuno.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-beige py-fluid-5">
+    <div class="page">
+      <nav aria-label="Vai al servizio">
+        <ul role="list" class="list-none m-0 p-0 flex flex-wrap gap-fluid-2 justify-center">
+          {
+            services.map((s, i) => (
+              <li>
+                <a
+                  href={`#${s.id}`}
+                  class:list={[
+                    'inline-flex items-center gap-[0.5em] px-[1em] py-[0.55em] rounded-full no-underline font-display text-sm font-bold leading-none transition-cta hover:rotate-0 hover:-translate-y-[0.2rem] hover:scale-[1.05] hover:shadow-[0.3rem_0.35rem_0_rgba(0,0,0,0.15)]',
+                    pillClass(s.variant),
+                  ]}
+                >
+                  <span class="opacity-70 text-[0.85em]">{String(i + 1).padStart(2, '0')}</span>
+                  <span>{s.name}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <section class="bg-white py-fluid-7">
+    <div class="page">
+      <ul role="list" class="list-none m-0 p-0 flex flex-col gap-fluid-6">
+        {
+          services.map((service, i) => (
+            <li
+              id={service.id}
+              class:list={[
+                'px-fluid-5 pt-fluid-5 pb-fluid-4 rounded-lg scroll-mt-8 transition-transform duration-400 ease-soft hover:rotate-0 motion-reduce:rotate-0',
+                cardClass(service.variant),
+              ]}
+              style={`transform: rotate(${(i % 2 === 0 ? -1 : 1) * 0.6}deg)`}
+            >
+              <div class="flex items-baseline gap-fluid-3 mb-fluid-3">
+                <span
+                  class:list={[
+                    'font-display text-3xl font-bold leading-none opacity-55',
+                    titleClass(service.variant),
+                  ]}
+                  aria-hidden="true"
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h2
+                  class:list={[
+                    'm-0 font-display text-3xl leading-none tracking-[-0.02em]',
+                    titleClass(service.variant),
+                  ]}
+                >
+                  {service.name}
+                </h2>
+              </div>
+              <p class="text-lg max-w-3xl m-0 mb-fluid-4 leading-[1.5]">{service.intro}</p>
+
+              <div class="grid grid-cols-1 gap-fluid-4 mb-fluid-3 md:grid-cols-2">
+                <div>
+                  <h3 class="m-0 mb-fluid-2 font-sans text-xs font-bold uppercase tracking-[0.1em] opacity-70">Quando ha senso</h3>
+                  <ul role="list" class="list-none p-0 m-0 flex flex-col gap-fluid-2">
+                    {service.whenItFits.map((item) => (
+                      <li class="pl-5 relative text-sm leading-[1.55] before:content-['→'] before:absolute before:left-0 before:font-bold before:opacity-70">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 class="m-0 mb-fluid-2 font-sans text-xs font-bold uppercase tracking-[0.1em] opacity-70">Cosa include</h3>
+                  <ul role="list" class="list-none p-0 m-0 flex flex-col gap-fluid-2">
+                    {service.includes.map((item) => (
+                      <li class="pl-5 relative text-sm leading-[1.55] before:content-['→'] before:absolute before:left-0 before:font-bold before:opacity-70">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {service.startsFrom && (
+                <p class="mt-fluid-3 m-0 italic text-sm opacity-85">{service.startsFrom}</p>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

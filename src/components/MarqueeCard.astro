@@ -1,0 +1,123 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  /** Se true il link ha aria-hidden e tabindex -1 (per duplicati del marquee). */
+  duplicate?: boolean;
+  /** Se true la card si adatta al container (per grid responsive). */
+  fluid?: boolean;
+}
+
+const { project, duplicate = false, fluid = false } = Astro.props;
+const { data, id } = project;
+const cover = data.cover;
+const responsive = cover?.responsiveImage;
+const altText = duplicate
+  ? ''
+  : responsive?.alt ?? cover?.alt ?? `Anteprima del progetto ${data.title}`;
+
+// L'abstract su DatoCMS può contenere tag HTML residui (es. <p>...</p>)
+const cleanAbstract = data.abstract
+  ? data.abstract.replace(/<\/?[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  : null;
+---
+
+<article
+  class:list={[
+    'group relative inline-flex flex-col items-stretch gap-fluid-3 max-w-[min(40rem,92vw)] p-fluid-2 pb-fluid-3 text-blue',
+    fluid ? 'w-auto' : 'w-max',
+  ]}
+>
+  <div class="relative h-[max(16rem,13.85rem+9.54vw)] w-max self-start rounded-[1.25rem] transition-[transform,box-shadow] duration-250 ease-soft shadow-[0_0_0_transparent] group-hover:-translate-y-[0.4rem] group-hover:shadow-[0.6rem_0.7rem_0_var(--color-beige)]">
+    {
+      cover &&
+        (responsive ? (
+          <img
+            src={responsive.src}
+            srcset={responsive.webpSrcSet}
+            sizes={responsive.sizes}
+            width={cover.width}
+            height={cover.height}
+            alt={altText}
+            loading="lazy"
+            decoding="async"
+            class="h-full w-auto object-contain block rounded-[1.25rem] transition-transform duration-250 ease-soft group-hover:scale-[1.02]"
+          />
+        ) : (
+          <img
+            src={cover.url}
+            width={cover.width}
+            height={cover.height}
+            alt={altText}
+            loading="lazy"
+            decoding="async"
+            class="h-full w-auto object-contain block rounded-[1.25rem] transition-transform duration-250 ease-soft group-hover:scale-[1.02]"
+          />
+        ))
+    }
+
+    {
+      data.year && (
+        <span
+          class="absolute top-fluid-2 right-fluid-2 z-[3] font-display text-xs font-bold tracking-[0.02em] leading-none px-[0.75em] py-[0.4em] rounded-full bg-white/92 text-blue backdrop-blur-[6px] shadow-[0_0.2rem_0.6rem_rgba(0,0,0,0.15)]"
+          aria-label={`Anno: ${data.year}`}
+        >
+          {data.year}
+        </span>
+      )
+    }
+  </div>
+
+  <div class="flex flex-col gap-fluid-2 px-fluid-2 w-0 min-w-full">
+    <h3 class="m-0 font-display text-xl leading-[1.05] tracking-[-0.01em]">
+      <a
+        href={`/lavori/${id}`}
+        class="text-blue no-underline before:content-[''] before:absolute before:inset-0 before:z-[1] focus-visible:outline-none focus-visible:before:outline-[3px] focus-visible:before:outline-blue focus-visible:before:[outline-offset:4px] focus-visible:before:rounded-[1.25rem]"
+        aria-hidden={duplicate ? 'true' : undefined}
+        tabindex={duplicate ? -1 : undefined}
+      >
+        {data.title}
+      </a>
+    </h3>
+
+    {
+      cleanAbstract && (
+        <p class="m-0 font-sans text-sm text-black [display:-webkit-box] [-webkit-line-clamp:3] [line-clamp:3] [-webkit-box-orient:vertical] overflow-hidden text-ellipsis">
+          {cleanAbstract}
+        </p>
+      )
+    }
+
+    <div class="flex flex-wrap items-center justify-between gap-fluid-2 mt-fluid-1">
+      <a
+        href={`/lavori/${id}`}
+        class="relative z-[2] font-display text-sm font-bold text-blue no-underline leading-none tracking-[-0.01em] hover:underline hover:underline-offset-4"
+        aria-hidden={duplicate ? 'true' : undefined}
+        tabindex={duplicate ? -1 : undefined}
+      >
+        Caso studio →
+      </a>
+      {
+        data.websiteUrl && !duplicate && (
+          <a
+            href={data.websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group/visit relative z-[2] inline-flex items-center gap-[0.45em] px-[1.1em] py-[0.65em] bg-yellow text-blue no-underline font-display text-sm font-bold tracking-[0.02em] leading-none uppercase rounded-full -rotate-1 shadow-[0.25rem_0.25rem_0_var(--color-blue)] transition-cta hover:bg-blue hover:text-yellow hover:rotate-0 hover:-translate-x-[0.1rem] hover:-translate-y-[0.2rem] hover:scale-[1.03] hover:shadow-[0.5rem_0.55rem_0_var(--color-yellow)] active:rotate-0 active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:shadow-[0.1rem_0.1rem_0_var(--color-blue)]"
+          >
+            <span>Visita il sito</span>
+            <svg
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+              class="w-[1em] h-[1em] transition-transform duration-150 ease-soft group-hover/visit:translate-x-[0.2rem] group-hover/visit:-translate-y-[0.2rem] group-hover/visit:-rotate-3"
+            >
+              <path d="M7 17L17 7" />
+              <path d="M8 7h9v9" />
+            </svg>
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>

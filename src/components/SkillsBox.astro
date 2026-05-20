@@ -1,0 +1,93 @@
+---
+interface Props {
+  /** Se true, mostra in alto a destra il link "Continua a leggere →" verso /chi-sono */
+  showReadMore?: boolean;
+}
+const { showReadMore = false } = Astro.props;
+
+const skills = [
+  'Astro',
+  'Next.js',
+  'Nuxt',
+  'React',
+  'Vue',
+  'TypeScript',
+  'JavaScript',
+  'HTML5',
+  'CSS3',
+  'Tailwind CSS',
+  'DatoCMS',
+  'WordPress',
+  'Middleman',
+  'Ruby',
+  'GraphQL',
+  'REST APIs',
+  'Headless CMS',
+  'Visual Editing',
+  'SSG / SSR',
+  'Accessibilità WCAG',
+  'Web Vitals',
+  'SEO tecnica',
+  'Responsive design',
+  'Design system',
+  'Figma',
+  'Adobe Creative Suite',
+  'Vercel',
+  'Netlify',
+  'Git & GitHub',
+  'Project management',
+];
+---
+
+<aside
+  class="relative bg-blue text-pink rounded-lg p-fluid-5 my-fluid-6 -rotate-1 shadow-[0_1.25rem_2rem_-0.5rem_rgba(9,0,255,0.18)] [&>*]:rotate-1 motion-reduce:rotate-0 motion-reduce:[&>*]:rotate-0"
+  aria-label="Le mie skill"
+>
+  <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-pink m-0 mb-fluid-2">
+    Cosa so fare
+  </p>
+  <h2 class="font-display text-3xl leading-[0.95] tracking-[-0.02em] text-yellow m-0 mb-fluid-3">
+    Le skill,<br />in concreto.
+  </h2>
+  <p class="text-pink text-base leading-[1.5] m-0 mb-fluid-4 max-w-[36rem]">
+    Strumenti e linguaggi che uso ogni giorno — dai framework moderni
+    allo stack legacy che ancora gira bene su qualche progetto storico.
+  </p>
+
+  <ul class="list-none m-0 p-0 flex flex-wrap gap-2 items-center" role="list">
+    {
+      skills.map((s, i) => (
+        <li
+          class:list={[
+            'flex-none font-display text-base font-bold px-[0.95em] py-[0.45em] rounded-full leading-none tracking-[-0.01em] whitespace-nowrap cursor-default will-change-transform transition-[transform,box-shadow] duration-450 ease-spring animate-pill-float hover:!animate-none hover:!rotate-0 hover:scale-[1.18] hover:-translate-y-[0.35rem] hover:shadow-[0_0.75rem_1.25rem_-0.4rem_rgba(0,0,0,0.4)] hover:z-[2] motion-reduce:!animate-none motion-reduce:transform-none motion-reduce:hover:scale-105',
+            i % 2 === 0 ? 'bg-yellow text-blue' : 'bg-pink text-blue',
+          ]}
+          style={`--i: ${i}; --pill-rot: ${(i % 2 === 0 ? 1 : -1) * (1.2 + (i % 4) * 0.6)}deg; transform: rotate(var(--pill-rot)); animation-delay: calc(var(--i) * -0.18s);`}
+        >
+          {s}
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    showReadMore && (
+      <p class="m-0 mt-fluid-4 flex justify-end">
+        <a
+          class="group/more inline-flex items-center gap-[0.5em] px-[1em] py-[0.5em] bg-yellow text-blue no-underline font-display text-sm font-bold leading-none rounded-full shadow-[0.3rem_0.3rem_0_var(--color-pink)] !rotate-[2deg] transition-cta hover:!rotate-0 hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-[1.05] hover:shadow-[0.65rem_0.75rem_0_var(--color-pink)]"
+          href="/chi-sono"
+        >
+          <span>Continua a leggere</span>
+          <svg
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+            class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover/more:translate-x-[0.3rem]"
+          >
+            <path d="M5 12h14" />
+            <path d="M13 5l7 7-7 7" />
+          </svg>
+        </a>
+      </p>
+    )
+  }
+</aside>

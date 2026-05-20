@@ -1,0 +1,235 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CONTACT } from '../config';
+---
+
+<BaseLayout
+  title="Contatti — richiedi un preventivo"
+  description="Raccontami il tuo progetto: rispondo entro 24 ore lavorative con una valutazione concreta. Preventivo dettagliato in 3-5 giorni, senza extra a sorpresa."
+>
+  <!-- Page hero pop -->
+  <section class="bg-orange pt-fluid-6 pb-fluid-7">
+    <div class="page">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-black mb-fluid-4">Contatti</p>
+      <h1 class="text-5xl text-yellow mb-fluid-4 leading-[0.95] max-w-[16ch] animate-fade-up motion-reduce:animate-none">
+        Raccontami cosa <em class="italic text-pink not-italic-not-supported">ti serve</em>.
+      </h1>
+      <p class="text-lg text-black m-0 max-w-prose">
+        Più sei specifico, più la mia risposta sarà utile. Anche se hai
+        solo un'idea grezza va bene — è il mio mestiere aiutarti a
+        metterla a fuoco.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-beige py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-5 lg:grid-cols-[1.6fr_1fr] lg:items-start">
+        <!-- Form pop -->
+        <div class="bg-white rounded-lg p-fluid-5 shadow-[0.5rem_0.5rem_0_var(--color-blue)] motion-reduce:transform-none">
+          <form
+            id="contact-form"
+            class="flex flex-col gap-fluid-4"
+            action="https://formspree.io/f/xldrqgle"
+            method="POST"
+          >
+            <input type="hidden" name="_subject" value="Nuovo contatto da guidosquillace.it" />
+            <label class="sr-only" aria-hidden="true">
+              Non compilare questo campo
+              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+            </label>
+
+            <div class="flex flex-col gap-fluid-2">
+              <label for="name" class="font-semibold text-sm text-blue">Come ti chiami?</label>
+              <input
+                id="name" name="Nome" type="text" required autocomplete="name"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+              />
+            </div>
+
+            <div class="flex flex-col gap-fluid-2">
+              <label for="email" class="font-semibold text-sm text-blue">La tua email</label>
+              <input
+                id="email" name="Email" type="email" required autocomplete="email"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+              />
+            </div>
+
+            <div class="flex flex-col gap-fluid-2">
+              <label for="company" class="font-semibold text-sm text-blue">
+                Azienda <span class="text-muted font-normal text-[0.9em]">(facoltativo)</span>
+              </label>
+              <input
+                id="company" name="Azienda" type="text" autocomplete="organization"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+              />
+            </div>
+
+            <div class="flex flex-col gap-fluid-2">
+              <label for="kind" class="font-semibold text-sm text-blue">Di che tipo di progetto si tratta?</label>
+              <select
+                id="kind" name="Tipo di progetto" required
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+              >
+                <option value="">— Seleziona —</option>
+                <option value="Sito vetrina">Sito vetrina</option>
+                <option value="E-commerce">E-commerce</option>
+                <option value="Web app su misura">Web app su misura</option>
+                <option value="Gestionale interno">Gestionale interno</option>
+                <option value="Landing page">Landing page</option>
+                <option value="Manutenzione / evoluzione">Manutenzione / evoluzione di un sito esistente</option>
+                <option value="Non lo so ancora">Non lo so ancora</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-fluid-2">
+              <label for="start" class="font-semibold text-sm text-blue">Da dove parti?</label>
+              <select
+                id="start" name="Punto di partenza"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+              >
+                <option value="">— Seleziona —</option>
+                <option value="Dal budget">Ho un budget in mente</option>
+                <option value="Da un'idea">Ho un'idea da concretizzare</option>
+                <option value="Da un brief definito">Ho già un brief definito</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-fluid-2">
+              <label for="message" class="font-semibold text-sm text-blue">Raccontami il progetto</label>
+              <textarea
+                id="message" name="Messaggio" rows="6" required
+                placeholder="Cosa devi fare, per chi, e con che tempi/budget se li hai già in mente."
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors resize-y min-h-[10rem] hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+              ></textarea>
+            </div>
+
+            <div
+              id="form-status"
+              role="status"
+              aria-live="polite"
+              hidden
+              class="text-sm px-fluid-3 py-fluid-3 rounded-md font-medium m-0"
+            ></div>
+
+            <button
+              type="submit"
+              data-submit
+              class="group self-start inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-blue text-yellow border-0 cursor-pointer font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full -rotate-[1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-orange)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:rotate-[-1.5deg] disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:shadow-[0.5rem_0.5rem_0_var(--color-orange)]"
+            >
+              <span data-submit-label>Invia</span>
+              <svg
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3"
+              >
+                <path d="M5 12h14" />
+                <path d="M13 5l7 7-7 7" />
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- Aside con info card colorate, rotate alternata -->
+        <aside class="flex flex-col gap-fluid-4">
+          <div class="bg-yellow text-blue p-fluid-4 rounded-md -rotate-[1.5deg] transition-transform duration-400 ease-spring hover:rotate-0 hover:-translate-y-1 motion-reduce:rotate-0 motion-reduce:transform-none">
+            <h2 class="m-0 mb-fluid-2 font-display text-xl leading-none text-inherit">Scrivimi direttamente</h2>
+            <p class="m-0 text-sm leading-[1.55]">
+              <a
+                href={`mailto:${CONTACT.email}`}
+                class="text-inherit font-bold underline underline-offset-4 text-base"
+              >
+                {CONTACT.email}
+              </a>
+            </p>
+          </div>
+
+          <div class="bg-pink text-blue p-fluid-4 rounded-md rotate-[1.5deg] transition-transform duration-400 ease-spring hover:rotate-0 hover:-translate-y-1 motion-reduce:rotate-0 motion-reduce:transform-none">
+            <h2 class="m-0 mb-fluid-2 font-display text-xl leading-none text-inherit">Tempi di risposta</h2>
+            <p class="m-0 text-sm leading-[1.55] text-black">
+              Rispondo entro <strong>12 ore</strong> nei giorni lavorativi.
+              Se entro 24 ore non hai ricevuto nulla, è successo qualcosa:
+              scrivimi di nuovo.
+            </p>
+          </div>
+
+          <div class="bg-blue text-yellow p-fluid-4 rounded-md -rotate-1 transition-transform duration-400 ease-spring hover:rotate-0 hover:-translate-y-1 motion-reduce:rotate-0 motion-reduce:transform-none">
+            <h2 class="m-0 mb-fluid-2 font-display text-xl leading-none text-inherit">Cosa succede dopo</h2>
+            <ol class="m-0 pl-5 flex flex-col gap-fluid-1 text-sm leading-[1.55]">
+              <li>Leggo quello che mi mandi.</li>
+              <li>Ti rispondo dicendo se posso aiutarti.</li>
+              <li>Se sì, fissiamo una call di 30 min per allinearci.</li>
+              <li>Ricevi un preventivo dettagliato in 3-5 giorni lavorativi.</li>
+            </ol>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const form = document.getElementById('contact-form');
+    const status = document.getElementById('form-status');
+    const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
+    const submitLabel = form?.querySelector<HTMLSpanElement>('[data-submit-label]');
+    const defaultLabel = submitLabel?.textContent ?? 'Invia';
+
+    if (form instanceof HTMLFormElement && status && submit && submitLabel) {
+      const STATUS_BASE = 'text-sm px-fluid-3 py-fluid-3 rounded-md font-medium m-0';
+
+      const setStatus = (text: string, tone: 'info' | 'success' | 'error') => {
+        const palette = {
+          info: 'bg-beige text-blue',
+          success: 'bg-yellow text-blue',
+          error: 'bg-pink text-blue',
+        }[tone];
+        status.className = `${STATUS_BASE} ${palette}`;
+        status.textContent = text;
+        status.hidden = false;
+      };
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        submit.setAttribute('aria-busy', 'true');
+        submit.disabled = true;
+        submitLabel.textContent = 'Invio in corso…';
+        setStatus('Sto inviando il messaggio…', 'info');
+
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' },
+          });
+
+          if (response.ok) {
+            setStatus(
+              'Grazie! Ho ricevuto il tuo messaggio. Ti rispondo entro 24 ore lavorative.',
+              'success',
+            );
+            form.reset();
+          } else {
+            const data = await response.json().catch(() => null);
+            const errors = Array.isArray(data?.errors)
+              ? data.errors.map((e: { message?: string }) => e.message).filter(Boolean).join(' ')
+              : '';
+            setStatus(
+              errors || 'Qualcosa è andato storto. Riprova o scrivimi direttamente via email.',
+              'error',
+            );
+          }
+        } catch {
+          setStatus(
+            'Connessione non riuscita. Controlla la rete o scrivimi direttamente via email.',
+            'error',
+          );
+        } finally {
+          submit.removeAttribute('aria-busy');
+          submit.disabled = false;
+          submitLabel.textContent = defaultLabel;
+        }
+      });
+    }
+  </script>
+</BaseLayout>

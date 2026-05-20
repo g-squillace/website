@@ -1,0 +1,125 @@
+[
+  {
+    "title": "Millenovecentoquattro",
+    "website_url": "https://millenovecentoquattro.it",
+    "year": 2024,
+    "budget_tier": "pro-bono",
+    "update_only": true,
+    "abstract": "Sito istituzionale per un'associazione di promozione sociale senese che usa lo sport — il calcio in particolare — come leva per progetti civici. Lavoro pro bono, fatto in cambio del fatto che ne sono socio."
+  },
+  {
+    "title": "Nobile Contrada dell'Aquila",
+    "slug": "nobile-contrada-dell-aquila",
+    "website_url": "https://www.contradadellaquila.com",
+    "year": 2025,
+    "budget_tier": "standard",
+    "update_only": true,
+    "abstract": "Sito istituzionale per la Nobile Contrada dell'Aquila di Siena. Tema WordPress custom progettato per supportare un flusso editoriale multi-utente, identità visiva ed esperienza interamente curate da me."
+  },
+  {
+    "title": "Studio commerciale Mastrandrea",
+    "website_url": "https://www.studiocommercialemastrandrea.it",
+    "year": 2021,
+    "budget_tier": "standard",
+    "update_only": true,
+    "abstract": "Sito vetrina per uno studio commercialista senese con quarant'anni di storia. Stack Next.js + DatoCMS, design interamente curato da me — un'identità sobria e diretta, pensata per dare subito fiducia a imprese e privati."
+  },
+  {
+    "title": "Dalet studio di architetti",
+    "website_url": "https://www.daletarchitettura.com",
+    "year": 2024,
+    "budget_tier": "standard",
+    "update_only": true,
+    "abstract": "Sito-portfolio per uno studio di architettura bolognese: layout fotografico essenziale che lascia parlare i progetti, gestione case study via DatoCMS, design interamente curato da me."
+  },
+  {
+    "url": "https://comeillatte.it",
+    "title": "Come il Latte",
+    "website_url": "https://comeillatte.it",
+    "device": "phone",
+    "year": 2026,
+    "budget_tier": "low",
+    "placeholder": true,
+    "abstract": "Landing low-budget per una gelateria artigianale di San Lorenzo a Roma. Single-page in quattro lingue, focus su materia prima e identità minimal-premium."
+  },
+  {
+    "url": "https://filusesiena.it",
+    "title": "Filusè Siena",
+    "website_url": "https://filusesiena.it",
+    "device": "phone",
+    "year": 2023,
+    "budget_tier": "low",
+    "placeholder": true,
+    "abstract": "Landing mobile-first per una pizzeria/braceria senese: menu sfogliabile dal telefono, ordini diretti e via piattaforme terze, gestione contenuti completamente autonoma via DatoCMS."
+  },
+  {
+    "url": "https://www.studiobcmavvocati.it",
+    "title": "Studio Legale BCM",
+    "website_url": "https://www.studiobcmavvocati.it",
+    "device": "browser",
+    "year": 2025,
+    "budget_tier": "standard",
+    "placeholder": true,
+    "abstract": "Sito vetrina per uno studio legale associato senese con sede secondaria a Grosseto. Aree di competenza chiare, blog redazionale, FAQ — tutto gestito in autonomia dallo studio via DatoCMS."
+  },
+  {
+    "url": "https://www.schedainordine.it",
+    "title": "Scheda in Ordine",
+    "website_url": "https://www.schedainordine.it",
+    "device": "browser",
+    "year": 2026,
+    "budget_tier": "low",
+    "placeholder": true,
+    "abstract": "Sito vetrina iper-essenziale per un servizio di gestione recensioni Google rivolto a ristoranti e hotel. Astro + Tailwind, niente CMS, identità visiva partita dal brief del cliente."
+  },
+  {
+    "url": "https://www.francozampetti.com",
+    "title": "Franco Zampetti",
+    "website_url": "https://www.francozampetti.com",
+    "device": "browser",
+    "year": 2025,
+    "budget_tier": "standard",
+    "placeholder": true,
+    "abstract": "Migrazione di stack per il portfolio del fotografo Franco Zampetti — specialista di fotografia zenitale d'architettura. Da framework legacy a Next.js + Tailwind, preservando il modello DatoCMS esistente. Performance e SEO al centro."
+  },
+  {
+    "url": "https://giojacatering.it",
+    "title": "Gioja Catering",
+    "website_url": "https://giojacatering.it",
+    "device": "browser",
+    "year": 2026,
+    "budget_tier": "standard",
+    "placeholder": true,
+    "abstract": "Brand identity completa e sito vetrina per un catering senese con oltre trent'anni di esperienza. Logo, sistema visivo coordinato, fotografia editoriale, sito Next + DatoCMS — gestione contenuti autonoma e SEO curata fin dall'architettura."
+  },
+  {
+    "url": "https://avvocatovincenzodibenedetto.it",
+    "title": "Avv. Vincenzo Di Benedetto",
+    "website_url": "https://avvocatovincenzodibenedetto.it",
+    "device": "browser",
+    "year": 2021,
+    "budget_tier": "low",
+    "placeholder": true,
+    "abstract": "Landing istituzionale per un avvocato penalista senese. Single-page sobria con curriculum, archivio rassegna stampa e contatti. Stack Next + Tailwind + DatoCMS per la gestione autonoma delle notizie."
+  },
+  {
+    "url": "https://edoardoconticini.it",
+    "title": "Edoardo Conticini",
+    "website_url": "https://edoardoconticini.it",
+    "device": "browser",
+    "year": 2020,
+    "budget_tier": "low",
+    "placeholder": true,
+    "abstract": "Sito vetrina per un medico reumatologo dell'Università di Siena: profilo professionale, prestazioni cliniche, prenotazione online. Stack Next + DatoCMS, attenzione alla SEO."
+  },
+  {
+    "url": "https://maglia90.it",
+    "title": "Maglia 90",
+    "website_url": "https://maglia90.it",
+    "device": "browser",
+    "year": 2026,
+    "budget_tier": "low",
+    "placeholder": true,
+    "abstract": "Landing per un'attività specializzata nella compravendita di maglie da calcio vintage anni '90 e 2000. Sito leggero in Astro, focus sulla collezione e sul contatto diretto."
+  }
+]

@@ -1,0 +1,83 @@
+---
+import { SITE, SOCIAL } from '../config';
+import Logo from './Logo.astro';
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="relative bg-orange text-white pt-0 pb-fluid-3 overflow-hidden">
+  <!-- Marquee testuale in cima -->
+  <div
+    class="relative z-[2] overflow-hidden py-fluid-2 border-b-2 border-white/25 mb-fluid-3 motion-reduce:[&_>_*]:!animate-none"
+    aria-hidden="true"
+  >
+    <div class="flex gap-fluid-4 w-max animate-footer-marquee">
+      {
+        Array.from({ length: 6 }).map(() => (
+          <span class="inline-flex items-center gap-fluid-4 font-display text-2xl text-yellow whitespace-nowrap leading-none tracking-[-0.02em]">
+            <span>Scrivimi</span>
+            <span class="inline-flex items-center justify-center text-pink w-[0.65em] h-[0.8em] shrink-0">
+              <Logo />
+            </span>
+            <span>Parliamone</span>
+            <span class="inline-flex items-center justify-center text-pink w-[0.65em] h-[0.8em] shrink-0">
+              <Logo />
+            </span>
+            <span>Iniziamo</span>
+            <span class="inline-flex items-center justify-center text-pink w-[0.65em] h-[0.8em] shrink-0">
+              <Logo />
+            </span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="page relative z-[2] flex flex-col gap-fluid-5">
+    <!-- Banner CTA compatto -->
+    <section class="grid grid-cols-1 gap-fluid-4 items-end md:grid-cols-[2fr_1fr]" aria-label="Contatto">
+      <h2 class="font-display text-4xl text-yellow leading-[0.95] m-0 tracking-[-0.02em]">
+        Hai un progetto<br />in mente?
+      </h2>
+      <div class="flex flex-col gap-fluid-2 items-start md:items-end">
+        <a
+          href="/contatti"
+          class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-yellow text-blue font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-blue)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-blue)] hover:bg-pink active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-blue)]"
+        >
+          <span>Scrivimi</span>
+          <svg
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+            class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3"
+          >
+            <path d="M5 12h14" />
+            <path d="M13 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Riga finale super-compatta -->
+    <div class="flex flex-wrap justify-between items-center gap-fluid-3 pt-fluid-3 border-t-2 border-white/25 text-white text-xs">
+      <p class="m-0">© {currentYear} {SITE.name}</p>
+      {
+        SOCIAL.length > 0 && (
+          <ul class="list-none m-0 p-0 flex gap-fluid-3" aria-label="Social">
+            {SOCIAL.map((s) => (
+              <li>
+                <a
+                  href={s.href}
+                  rel="me noopener"
+                  target="_blank"
+                  class="text-pink hover:text-yellow"
+                >
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,416 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MarqueeCard from '../components/MarqueeCard.astro';
+import SkillsBox from '../components/SkillsBox.astro';
+
+const allProjects = (await getCollection('projects')).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
+
+// Per il marquee infinito: duplichiamo la lista (i duplicati sono aria-hidden).
+const marqueeItems = [
+  ...allProjects.map((p) => ({ project: p, duplicate: false })),
+  ...allProjects.map((p) => ({ project: p, duplicate: true })),
+];
+---
+
+<BaseLayout
+  description="Sviluppatore web freelance. Costruisco siti, e-commerce, web app e gestionali su misura. Parti dal tuo budget, da un'idea o da un brief già definito."
+>
+  <!-- =============================================================
+       HERO
+       ============================================================= -->
+  <section class="bg-orange pt-fluid-6 pb-fluid-7 overflow-hidden">
+    <div class="page relative">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-black mb-fluid-4">
+        Guido Squillace · Web developer
+      </p>
+      <h1 class="text-5xl text-yellow mb-fluid-4 max-w-[16ch] leading-[0.95] animate-fade-up motion-reduce:animate-none">
+        Siti web che partono <em class="italic text-pink inline-block origin-center animate-hero-em-wiggle motion-reduce:animate-none">dove sei tu</em>.
+      </h1>
+      <p class="text-lg text-black max-w-prose mb-fluid-5 m-0">
+        Vetrine, e-commerce, applicazioni e gestionali costruiti su misura.
+        Si parte dal budget, da un'idea, o da un brief già definito —
+        il risultato non cambia.
+      </p>
+      <div class="flex flex-wrap gap-fluid-3">
+        <a
+          href="/contatti"
+          class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-yellow text-blue no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full -rotate-[1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-blue)] transition-cta animate-pop-in motion-reduce:animate-none hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:bg-pink hover:shadow-[0.95rem_1.1rem_0_var(--color-blue)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-blue)]"
+        >
+          <span>Parliamone</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+               class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+            <path d="M5 12h14" />
+            <path d="M13 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a
+          href="/lavori"
+          class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-pink text-blue no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-yellow)] transition-cta animate-pop-in motion-reduce:animate-none hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-yellow)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-yellow)]"
+        >
+          <span>Vedi i lavori</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+               class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-translate-y-[0.4rem] group-hover:-rotate-3">
+            <path d="M7 17L17 7" />
+            <path d="M8 7h9v9" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       TRE MODI PER COMINCIARE
+       ============================================================= -->
+  <section class="bg-beige py-fluid-7">
+    <div class="page">
+      <header class="mb-fluid-6 max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Come si parte</p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Tre modi per cominciare</h2>
+        <p class="text-base text-muted m-0">
+          Non serve avere tutto pronto. Da qualsiasi punto si parta,
+          il primo passo è sempre lo stesso: una conversazione.
+        </p>
+      </header>
+
+      <ul role="list" class="list-none m-0 p-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-fluid-5">
+        {[
+          { tier: 'orange', bg: 'bg-orange', rot: '-rotate-1',         anim: 'animate-step-bob',  title: 'Dal budget',          text: 'Hai una cifra in mente. Costruiamo il sito che ci sta dentro, senza compromessi sull\'essenziale e senza sorprese a fine progetto.', svg: 'piggy' },
+          { tier: 'pink',   bg: 'bg-pink',   rot: 'rotate-1',          anim: 'animate-step-sway', title: "Da un'idea",          text: "Hai un'intuizione, ma serve metterla a fuoco. La trasformiamo insieme in un perimetro chiaro: cosa fa il sito, per chi, entro quando.", svg: 'bulb' },
+          { tier: 'yellow', bg: 'bg-yellow', rot: '-rotate-[0.5deg]',  anim: 'animate-step-tilt', title: 'Da un brief definito', text: "Sai già esattamente cosa vuoi. Mettiamoci d'accordo su tempi, costi e modalità — e si parte.", svg: 'doc' },
+        ].map((step) => (
+          <li class:list={[
+            'group p-fluid-5 rounded-lg shadow-[0.45rem_0.45rem_0_var(--color-blue)] transition-cta text-fg motion-reduce:animate-none hover:[animation-play-state:paused] hover:rotate-0 hover:-translate-x-[0.25rem] hover:-translate-y-[0.5rem] hover:scale-[1.03] hover:shadow-[0.85rem_1rem_0_var(--color-blue)] active:rotate-0 active:translate-x-[0.15rem] active:translate-y-[0.15rem] active:shadow-[0.15rem_0.15rem_0_var(--color-blue)]',
+            step.bg,
+            step.rot,
+            step.anim,
+          ]}>
+            <span class="inline-flex w-16 h-16 mb-fluid-3 text-current animate-step-icon-wobble motion-reduce:animate-none" aria-hidden="true">
+              {step.svg === 'piggy' && (
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                  {/* Salvadanaio */}
+                  <path d="M11 32c0-9 8-16 18-16h6c4 0 7 1 10 3l4-3v8a14 14 0 0 1 4 8h3v8h-3c-1 3-3 5-5 7v6h-7v-3a18 18 0 0 1-12 0v3h-7v-6c-6-3-11-9-11-15z" fill="#fff" fill-opacity="0.55" />
+                  <circle cx="40" cy="29" r="1.6" fill="currentColor" stroke="none" />
+                  {/* Slot monete */}
+                  <path d="M22 14h12" stroke-width="3" />
+                  {/* Moneta che cade */}
+                  <circle cx="28" cy="9" r="3.5" />
+                  <path d="M27 7.5h2M27 10.5h2" stroke-width="1.5" />
+                  {/* Sparkles */}
+                  <path d="M53 12l1.5 3 3 1.5-3 1.5L53 21l-1.5-3-3-1.5 3-1.5z" stroke-width="1.5" />
+                  <path d="M9 22l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" stroke-width="1.5" />
+                </svg>
+              )}
+              {step.svg === 'bulb' && (
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                  {/* Lampadina */}
+                  <path d="M32 8a14 14 0 0 0-8 25.5c1.4 1 2.3 2.6 2.3 4.4V42a2 2 0 0 0 2 2h7.4a2 2 0 0 0 2-2v-4.1c0-1.8.9-3.4 2.3-4.4A14 14 0 0 0 32 8z" fill="#fff" fill-opacity="0.55" />
+                  {/* Filamento */}
+                  <path d="M27 25c1.5 2 3 3 5 3s3.5-1 5-3" stroke-width="1.8" />
+                  <path d="M32 28v6" stroke-width="1.8" />
+                  {/* Base */}
+                  <path d="M27 48h10M28 52h8" />
+                  {/* Raggi */}
+                  <path d="M32 2v4M50 11l-3 3M14 11l3 3M56 28h-4M12 28H8" stroke-width="2" />
+                  {/* Sparkles */}
+                  <path d="M53 40l1 2.5 2.5 1-2.5 1L53 47l-1-2.5-2.5-1 2.5-1z" stroke-width="1.4" />
+                  <path d="M11 44l.8 2 2 .8-2 .8L11 50l-.8-2-2-.8 2-.8z" stroke-width="1.4" />
+                </svg>
+              )}
+              {step.svg === 'doc' && (
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                  {/* Documento principale */}
+                  <path d="M16 8h22l10 10v34a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#fff" fill-opacity="0.55" />
+                  <path d="M38 8v10h10" />
+                  {/* Checklist 3 righe */}
+                  <rect x="20" y="26" width="5" height="5" rx="1" />
+                  <path d="M21 28.5l1.3 1.3L24 27.5" stroke-width="1.6" />
+                  <path d="M28 28.5h12" />
+                  <rect x="20" y="35" width="5" height="5" rx="1" />
+                  <path d="M21 37.5l1.3 1.3L24 36.5" stroke-width="1.6" />
+                  <path d="M28 37.5h14" />
+                  <rect x="20" y="44" width="5" height="5" rx="1" />
+                  <path d="M28 46.5h10" />
+                  {/* Penna sovrapposta */}
+                  <path d="M50 6l6 6-14 14-6-6z" fill="#fff" fill-opacity="0.55" />
+                  <path d="M50 6l3-3 6 6-3 3" />
+                  <path d="M36 26l-2 8 8-2" />
+                  {/* Sparkle */}
+                  <path d="M9 18l1 2.2 2.2 1-2.2 1L9 24.5l-1-2.3-2.2-1 2.2-1z" stroke-width="1.4" />
+                </svg>
+              )}
+            </span>
+            <h3 class="font-display text-2xl leading-tight mb-fluid-3 text-current">{step.title}</h3>
+            <p class="m-0 text-base leading-[1.55]">{step.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       COME LAVORO — dal moodboard al sito
+       ============================================================= -->
+  <section class="py-fluid-7">
+    <div class="page">
+      <header class="text-center mx-auto mb-fluid-6 max-w-prose [&>*]:mx-auto">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Il flusso</p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Dal tuo moodboard al sito online</h2>
+        <p class="text-base text-muted m-0">
+          Ti propongo un moodboard — elegante, minimal, moderno, in
+          bianco e nero, super colorato, fotografico — costruito su
+          quello che mi hai raccontato. Da lì lo trasformo in un sito
+          vero, mantenendo intatto il carattere giusto per te.
+        </p>
+      </header>
+
+      <ul role="list" class="list-none m-0 mb-fluid-6 p-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-fluid-3" aria-label="Esempi di mood">
+        {[
+          { label: 'Elegante',       glyph: 'Aa', rot: -2,   bg: 'bg-[#f5f1ea]',  fg: 'text-[#3a2f25]', extras: 'border border-[#d8c9b4]',                                                                  glyphFont: "[font-family:'Times_New_Roman',serif] italic", textShadow: '' },
+          { label: 'Minimal',        glyph: '─',  rot: 1.5,  bg: 'bg-white',       fg: 'text-[#111]',     extras: 'border-2 border-[#111]',                                                                  glyphFont: 'font-display',                                  textShadow: '' },
+          { label: 'Moderno',        glyph: '◆',  rot: -1.5, bg: 'bg-orange',      fg: 'text-yellow',     extras: '',                                                                                       glyphFont: 'font-display',                                  textShadow: '' },
+          { label: 'Bianco & nero',  glyph: '●',  rot: 2,    bg: 'bg-[#111]',      fg: 'text-white',      extras: '',                                                                                       glyphFont: 'font-display',                                  textShadow: '' },
+          { label: 'Colorato',       glyph: '✦',  rot: -1,   bg: '',               fg: 'text-white',      extras: '[background:linear-gradient(135deg,var(--color-pink),var(--color-yellow),var(--color-blue))]', glyphFont: 'font-display',                          textShadow: '[text-shadow:0_1px_2px_rgba(0,0,0,0.3)]' },
+          { label: 'Fotografico',    glyph: '▣',  rot: 1.5,  bg: '',               fg: 'text-white',      extras: '[background:linear-gradient(180deg,rgba(0,0,0,0.3),rgba(0,0,0,0.6)),radial-gradient(circle_at_30%_30%,#888_0%,#222_70%)]', glyphFont: 'font-display',                              textShadow: '' },
+        ].map((m, i) => (
+          <li
+            class:list={[
+              'relative aspect-square flex flex-col gap-fluid-2 p-fluid-3 rounded-md overflow-hidden',
+              m.bg,
+              m.fg,
+              m.extras,
+              m.textShadow,
+              'animate-mood-bob motion-reduce:animate-none',
+              '[transition:transform_0.6s_var(--ease-spring),box-shadow_0.4s_var(--ease-soft)]',
+              'hover:[animation-play-state:paused] hover:scale-[1.08] hover:-translate-y-1 hover:shadow-[0_1.25rem_2.5rem_-0.5rem_rgba(0,0,0,0.25)] hover:z-10',
+              'motion-reduce:transform-none',
+            ]}
+            style={`transform: rotate(${m.rot}deg); animation-delay: ${i * 0.35}s;`}
+          >
+            <span
+              class:list={[
+                'flex-1 flex items-center justify-center text-[clamp(2.5rem,1.6rem+4vw,4rem)] leading-none animate-mood-glyph motion-reduce:animate-none',
+                m.glyphFont,
+              ]}
+              style={`animation-delay: ${i * 0.5 + 0.2}s;`}
+              aria-hidden="true"
+            >
+              {m.glyph}
+            </span>
+            <span class="font-sans text-xs font-semibold uppercase tracking-[0.08em]">{m.label}</span>
+          </li>
+        ))}
+      </ul>
+
+      <ol role="list" class="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-3 gap-fluid-4" aria-label="Le fasi del progetto">
+        <li class="p-fluid-5 rounded-lg bg-orange text-white -rotate-1 shadow-[0.45rem_0.45rem_0_var(--color-blue)] transition-cta hover:rotate-0 hover:-translate-x-[0.25rem] hover:-translate-y-[0.5rem] hover:scale-[1.03] hover:shadow-[0.85rem_1rem_0_var(--color-blue)] motion-reduce:rotate-0 motion-reduce:transform-none">
+          <span class="font-display text-5xl text-yellow leading-none mb-fluid-3 block" aria-hidden="true">01</span>
+          <h3 class="font-display text-xl leading-tight mb-fluid-2">Ti propongo il moodboard</h3>
+          <p class="m-0 text-base opacity-90 leading-[1.55] text-black">
+            Dopo una prima chiacchierata per capire chi sei e cosa vuoi
+            raccontare, ti porto un moodboard — riferimenti, palette,
+            esempi — come punto di partenza visivo concreto su cui iterare.
+          </p>
+        </li>
+        <li class="p-fluid-5 rounded-lg bg-orange text-white rotate-1 shadow-[0.45rem_0.45rem_0_var(--color-blue)] transition-cta hover:rotate-0 hover:-translate-x-[0.25rem] hover:-translate-y-[0.5rem] hover:scale-[1.03] hover:shadow-[0.85rem_1rem_0_var(--color-blue)] motion-reduce:rotate-0 motion-reduce:transform-none">
+          <span class="font-display text-5xl text-yellow leading-none mb-fluid-3 block" aria-hidden="true">02</span>
+          <h3 class="font-display text-xl leading-tight mb-fluid-2">Sviluppo il sito</h3>
+          <p class="m-0 text-base opacity-90 leading-[1.55] text-black">
+            Codice moderno (Astro, Next, Tailwind), accessibile da tastiera
+            e screen reader, performante davvero — Web Vitals verdi su
+            mobile reale, non solo in dev.
+          </p>
+        </li>
+        <li class="p-fluid-5 rounded-lg bg-orange text-white -rotate-[0.5deg] shadow-[0.45rem_0.45rem_0_var(--color-blue)] transition-cta hover:rotate-0 hover:-translate-x-[0.25rem] hover:-translate-y-[0.5rem] hover:scale-[1.03] hover:shadow-[0.85rem_1rem_0_var(--color-blue)] motion-reduce:rotate-0 motion-reduce:transform-none">
+          <span class="font-display text-5xl text-yellow leading-none mb-fluid-3 block" aria-hidden="true">03</span>
+          <h3 class="font-display text-xl leading-tight mb-fluid-2">Pubblichiamo &amp; supporto</h3>
+          <p class="m-0 text-base opacity-90 leading-[1.55] text-black">
+            Deploy su Netlify o Vercel, formazione su DatoCMS se serve,
+            e supporto continuativo per evolvere il sito nel tempo.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       SERVIZI — titoli grandi con bubble su hover
+       ============================================================= -->
+  <section class="bg-blue py-fluid-7 relative z-20">
+    <div class="page">
+      <header class="text-center mx-auto mb-fluid-6 max-w-prose [&>*]:mx-auto">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-white mb-fluid-3">Servizi</p>
+        <h2 class="font-display text-3xl text-white mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Cosa posso costruire per te</h2>
+      </header>
+
+      <ul role="list" class="list-none m-0 p-0 flex flex-col mt-fluid-5">
+        {[
+          { side: 'left', title: 'Siti vetrina', text: 'La presenza online che ti rappresenta. Veloce, leggibile, ottimizzato per Google e per chi ti cerca col telefono in mano.' },
+          { side: 'right', title: 'E-commerce', text: 'Negozi online che vendono davvero: catalogo solido, checkout senza attriti, integrazione con i tuoi gestionali e canali di pagamento.' },
+          { side: 'left', title: 'Web app su misura', text: 'Strumenti web pensati per un problema specifico: configuratori, calcolatori, dashboard, portali clienti. Quando il software standard non basta.' },
+          { side: 'right', title: 'Gestionali interni', text: 'Software che fa funzionare meglio l\'azienda dietro le quinte: CRM su misura, gestione ordini, anagrafiche, flussi di approvazione.' },
+          { side: 'left', title: 'Landing page', text: 'Una pagina che fa una cosa sola, e la fa bene: convertire. Per campagne, lanci di prodotto, acquisizione contatti.' },
+          { side: 'right', title: 'Manutenzione ed evoluzione', text: 'Hai già un sito che va aggiornato, esteso, o messo in sicurezza? Posso prendermi cura di quello che hai senza rifare tutto da zero.' },
+        ].map((s) => (
+          <li
+            tabindex="0"
+            class:list={[
+              'group relative flex w-full outline-none cursor-default py-fluid-3 border-t-2 border-pink last:border-b-2 last:border-b-pink z-10 hover:z-50 focus-within:z-50',
+              s.side === 'left' ? 'justify-start text-left' : 'justify-end text-right',
+            ]}
+          >
+            <h3
+              class:list={[
+                'font-display text-5xl leading-[0.95] m-0 text-pink tracking-[-0.02em] inline-block [transition:color_0.15s_var(--ease-soft),transform_0.45s_var(--ease-spring),text-shadow_0.25s_var(--ease-soft)] group-hover:text-yellow group-focus-visible:text-yellow group-hover:animate-srv-pop group-focus-visible:animate-srv-pop group-hover:[text-shadow:2px_2px_0_var(--color-orange),4px_4px_0_var(--color-orange),6px_6px_0_var(--color-orange),8px_8px_0_var(--color-orange),10px_10px_0_rgba(0,0,0,0.15)] group-focus-visible:[text-shadow:2px_2px_0_var(--color-orange),4px_4px_0_var(--color-orange),6px_6px_0_var(--color-orange),8px_8px_0_var(--color-orange),10px_10px_0_rgba(0,0,0,0.15)] motion-reduce:group-hover:animate-none motion-reduce:group-focus-visible:animate-none motion-reduce:group-hover:[text-shadow:none] motion-reduce:group-focus-visible:[text-shadow:none]',
+                s.side === 'left' ? 'origin-bottom-left' : 'origin-bottom-right',
+              ]}
+            >
+              {s.title}
+            </h3>
+            <div
+              class:list={[
+                'absolute top-[calc(100%+1rem)] max-w-[min(28rem,90%)] px-fluid-4 py-fluid-3 bg-orange text-white font-sans text-sm leading-[1.55] font-medium rounded-[1.25rem] shadow-[0_1.25rem_2rem_-0.5rem_rgba(0,0,0,0.35)] opacity-0 translate-y-[-0.5rem] scale-95 pointer-events-none transition-[opacity,transform] duration-250 ease-soft z-[100] text-left',
+                s.side === 'left'
+                  ? 'left-0 -rotate-[2.5deg] origin-top-left group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:pointer-events-auto before:content-[""] before:absolute before:-top-2 before:left-8 before:w-4 before:h-4 before:bg-orange before:rotate-45 before:rounded-[2px]'
+                  : 'right-0 rotate-[2.5deg] origin-top-right group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:pointer-events-auto before:content-[""] before:absolute before:-top-2 before:right-8 before:w-4 before:h-4 before:bg-orange before:rotate-45 before:rounded-[2px]',
+              ]}
+            >
+              {s.text}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <p class="text-center mt-fluid-6 m-0">
+        <a href="/servizi" class="text-pink hover:text-yellow font-display text-base font-bold no-underline hover:underline hover:underline-offset-4">
+          Approfondisci ogni servizio →
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       LAVORI RECENTI — marquee continuo
+       ============================================================= -->
+  {
+    allProjects.length > 0 && (
+      <section class="bg-pink py-fluid-7 overflow-hidden">
+        <div class="page">
+          <header class="text-center mx-auto mb-fluid-6 max-w-prose [&>*]:mx-auto">
+            <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-blue mb-fluid-3">Lavori recenti</p>
+            <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Una selezione</h2>
+          </header>
+        </div>
+
+        <div class="relative flex items-center w-full" data-marquee>
+          <button
+            type="button"
+            data-marquee-prev
+            aria-label="Scorri verso sinistra a velocità doppia"
+            class="group absolute left-fluid-5 z-10 flex-none inline-flex items-center justify-center gap-1 min-w-14 h-14 px-[0.85rem] rounded-full bg-blue text-yellow border-0 cursor-pointer shadow-[0_0_0_transparent] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-105 hover:shadow-[0.55rem_0.65rem_0_var(--color-beige)] focus-visible:outline-3 focus-visible:outline-orange focus-visible:[outline-offset:4px] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:scale-[0.98] active:shadow-[0.15rem_0.15rem_0_var(--color-beige)] sm:min-w-14 max-sm:min-w-11 max-sm:h-11"
+          >
+            <span class="hidden sm:inline-block font-display text-sm font-bold leading-none tracking-[-0.02em] text-yellow bg-white/18 px-[0.45em] py-[0.25em] rounded-full group-hover:bg-yellow group-hover:text-blue group-focus-visible:bg-yellow group-focus-visible:text-blue" aria-hidden="true">×2</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6 max-sm:w-4 max-sm:h-4">
+              <path d="M15 6l-6 6 6 6" />
+            </svg>
+          </button>
+
+          <div class="w-full overflow-hidden" aria-label="Carosello dei lavori">
+            <ul
+              data-marquee-track
+              class="list-none m-0 p-0 flex gap-fluid-5 w-max animate-marquee-scroll"
+              style={`--marquee-count: ${allProjects.length}; animation-duration: calc(var(--marquee-count, 10) * 6s); animation-play-state: running;`}
+            >
+              {marqueeItems.map((item) => (
+                <li class="flex-none">
+                  <MarqueeCard project={item.project} duplicate={item.duplicate} />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <button
+            type="button"
+            data-marquee-next
+            aria-label="Scorri verso destra a velocità doppia"
+            class="group absolute right-fluid-5 z-10 flex-none inline-flex items-center justify-center gap-1 min-w-14 h-14 px-[0.85rem] rounded-full bg-blue text-yellow border-0 cursor-pointer shadow-[0_0_0_transparent] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-105 hover:shadow-[0.55rem_0.65rem_0_var(--color-beige)] focus-visible:outline-3 focus-visible:outline-orange focus-visible:[outline-offset:4px] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:scale-[0.98] active:shadow-[0.15rem_0.15rem_0_var(--color-beige)] sm:min-w-14 max-sm:min-w-11 max-sm:h-11"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6 max-sm:w-4 max-sm:h-4">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+            <span class="hidden sm:inline-block font-display text-sm font-bold leading-none tracking-[-0.02em] text-yellow bg-white/18 px-[0.45em] py-[0.25em] rounded-full group-hover:bg-yellow group-hover:text-blue group-focus-visible:bg-yellow group-focus-visible:text-blue" aria-hidden="true">×2</span>
+          </button>
+        </div>
+
+        <script is:inline>
+          (function () {
+            const wrap = document.querySelector('[data-marquee]');
+            if (!wrap) return;
+            const track = wrap.querySelector('[data-marquee-track]');
+            const prev = wrap.querySelector('[data-marquee-prev]');
+            const next = wrap.querySelector('[data-marquee-next]');
+            if (!track || !prev || !next) return;
+            const setFast = (reverse) => {
+              track.style.animationDuration = '14s';
+              track.style.animationDirection = reverse ? 'reverse' : 'normal';
+            };
+            const reset = () => {
+              track.style.animationDuration = '';
+              track.style.animationDirection = '';
+            };
+            const bindBoost = (btn, reverse) => {
+              btn.addEventListener('mouseenter', () => setFast(reverse));
+              btn.addEventListener('mouseleave', reset);
+              btn.addEventListener('focus', () => setFast(reverse));
+              btn.addEventListener('blur', reset);
+              btn.addEventListener('touchstart', () => setFast(reverse), { passive: true });
+              btn.addEventListener('touchend', reset);
+              btn.addEventListener('touchcancel', reset);
+            };
+            bindBoost(prev, true);
+            bindBoost(next, false);
+          })();
+        </script>
+
+        <div class="page">
+          <p class="text-center mt-fluid-6 m-0">
+            <a
+              href="/lavori"
+              class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-blue text-yellow no-underline font-display text-2xl font-bold leading-none tracking-[-0.02em] rounded-full -rotate-[1.5deg] shadow-[0.4rem_0.4rem_0_#ffffff,0.85rem_0.9rem_0_var(--color-orange)] transition-cta hover:rotate-0 hover:-translate-x-[0.25rem] hover:-translate-y-[0.5rem] hover:scale-105 hover:bg-yellow hover:text-blue hover:shadow-[0.75rem_0.8rem_0_#ffffff,1.4rem_1.5rem_0_var(--color-orange)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_#ffffff,0.3rem_0.3rem_0_var(--color-orange)]"
+            >
+              <span>Tutti i progetti</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                   class="w-[1em] h-[1em] animate-arrow-bounce motion-reduce:animate-none group-hover:!animate-none group-hover:translate-x-[0.5rem] group-hover:-rotate-6">
+                <path d="M5 12h14" />
+                <path d="M13 5l7 7-7 7" />
+              </svg>
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- =============================================================
+       ABOUT TEASER
+       ============================================================= -->
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Chi sono</p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Sono Guido Squillace.</h2>
+        <p class="text-lg leading-[1.55] m-0">
+          Sviluppo siti web e applicazioni con un approccio diretto:
+          parli con me, dalla prima domanda fino alla riga di codice.
+          Lavoro soprattutto su progetti per musei, istituzioni culturali
+          e studi professionali, con stack moderni e attenzione vera
+          all'accessibilità e alle performance.
+        </p>
+      </div>
+
+      <SkillsBox showReadMore />
+    </div>
+  </section>
+</BaseLayout>

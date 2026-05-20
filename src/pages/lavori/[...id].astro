@@ -1,0 +1,169 @@
+---
+import { getCollection } from 'astro:content';
+import { render as renderDast } from 'datocms-structured-text-to-html-string';
+import {
+  isEmptyDocument,
+  type Document as DastDocument,
+} from 'datocms-structured-text-utils';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarqueeCard from '../../components/MarqueeCard.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { data } = project;
+const cover = data.cover;
+const responsive = cover?.responsiveImage;
+const altText = responsive?.alt ?? cover?.alt ?? `Anteprima del progetto ${data.title}`;
+
+function isDastDocument(v: unknown): v is DastDocument {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    'schema' in v &&
+    (v as { schema?: unknown }).schema === 'dast' &&
+    'document' in v
+  );
+}
+
+const contentValue = data.content?.value;
+const hasContent = isDastDocument(contentValue) && !isEmptyDocument(contentValue);
+const contentHtml = hasContent ? renderDast(contentValue) : null;
+
+const allProjects = await getCollection('projects');
+const related = allProjects
+  .filter((p) => p.id !== project.id)
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
+  .slice(0, 2);
+
+const cleanAbstract = data.abstract
+  ? data.abstract.replace(/<\/?[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  : null;
+---
+
+<BaseLayout
+  title={`${data.title} — case study`}
+  description={cleanAbstract ?? `Case study del progetto ${data.title}: contesto, scelte tecniche e risultati.`}
+  image={cover?.url}
+  imageAlt={cover?.alt ?? `Anteprima del progetto ${data.title}`}
+  ogType="article"
+>
+  <article>
+    <header class="bg-pink pt-fluid-5 pb-fluid-6">
+      <div class="page">
+        <p class="m-0 mb-fluid-4 text-sm">
+          <a
+            href="/lavori"
+            class="inline-block text-blue no-underline font-semibold transition-transform duration-150 ease-soft hover:-translate-x-1 hover:underline hover:underline-offset-4"
+          >
+            ← Tutti i lavori
+          </a>
+        </p>
+        <p class="m-0 mb-fluid-3 inline-flex items-center gap-fluid-2 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-black">
+          {data.year && (
+            <span class="font-display text-base tracking-[-0.01em] text-orange px-[0.6em] py-[0.2em] rounded-full bg-blue/8 leading-none">
+              {data.year}
+            </span>
+          )}
+          <span>Caso studio</span>
+        </p>
+        <h1 class="mb-fluid-3 max-w-[18ch] text-blue text-5xl leading-[0.95] animate-fade-up motion-reduce:animate-none">
+          {data.title}
+        </h1>
+        {cleanAbstract && (
+          <p class="text-lg text-black m-0 max-w-prose">{cleanAbstract}</p>
+        )}
+
+        {
+          data.websiteUrl && (
+            <p class="mt-fluid-4 m-0">
+              <a
+                href={data.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group inline-flex items-center gap-[0.5em] px-[1.3em] py-[0.7em] bg-blue text-yellow no-underline font-display text-base font-bold leading-none tracking-[-0.01em] rounded-full -rotate-1 shadow-[0.35rem_0.35rem_0_var(--color-orange)] transition-cta hover:rotate-0 hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-[1.04] hover:shadow-[0.7rem_0.85rem_0_var(--color-orange)] hover:bg-yellow hover:text-blue active:rotate-0 active:translate-x-[0.15rem] active:translate-y-[0.15rem] active:shadow-[0.1rem_0.1rem_0_var(--color-orange)]"
+              >
+                <span>Visita il sito</span>
+                <svg
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                  class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.25rem] group-hover:-translate-y-[0.25rem] group-hover:-rotate-3"
+                >
+                  <path d="M7 17L17 7" />
+                  <path d="M8 7h9v9" />
+                </svg>
+              </a>
+            </p>
+          )
+        }
+      </div>
+    </header>
+
+    {
+      cover && (
+        <div class="page mt-[calc(-1*var(--spacing-fluid-5))] mb-fluid-6">
+          <figure class="group m-0 rounded-lg overflow-hidden aspect-[16/9] bg-beige shadow-[0.6rem_0.6rem_0_var(--color-blue)] -rotate-[0.5deg] transition-transform duration-400 ease-spring hover:rotate-0 motion-reduce:rotate-0 motion-reduce:transform-none">
+            {responsive ? (
+              <img
+                src={responsive.src}
+                srcset={responsive.webpSrcSet}
+                sizes={responsive.sizes}
+                width={cover.width}
+                height={cover.height}
+                alt={altText}
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+                class="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={cover.url}
+                width={cover.width}
+                height={cover.height}
+                alt={altText}
+                loading="eager"
+                decoding="async"
+                class="w-full h-full object-cover"
+              />
+            )}
+          </figure>
+        </div>
+      )
+    }
+
+    {
+      hasContent && contentHtml && (
+        <div class="page">
+          <div
+            class="mx-auto mb-fluid-7 text-base leading-[1.7] max-w-prose [&_h2]:mt-fluid-6 [&_h2]:mb-fluid-3 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:text-blue [&_h3]:mt-fluid-5 [&_h3]:mb-fluid-2 [&_h3]:text-xl [&_h3]:text-blue [&_a]:text-blue [&_a]:[text-decoration-thickness:1px]"
+            set:html={contentHtml}
+          />
+        </div>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section class="bg-beige py-fluid-7">
+          <div class="page">
+            <h2 class="font-display text-3xl text-blue mb-fluid-5">Altri lavori</h2>
+            <ul role="list" class="list-none m-0 p-0 grid gap-fluid-5 grid-cols-1 md:grid-cols-2 justify-items-center">
+              {related.map((rp) => (
+                <li class="flex w-full max-w-md">
+                  <MarqueeCard project={rp} fluid />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>

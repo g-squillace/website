@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Astro asset hashes → cache aggressivo, content-hash garantisce la freschezza
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Font files — cache aggressivo. Il nome del file è la versione di fatto;
+# se cambia il font, cambia anche il path. Senza questo, ogni nav scarica
+# di nuovo i font e dà FOUT visibile.
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"

@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarqueeCard from '../../components/MarqueeCard.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
+---
+
+<BaseLayout
+  title="Portfolio: progetti web realizzati"
+  description="Una selezione di progetti web realizzati per musei, istituzioni culturali, studi professionali e aziende. Siti multilingua, CMS headless, applicazioni custom."
+>
+  <section class="bg-pink pt-fluid-6 pb-fluid-7">
+    <div class="page">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-black mb-fluid-4">Lavori</p>
+      <h1 class="text-5xl text-blue mb-fluid-4 leading-[0.95] max-w-[16ch] animate-fade-up motion-reduce:animate-none">
+        Quello che <em class="italic text-orange">ho costruito</em>.
+      </h1>
+      <p class="text-lg text-blue m-0 max-w-prose">
+        Una selezione dei progetti su cui ho lavorato. Per ognuno trovi
+        il contesto, le scelte fatte e — quando possibile — il risultato.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-pink py-fluid-7">
+    <div class="page">
+      {
+        projects.length === 0 ? (
+          <p class="p-fluid-5 text-center bg-white text-blue rounded-md text-base">
+            I progetti saranno presto disponibili. Nel frattempo,{' '}
+            <a href="/contatti" class="text-orange font-bold">parlami di quello che ti serve</a>.
+          </p>
+        ) : (
+          <ul class="list-none m-0 p-0 flex flex-wrap gap-fluid-5 items-start justify-center" role="list">
+            {projects.map((project) => (
+              <li class="list-none flex">
+                <MarqueeCard project={project} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

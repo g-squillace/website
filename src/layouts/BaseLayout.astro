@@ -1,0 +1,268 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE, CONTACT } from '../config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article' | 'profile';
+}
+
+const {
+  title,
+  description = SITE.description,
+  image,
+  imageAlt,
+  noindex = false,
+  ogType = 'website',
+} = Astro.props;
+
+const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString();
+
+const ogImage = image
+  ? {
+      url: new URL(image, Astro.site ?? SITE.url).toString(),
+      width: undefined as number | undefined,
+      height: undefined as number | undefined,
+      type: undefined as string | undefined,
+      alt: imageAlt ?? fullTitle,
+    }
+  : {
+      url: new URL(SITE.ogImage.path, Astro.site ?? SITE.url).toString(),
+      width: SITE.ogImage.width as number | undefined,
+      height: SITE.ogImage.height as number | undefined,
+      type: SITE.ogImage.type as string | undefined,
+      alt: SITE.ogImage.alt,
+    };
+
+const personLd = {
+  '@type': 'Person',
+  '@id': `${SITE.url}/#person`,
+  name: SITE.author,
+  url: SITE.url,
+  image: new URL(SITE.ogImage.path, SITE.url).toString(),
+  jobTitle: 'Web developer freelance',
+  email: `mailto:${CONTACT.email}`,
+  description: SITE.description,
+  knowsAbout: [
+    'Sviluppo web',
+    'Astro',
+    'Next.js',
+    'TypeScript',
+    'DatoCMS',
+    'Headless CMS',
+    'E-commerce',
+    'Accessibilità web',
+  ],
+};
+
+const websiteLd = {
+  '@type': 'WebSite',
+  '@id': `${SITE.url}/#website`,
+  url: SITE.url,
+  name: SITE.name,
+  description: SITE.description,
+  inLanguage: SITE.locale,
+  publisher: { '@id': `${SITE.url}/#person` },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [personLd, websiteLd],
+};
+
+// Iubenda banner colors — single source of truth.
+// Cambia qui per aggiornare contemporaneamente JS config (lette via define:vars)
+// e CSS override (interpolato via template literal sotto). Una sola fonte di verità.
+const iubendaBanner = {
+  background: '#ffb5d2',
+  text: '#ffffff',
+  acceptBg: '#ffb5d2',
+  acceptText: '#0900ff',
+  customizeBg: '#ffb5d2',
+  customizeText: '#0900ff',
+  rejectBg: '#ffb5d2',
+  rejectText: '#111111',
+};
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {/* Preload critical fonts — abbassa il FOUT su Figtree (body) e Dazzle Unicase (h1/h2).
+        `crossorigin` è obbligatorio anche per font same-origin (la CORS request del CSS
+        loader non riusa il preload senza). Cache headers in netlify.toml. */}
+    <link
+      rel="preload"
+      href="/fonts/Figtree/Figtree-VariableFont_wght.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/dazzle_Unicase_Bold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <meta name="author" content={SITE.author} />
+
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:image" content={ogImage.url} />
+    <meta property="og:image:alt" content={ogImage.alt} />
+    {ogImage.width && <meta property="og:image:width" content={String(ogImage.width)} />}
+    {ogImage.height && <meta property="og:image:height" content={String(ogImage.height)} />}
+    {ogImage.type && <meta property="og:image:type" content={ogImage.type} />}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage.url} />
+    <meta name="twitter:image:alt" content={ogImage.alt} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+
+    {/* Iubenda Cookie Solution.
+        Colori letti da `iubendaBanner` (frontmatter) → cambia là per propagare
+        a JS config + CSS override insieme. is:inline + define:vars iniettano
+        l'oggetto come variabile JS nel browser. */}
+    <script is:inline define:vars={{ iubendaBanner }}>
+      // `define:vars` avvolge questo script in una IIFE → `var` diventa locale.
+      // Scrivo direttamente su `window._iub` per garantire scope globale.
+      window._iub = window._iub || [];
+      window._iub.csConfiguration = {
+        askConsentAtCookiePolicyUpdate: true,
+        floatingPreferencesButtonDisplay: false,
+        perPurposeConsent: true,
+        siteId: 4537765,
+        storage: { useSiteId: true },
+        whitelabel: false,
+        cookiePolicyId: 16220679,
+        banner: {
+          acceptButtonDisplay: true,
+          closeButtonDisplay: false,
+          customizeButtonDisplay: true,
+          explicitWithdrawal: true,
+          listPurposes: true,
+          position: 'float-bottom-center',
+          rejectButtonDisplay: true,
+          showTitle: false,
+          backgroundColor: iubendaBanner.background,
+          textColor: iubendaBanner.text,
+          acceptButtonColor: iubendaBanner.acceptBg,
+          acceptButtonCaptionColor: iubendaBanner.acceptText,
+          customizeButtonColor: iubendaBanner.customizeBg,
+          customizeButtonCaptionColor: iubendaBanner.customizeText,
+          rejectButtonColor: iubendaBanner.rejectBg,
+          rejectButtonCaptionColor: iubendaBanner.rejectText,
+        },
+      };
+      window._iub.csLangConfiguration = { it: { cookiePolicyId: 16220679 } };
+    </script>
+    <script is:inline src="https://cs.iubenda.com/autoblocking/4537765.js"></script>
+    <script is:inline src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
+
+    {/* CSS override Iubenda. La dashboard Iubenda a volte ignora i colori dal
+        JS config, il `!important` qui garantisce che vincano comunque.
+        I valori sono interpolati dal const `iubendaBanner` in frontmatter,
+        così JS e CSS restano sempre sincronizzati. */}
+    <style is:inline set:html={`
+      #iubenda-cs-banner,
+      #iubenda-cs-banner .iubenda-cs-content,
+      #iubenda-cs-banner .iubenda-cs-container,
+      .iub-cs-content,
+      #iubenda-cs-banner .iubenda-cs-rationale {
+        background-color: ${iubendaBanner.background} !important;
+        color: ${iubendaBanner.text} !important;
+      }
+      #iubenda-cs-banner *,
+      #iubenda-cs-banner p,
+      #iubenda-cs-banner a:not([class*='accept-btn']):not([class*='reject-btn']):not([class*='customize-btn']) {
+        color: ${iubendaBanner.text} !important;
+      }
+      #iubenda-cs-banner a {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .iubenda-cs-accept-btn,
+      #iubenda-cs-banner [class*='accept-btn'] {
+        background-color: ${iubendaBanner.acceptBg} !important;
+        color: ${iubendaBanner.acceptText} !important;
+        border: 0 !important;
+      }
+      .iubenda-cs-customize-btn,
+      #iubenda-cs-banner [class*='customize-btn'] {
+        background-color: ${iubendaBanner.customizeBg} !important;
+        color: ${iubendaBanner.customizeText} !important;
+        border: 0 !important;
+      }
+      .iubenda-cs-reject-btn,
+      #iubenda-cs-banner [class*='reject-btn'] {
+        background-color: ${iubendaBanner.rejectBg} !important;
+        color: ${iubendaBanner.rejectText} !important;
+        border: 0 !important;
+      }
+      /* Hide any residual floating preferences button */
+      .iubenda-tp-btn,
+      .iubenda-cs-preferences-link,
+      #iubenda-cs-preferences-link,
+      [data-cs-cmd='openPreferences'] {
+        display: none !important;
+      }
+    `} />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-100 focus:bg-fg focus:text-bg focus:px-4 focus:py-2 focus:no-underline"
+    >
+      Salta al contenuto
+    </a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    {/* @property override per le custom properties transform di Tailwind v4.
+        Tailwind genera @property con syntax:"*" (non-interpolabile dal browser).
+        Messi qui (fine body, dopo i <link> CSS nel head) per garantire che
+        siano l'ULTIMA dichiarazione → CSS spec: last @property declaration wins.
+        Senza questo, transition su scale/translate/rotate sono istantanee. */}
+    <style is:inline>
+      @property --tw-translate-x { syntax: "<length-percentage>"; inherits: false; initial-value: 0; }
+      @property --tw-translate-y { syntax: "<length-percentage>"; inherits: false; initial-value: 0; }
+      @property --tw-translate-z { syntax: "<length>"; inherits: false; initial-value: 0; }
+      @property --tw-rotate-x { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+      @property --tw-rotate-y { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+      @property --tw-rotate-z { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+      @property --tw-skew-x { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+      @property --tw-skew-y { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+      @property --tw-scale-x { syntax: "<number>"; inherits: false; initial-value: 1; }
+      @property --tw-scale-y { syntax: "<number>"; inherits: false; initial-value: 1; }
+      @property --tw-scale-z { syntax: "<number>"; inherits: false; initial-value: 1; }
+    </style>
+  </body>
+</html>

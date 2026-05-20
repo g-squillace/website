@@ -1,0 +1,161 @@
+---
+import { SITE, NAV } from '../config';
+import Logo from './Logo.astro';
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/';
+  return currentPath === href || currentPath.startsWith(href + '/');
+};
+---
+
+<header class="bg-orange relative z-50">
+  <div class="page flex items-center justify-between gap-fluid-4 py-fluid-3">
+    <a
+      href="/"
+      class="group inline-flex items-center gap-fluid-2 font-bold text-yellow text-base no-underline"
+      aria-label={`Home — ${SITE.name}`}
+    >
+      <span class="inline-flex items-center justify-center text-yellow w-[clamp(1.75rem,1.4rem+1.5vw,2.5rem)] h-[clamp(2.1rem,1.68rem+1.8vw,3rem)] origin-center transition-[transform,color,filter] duration-500 ease-spring group-hover:-rotate-[14deg] group-hover:scale-115 group-hover:text-pink group-hover:[filter:drop-shadow(0.35rem_0.4rem_0_var(--color-blue))] group-focus-visible:-rotate-[14deg] group-focus-visible:scale-115 group-focus-visible:text-pink group-focus-visible:[filter:drop-shadow(0.35rem_0.4rem_0_var(--color-blue))] group-active:rotate-0 group-active:scale-95 group-active:[filter:drop-shadow(0.1rem_0.12rem_0_var(--color-blue))] motion-reduce:transition-[color] motion-reduce:group-hover:[transform:none]">
+        <Logo />
+      </span>
+    </a>
+
+    <button
+      type="button"
+      class="group inline-flex items-center gap-fluid-2 bg-transparent border-2 border-yellow rounded-md px-[0.875em] py-[0.5em] text-yellow cursor-pointer font-semibold text-sm transition-colors duration-150 hover:bg-yellow hover:text-orange"
+      aria-controls="primary-nav"
+      aria-expanded="false"
+      aria-label="Apri il menu"
+      data-menu-toggle
+    >
+      <span class="inline-flex flex-col gap-[4px] w-[1.125rem]" aria-hidden="true">
+        <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:translate-y-[6px] group-aria-expanded:rotate-45"></span>
+        <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:opacity-0"></span>
+        <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:-translate-y-[6px] group-aria-expanded:-rotate-45"></span>
+      </span>
+      <span>Menu</span>
+    </button>
+  </div>
+
+  <div
+    class="fixed inset-0 bg-fg/45 backdrop-blur-[2px] z-40 opacity-0 pointer-events-none transition-opacity duration-300 ease-soft data-[state=open]:opacity-100 data-[state=open]:pointer-events-auto"
+    data-menu-backdrop
+    hidden
+    aria-hidden="true"
+  ></div>
+
+  <nav
+    id="primary-nav"
+    class="group/drawer fixed top-0 right-0 bottom-0 w-[35vw] min-w-72 max-w-md bg-orange text-yellow z-[60] overflow-y-auto px-fluid-5 pt-fluid-6 pb-fluid-5 translate-x-full transition-transform duration-400 ease-spring shadow-[-1.5rem_0_3rem_-0.5rem_rgba(0,0,0,0.25)] data-[state=open]:translate-x-0"
+    aria-label="Navigazione principale"
+    data-menu-drawer
+    hidden
+  >
+    <button
+      type="button"
+      class="absolute top-fluid-3 right-fluid-3 w-11 h-11 inline-flex items-center justify-center p-0 bg-transparent border-2 border-yellow rounded-full text-yellow cursor-pointer transition-[transform,background-color,color] duration-150 ease-soft hover:bg-yellow hover:text-orange hover:rotate-90"
+      aria-label="Chiudi il menu"
+      data-menu-close
+    >
+      <svg
+        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+        class="w-5 h-5"
+      >
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
+
+    <ul class="list-none mt-fluid-6 p-0 flex flex-col gap-fluid-2 text-left">
+      {
+        NAV.map((item, i) => (
+          <li
+            class="opacity-0 translate-x-6 transition-[opacity,transform] duration-400 ease-spring group-data-[state=open]/drawer:opacity-100 group-data-[state=open]/drawer:translate-x-0"
+            style={`transition-delay: ${0.12 + i * 0.06}s`}
+          >
+            <a
+              href={item.href}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+              data-menu-link
+              class="group/link inline-block no-underline text-yellow font-display text-3xl font-bold tracking-[-0.02em] leading-[1.05] py-[0.2em] transition-[color,transform] duration-150 ease-soft hover:text-pink hover:translate-x-[0.4rem] aria-[current=page]:text-pink"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const drawer = document.querySelector<HTMLElement>('[data-menu-drawer]');
+  const backdrop = document.querySelector<HTMLElement>('[data-menu-backdrop]');
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-menu-link]');
+
+  if (toggle && drawer && backdrop) {
+    const open = () => {
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Chiudi il menu');
+      drawer.hidden = false;
+      backdrop.hidden = false;
+      requestAnimationFrame(() => {
+        drawer.dataset.state = 'open';
+        backdrop.dataset.state = 'open';
+      });
+      document.body.style.overflow = 'hidden';
+      const firstLink = drawer.querySelector<HTMLAnchorElement>('a');
+      firstLink?.focus({ preventScroll: true });
+    };
+
+    const close = () => {
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Apri il menu');
+      drawer.dataset.state = '';
+      backdrop.dataset.state = '';
+      document.body.style.overflow = '';
+      const onEnd = (e: TransitionEvent) => {
+        if (e.target !== drawer) return;
+        drawer.hidden = true;
+        backdrop.hidden = true;
+        drawer.removeEventListener('transitionend', onEnd);
+      };
+      drawer.addEventListener('transitionend', onEnd);
+      setTimeout(() => {
+        if (toggle.getAttribute('aria-expanded') === 'false') {
+          drawer.hidden = true;
+          backdrop.hidden = true;
+        }
+      }, 500);
+      toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      isOpen ? close() : open();
+    });
+
+    backdrop.addEventListener('click', () => {
+      if (toggle.getAttribute('aria-expanded') === 'true') close();
+    });
+
+    const closeBtn = drawer.querySelector<HTMLButtonElement>('[data-menu-close]');
+    closeBtn?.addEventListener('click', () => {
+      if (toggle.getAttribute('aria-expanded') === 'true') close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        close();
+      }
+    });
+
+    links.forEach((link) =>
+      link.addEventListener('click', () => {
+        if (toggle.getAttribute('aria-expanded') === 'true') close();
+      }),
+    );
+  }
+</script>
