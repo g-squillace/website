@@ -24,7 +24,7 @@ export const NAV: ReadonlyArray<{ href: string; label: string }> = [
 ];
 
 export const CONTACT = {
-  email: 'ciao@guidosquillace.it',
+  email: 'info@guidosquillace.it',
 } as const;
 
 export const SOCIAL: ReadonlyArray<{ href: string; label: string }> = [];
