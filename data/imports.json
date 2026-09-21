@@ -121,5 +121,16 @@
     "budget_tier": "low",
     "placeholder": true,
     "abstract": "Landing per un'attività specializzata nella compravendita di maglie da calcio vintage anni '90 e 2000. Sito leggero in Astro, focus sulla collezione e sul contatto diretto."
+  },
+  {
+    "url": "https://marcocalzavara.com",
+    "title": "Marco Calzavara",
+    "slug": "marco-calzavara",
+    "website_url": "https://marcocalzavara.com",
+    "device": "browser",
+    "year": 2026,
+    "budget_tier": "standard",
+    "abstract": "Sito-portfolio per uno scenografo e set designer che firma le scenografie di grandi show televisivi e concerti live, da Ballando con le Stelle a Italia's Got Talent fino a The Traitors Italia. Oltre 180 produzioni gestite in autonomia via DatoCMS, front-end Astro completamente statico, design curato da me in collaborazione col cliente.",
+    "bg": "#D6DF4A"
   }
 ]

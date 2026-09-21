@@ -410,12 +410,13 @@ async function processOne(item, index, client) {
     budget_tier,
     update_only,
     slug: slugOverride,
+    bg: bgOverride,
   } = item;
   const usePlaceholder = !!placeholder || !!args.placeholder;
   console.log(`\n[${index + 1}] ${title}`);
   console.log(`    url: ${url || '(nessun url — placeholder)'}`);
 
-  const bg = pickBgColor(index);
+  const bg = bgOverride || pickBgColor(index);
   const slug = slugOverride || makeSlug(title);
   const dev = device || 'browser';
   console.log(
@@ -426,7 +427,7 @@ async function processOne(item, index, client) {
   const contentDast = await loadCaseStudyDast(slug);
   if (contentDast) console.log(`    case study trovato (${slug}.md → DAST)`);
 
-  const existingId = await ensureUniqueSlug(client, slug);
+  const existingId = client ? await ensureUniqueSlug(client, slug) : null;
 
   // Se update_only e l'item esiste già, salta upload immagine
   const skipImage = update_only && existingId;
