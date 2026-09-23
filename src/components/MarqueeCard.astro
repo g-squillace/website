@@ -3,9 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 
 interface Props {
   project: CollectionEntry<'projects'>;
-  /** Se true il link ha aria-hidden e tabindex -1 (per duplicati del marquee). */
   duplicate?: boolean;
-  /** Se true la card si adatta al container (per grid responsive). */
   fluid?: boolean;
 }
 
@@ -17,7 +15,6 @@ const altText = duplicate
   ? ''
   : responsive?.alt ?? cover?.alt ?? `Anteprima del progetto ${data.title}`;
 
-// L'abstract su DatoCMS può contenere tag HTML residui (es. <p>...</p>)
 const cleanAbstract = data.abstract
   ? data.abstract.replace(/<\/?[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
   : null;
@@ -61,9 +58,8 @@ const cleanAbstract = data.abstract
       data.year && (
         <span
           class="absolute top-fluid-2 right-fluid-2 z-[3] font-display text-xs font-bold tracking-[0.02em] leading-none px-[0.75em] py-[0.4em] rounded-full bg-white/92 text-blue backdrop-blur-[6px] shadow-[0_0.2rem_0.6rem_rgba(0,0,0,0.15)]"
-          aria-label={`Anno: ${data.year}`}
         >
-          {data.year}
+          <span class="sr-only">Anno </span>{data.year}
         </span>
       )
     }
@@ -72,8 +68,8 @@ const cleanAbstract = data.abstract
   <div class="flex flex-col gap-fluid-2 px-fluid-2 w-0 min-w-full">
     <h3 class="m-0 font-display text-xl leading-[1.05] tracking-[-0.01em]">
       <a
-        href={`/lavori/${id}`}
-        class="text-blue no-underline before:content-[''] before:absolute before:inset-0 before:z-[1] focus-visible:outline-none focus-visible:before:outline-[3px] focus-visible:before:outline-blue focus-visible:before:[outline-offset:4px] focus-visible:before:rounded-[1.25rem]"
+        href={`/lavori/${id}/`}
+        class="text-blue no-underline before:content-[''] before:absolute before:inset-0 before:z-[1] focus-visible:outline-none focus-visible:[box-shadow:none] focus-visible:before:outline-3 focus-visible:before:outline-focus focus-visible:before:[outline-offset:2px] focus-visible:before:shadow-[0_0_0_7px_var(--color-focus-contrast)] focus-visible:before:rounded-[1.25rem]"
         aria-hidden={duplicate ? 'true' : undefined}
         tabindex={duplicate ? -1 : undefined}
       >
@@ -91,7 +87,7 @@ const cleanAbstract = data.abstract
 
     <div class="flex flex-wrap items-center justify-between gap-fluid-2 mt-fluid-1">
       <a
-        href={`/lavori/${id}`}
+        href={`/lavori/${id}/`}
         class="relative z-[2] font-display text-sm font-bold text-blue no-underline leading-none tracking-[-0.01em] hover:underline hover:underline-offset-4"
         aria-hidden={duplicate ? 'true' : undefined}
         tabindex={duplicate ? -1 : undefined}

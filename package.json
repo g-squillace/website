@@ -24,6 +24,7 @@
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "@datocms/cma-client-node": "^5.4.18",
     "datocms-html-to-structured-text": "^5.1.16",
     "marked": "^18.0.3",

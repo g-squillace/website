@@ -2,10 +2,11 @@
 import { SITE, NAV } from '../config';
 import Logo from './Logo.astro';
 
-const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const withTrailingSlash = (path: string) => (path.endsWith('/') ? path : `${path}/`);
+const currentPath = withTrailingSlash(Astro.url.pathname);
 const isActive = (href: string) => {
   if (href === '/') return currentPath === '/';
-  return currentPath === href || currentPath.startsWith(href + '/');
+  return currentPath.startsWith(withTrailingSlash(href));
 };
 ---
 

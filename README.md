@@ -78,6 +78,20 @@ I progetti vivono nel model **`post`** di DatoCMS. Campi mappati:
 Modifiche fatte in DatoCMS si vedono al **prossimo build** del sito
 (SSG). Per propagare in fretta, configura un webhook DatoCMS → build trigger.
 
+### Import automatico da URL
+
+`scripts/import-projects.mjs` genera il mockup (cornice browser o telefono)
+dallo screenshot del sito, lo carica su DatoCMS e crea o aggiorna il `post`,
+con il case study letto da `data/case-studies/<slug>.md` se presente.
+Richiede `DATOCMS_FULLACCESS_TOKEN` in `.env`.
+
+```sh
+npm run import:projects                                     # legge data/imports.json
+npm run import:projects -- --file=urls.json                 # file custom
+npm run import:projects -- --url=https://... --title="Nome" # singolo progetto
+npm run import:projects -- --dry                            # niente upload, salva i PNG in /tmp
+```
+
 ## Modificare i contenuti del sito (testi statici)
 
 | Cosa cambiare              | Dove                                         |

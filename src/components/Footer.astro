@@ -39,7 +39,7 @@ const currentYear = new Date().getFullYear();
       </h2>
       <div class="flex flex-col gap-fluid-2 items-start md:items-end">
         <a
-          href="/contatti"
+          href="/contatti/"
           class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-yellow text-blue font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-blue)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-blue)] hover:bg-pink active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-blue)]"
         >
           <span>Scrivimi</span>
@@ -56,7 +56,7 @@ const currentYear = new Date().getFullYear();
     </section>
 
     <div class="flex flex-wrap justify-between items-center gap-fluid-3 pt-fluid-3 border-t-2 border-white/25 text-white text-xs">
-      <p class="m-0">© {currentYear} {SITE.name}</p>
+      <p class="m-0 text-fg">© {currentYear} {SITE.name}</p>
 
       <nav aria-label="Privacy e cookie" class="m-0">
         <ul class="list-none m-0 p-0 flex flex-wrap gap-fluid-3 items-center">
@@ -65,7 +65,7 @@ const currentYear = new Date().getFullYear();
               href="https://www.iubenda.com/privacy-policy/16220679"
               target="_blank"
               rel="noopener"
-              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow"
+              class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg"
             >
               Privacy Policy
             </a>
@@ -75,7 +75,7 @@ const currentYear = new Date().getFullYear();
               href="https://www.iubenda.com/privacy-policy/16220679/cookie-policy"
               target="_blank"
               rel="noopener"
-              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow"
+              class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg"
             >
               Cookie Policy
             </a>
@@ -84,7 +84,7 @@ const currentYear = new Date().getFullYear();
             <button
               type="button"
               data-iubenda-preferences
-              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow bg-transparent border-0 p-0 font-inherit cursor-pointer"
+              class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg bg-transparent border-0 p-0 font-inherit cursor-pointer"
             >
               Modifica preferenze privacy
             </button>
@@ -101,7 +101,7 @@ const currentYear = new Date().getFullYear();
                   href={s.href}
                   rel="me noopener"
                   target="_blank"
-                  class="text-pink hover:text-yellow"
+                  class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg"
                 >
                   {s.label}
                 </a>

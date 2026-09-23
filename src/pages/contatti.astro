@@ -5,7 +5,7 @@ import { CONTACT } from '../config';
 
 <BaseLayout
   title="Contatti — richiedi un preventivo"
-  description="Raccontami il tuo progetto: rispondo entro 24 ore lavorative con una valutazione concreta. Preventivo dettagliato in 3-5 giorni, senza extra a sorpresa."
+  description="Raccontami il tuo progetto: rispondo entro 24 ore lavorative con una valutazione concreta. Preventivo dettagliato in 3-5 giorni lavorativi, senza sorprese."
 >
   <section class="bg-orange pt-fluid-6 pb-fluid-7">
     <div class="page">
@@ -41,7 +41,7 @@ import { CONTACT } from '../config';
               <label for="name" class="font-semibold text-sm text-blue">Come ti chiami?</label>
               <input
                 id="name" name="Nome" type="text" required autocomplete="name"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               />
             </div>
 
@@ -49,7 +49,7 @@ import { CONTACT } from '../config';
               <label for="email" class="font-semibold text-sm text-blue">La tua email</label>
               <input
                 id="email" name="Email" type="email" required autocomplete="email"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               />
             </div>
 
@@ -59,7 +59,7 @@ import { CONTACT } from '../config';
               </label>
               <input
                 id="company" name="Azienda" type="text" autocomplete="organization"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               />
             </div>
 
@@ -67,7 +67,7 @@ import { CONTACT } from '../config';
               <label for="kind" class="font-semibold text-sm text-blue">Di che tipo di progetto si tratta?</label>
               <select
                 id="kind" name="Tipo di progetto" required
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               >
                 <option value="">— Seleziona —</option>
                 <option value="Sito vetrina">Sito vetrina</option>
@@ -84,7 +84,7 @@ import { CONTACT } from '../config';
               <label for="start" class="font-semibold text-sm text-blue">Da dove parti?</label>
               <select
                 id="start" name="Punto di partenza"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               >
                 <option value="">— Seleziona —</option>
                 <option value="Dal budget">Ho un budget in mente</option>
@@ -98,14 +98,15 @@ import { CONTACT } from '../config';
               <textarea
                 id="message" name="Messaggio" rows="6" required
                 placeholder="Cosa devi fare, per chi, e con che tempi/budget se li hai già in mente."
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors resize-y min-h-[10rem] hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors resize-y min-h-[10rem] hover:border-orange focus-visible:border-blue"
               ></textarea>
             </div>
 
+            <p id="form-progress" role="status" aria-live="polite" class="sr-only"></p>
+
             <div
               id="form-status"
-              role="status"
-              aria-live="polite"
+              tabindex="-1"
               hidden
               class="text-sm px-fluid-3 py-fluid-3 rounded-md font-medium m-0"
             ></div>
@@ -134,6 +135,7 @@ import { CONTACT } from '../config';
             <p class="m-0 text-sm leading-[1.55]">
               <a
                 href={`mailto:${CONTACT.email}`}
+                data-track-email
                 class="text-inherit font-bold underline underline-offset-4 text-base"
               >
                 {CONTACT.email}
@@ -144,8 +146,8 @@ import { CONTACT } from '../config';
           <div class="bg-pink text-blue p-fluid-4 rounded-md rotate-[1.5deg] transition-transform duration-400 ease-spring hover:rotate-0 hover:-translate-y-1 motion-reduce:rotate-0 motion-reduce:transform-none">
             <h2 class="m-0 mb-fluid-2 font-display text-xl leading-none text-inherit">Tempi di risposta</h2>
             <p class="m-0 text-sm leading-[1.55] text-black">
-              Rispondo entro <strong>12 ore</strong> nei giorni lavorativi.
-              Se entro 24 ore non hai ricevuto nulla, è successo qualcosa:
+              Rispondo entro <strong>24 ore lavorative</strong>.
+              Se in questo tempo non hai ricevuto nulla, è successo qualcosa:
               scrivimi di nuovo.
             </p>
           </div>
@@ -165,13 +167,22 @@ import { CONTACT } from '../config';
   </section>
 
   <script>
+    import { CONTACT } from '../config';
+    import { trackEvent } from '../lib/analytics';
+
     const form = document.getElementById('contact-form');
     const status = document.getElementById('form-status');
+    const progress = document.getElementById('form-progress');
+    const projectType = document.getElementById('kind');
     const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
     const submitLabel = form?.querySelector<HTMLSpanElement>('[data-submit-label]');
     const defaultLabel = submitLabel?.textContent ?? 'Invia';
 
-    if (form instanceof HTMLFormElement && status && submit && submitLabel) {
+    document.querySelectorAll<HTMLAnchorElement>('[data-track-email]').forEach((link) => {
+      link.addEventListener('click', () => trackEvent('contact_email_click'));
+    });
+
+    if (form instanceof HTMLFormElement && status && progress && submit && submitLabel) {
       const STATUS_BASE = 'text-sm px-fluid-3 py-fluid-3 rounded-md font-medium m-0';
 
       const setStatus = (text: string, tone: 'info' | 'success' | 'error') => {
@@ -185,40 +196,57 @@ import { CONTACT } from '../config';
         status.hidden = false;
       };
 
+      const showResult = (text: string, tone: 'success' | 'error') => {
+        progress.textContent = '';
+        setStatus(text, tone);
+        status.focus();
+      };
+
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
+
+        const formData = new FormData(form);
+        const isHoneypotFilled = Boolean(formData.get('_gotcha'));
+        const selectedProjectType =
+          projectType instanceof HTMLSelectElement ? projectType.value : '';
 
         submit.setAttribute('aria-busy', 'true');
         submit.disabled = true;
         submitLabel.textContent = 'Invio in corso…';
         setStatus('Sto inviando il messaggio…', 'info');
+        progress.textContent = 'Sto inviando il messaggio…';
 
         try {
           const response = await fetch(form.action, {
             method: 'POST',
-            body: new FormData(form),
+            body: formData,
             headers: { Accept: 'application/json' },
           });
 
           if (response.ok) {
-            setStatus(
+            showResult(
               'Grazie! Ho ricevuto il tuo messaggio. Ti rispondo entro 24 ore lavorative.',
               'success',
             );
             form.reset();
+            if (!isHoneypotFilled) {
+              trackEvent('generate_lead', {
+                form_id: 'contact-form',
+                project_type: selectedProjectType,
+              });
+            }
           } else {
-            const data = await response.json().catch(() => null);
-            const errors = Array.isArray(data?.errors)
-              ? data.errors.map((e: { message?: string }) => e.message).filter(Boolean).join(' ')
-              : '';
-            setStatus(
-              errors || 'Qualcosa è andato storto. Riprova o scrivimi direttamente via email.',
+            const detail: unknown = await response.json().catch(() => null);
+            console.error('Formspree submission failed', response.status, detail);
+            showResult(
+              `Non sono riuscito a inviare il messaggio. Riprova tra qualche minuto oppure scrivimi a ${CONTACT.email}.`,
               'error',
             );
           }
-        } catch {
-          setStatus(
-            'Connessione non riuscita. Controlla la rete o scrivimi direttamente via email.',
+        } catch (error) {
+          console.error('Formspree request failed', error);
+          showResult(
+            `Connessione non riuscita. Controlla la rete e riprova, oppure scrivimi a ${CONTACT.email}.`,
             'error',
           );
         } finally {
