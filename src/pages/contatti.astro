@@ -41,7 +41,7 @@ import { CONTACT } from '../config';
               <label for="name" class="font-semibold text-sm text-blue">Come ti chiami?</label>
               <input
                 id="name" name="Nome" type="text" required autocomplete="name"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               />
             </div>
 
@@ -49,7 +49,7 @@ import { CONTACT } from '../config';
               <label for="email" class="font-semibold text-sm text-blue">La tua email</label>
               <input
                 id="email" name="Email" type="email" required autocomplete="email"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               />
             </div>
 
@@ -59,7 +59,7 @@ import { CONTACT } from '../config';
               </label>
               <input
                 id="company" name="Azienda" type="text" autocomplete="organization"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               />
             </div>
 
@@ -67,7 +67,7 @@ import { CONTACT } from '../config';
               <label for="kind" class="font-semibold text-sm text-blue">Di che tipo di progetto si tratta?</label>
               <select
                 id="kind" name="Tipo di progetto" required
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               >
                 <option value="">— Seleziona —</option>
                 <option value="Sito vetrina">Sito vetrina</option>
@@ -84,7 +84,7 @@ import { CONTACT } from '../config';
               <label for="start" class="font-semibold text-sm text-blue">Da dove parti?</label>
               <select
                 id="start" name="Punto di partenza"
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors hover:border-orange focus-visible:border-blue"
               >
                 <option value="">— Seleziona —</option>
                 <option value="Dal budget">Ho un budget in mente</option>
@@ -98,7 +98,7 @@ import { CONTACT } from '../config';
               <textarea
                 id="message" name="Messaggio" rows="6" required
                 placeholder="Cosa devi fare, per chi, e con che tempi/budget se li hai già in mente."
-                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors resize-y min-h-[10rem] hover:border-orange focus-visible:outline-none focus-visible:border-blue focus-visible:shadow-[0_0_0_3px_rgba(9,0,255,0.15)]"
+                class="font-inherit px-4 py-3 border-2 border-beige rounded-md bg-white text-fg transition-colors resize-y min-h-[10rem] hover:border-orange focus-visible:border-blue"
               ></textarea>
             </div>
 
@@ -183,8 +183,7 @@ import { CONTACT } from '../config';
     });
 
     if (form instanceof HTMLFormElement && status && progress && submit && submitLabel) {
-      const STATUS_BASE =
-        'text-sm px-fluid-3 py-fluid-3 rounded-md font-medium m-0 focus-visible:outline-3 focus-visible:outline-blue focus-visible:[outline-offset:4px]';
+      const STATUS_BASE = 'text-sm px-fluid-3 py-fluid-3 rounded-md font-medium m-0';
 
       const setStatus = (text: string, tone: 'info' | 'success' | 'error') => {
         const palette = {

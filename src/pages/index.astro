@@ -257,7 +257,7 @@ const marqueeItems = [
           <li
             tabindex="0"
             class:list={[
-              'group relative flex w-full outline-none cursor-default py-fluid-3 border-t-2 border-pink last:border-b-2 last:border-b-pink z-10 hover:z-50 focus-within:z-50',
+              'group relative flex w-full cursor-default py-fluid-3 border-t-2 border-pink last:border-b-2 last:border-b-pink z-10 hover:z-50 focus-within:z-50',
               s.side === 'left' ? 'justify-start text-left' : 'justify-end text-right',
             ]}
           >
@@ -309,7 +309,7 @@ const marqueeItems = [
             type="button"
             data-marquee-prev
             aria-label="Scorri verso sinistra a velocità doppia"
-            class="group absolute left-fluid-5 z-10 flex-none inline-flex items-center justify-center gap-1 min-w-14 h-14 px-[0.85rem] rounded-full bg-blue text-yellow border-0 cursor-pointer shadow-[0_0_0_transparent] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-105 hover:shadow-[0.55rem_0.65rem_0_var(--color-beige)] focus-visible:outline-3 focus-visible:outline-orange focus-visible:[outline-offset:4px] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:scale-[0.98] active:shadow-[0.15rem_0.15rem_0_var(--color-beige)] sm:min-w-14 max-sm:min-w-11 max-sm:h-11"
+            class="group absolute left-fluid-5 z-10 flex-none inline-flex items-center justify-center gap-1 min-w-14 h-14 px-[0.85rem] rounded-full bg-blue text-yellow border-0 cursor-pointer shadow-[0_0_0_transparent] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-105 hover:shadow-[0.55rem_0.65rem_0_var(--color-beige)] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:scale-[0.98] active:shadow-[0.15rem_0.15rem_0_var(--color-beige)] sm:min-w-14 max-sm:min-w-11 max-sm:h-11"
           >
             <span class="hidden sm:inline-block font-display text-sm font-bold leading-none tracking-[-0.02em] text-yellow bg-white/18 px-[0.45em] py-[0.25em] rounded-full group-hover:bg-yellow group-hover:text-blue group-focus-visible:bg-yellow group-focus-visible:text-blue" aria-hidden="true">×2</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6 max-sm:w-4 max-sm:h-4">
@@ -317,7 +317,7 @@ const marqueeItems = [
             </svg>
           </button>
 
-          <div class="w-full overflow-hidden" aria-label="Carosello dei lavori">
+          <div class="w-full overflow-hidden" role="group" aria-label="Carosello dei lavori">
             <ul
               data-marquee-track
               class="list-none m-0 p-0 flex gap-fluid-5 w-max animate-marquee-scroll"
@@ -335,7 +335,7 @@ const marqueeItems = [
             type="button"
             data-marquee-next
             aria-label="Scorri verso destra a velocità doppia"
-            class="group absolute right-fluid-5 z-10 flex-none inline-flex items-center justify-center gap-1 min-w-14 h-14 px-[0.85rem] rounded-full bg-blue text-yellow border-0 cursor-pointer shadow-[0_0_0_transparent] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-105 hover:shadow-[0.55rem_0.65rem_0_var(--color-beige)] focus-visible:outline-3 focus-visible:outline-orange focus-visible:[outline-offset:4px] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:scale-[0.98] active:shadow-[0.15rem_0.15rem_0_var(--color-beige)] sm:min-w-14 max-sm:min-w-11 max-sm:h-11"
+            class="group absolute right-fluid-5 z-10 flex-none inline-flex items-center justify-center gap-1 min-w-14 h-14 px-[0.85rem] rounded-full bg-blue text-yellow border-0 cursor-pointer shadow-[0_0_0_transparent] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:scale-105 hover:shadow-[0.55rem_0.65rem_0_var(--color-beige)] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:scale-[0.98] active:shadow-[0.15rem_0.15rem_0_var(--color-beige)] sm:min-w-14 max-sm:min-w-11 max-sm:h-11"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="w-6 h-6 max-sm:w-4 max-sm:h-4">
               <path d="M9 6l6 6-6 6" />

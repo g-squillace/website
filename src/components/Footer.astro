@@ -56,7 +56,7 @@ const currentYear = new Date().getFullYear();
     </section>
 
     <div class="flex flex-wrap justify-between items-center gap-fluid-3 pt-fluid-3 border-t-2 border-white/25 text-white text-xs">
-      <p class="m-0">© {currentYear} {SITE.name}</p>
+      <p class="m-0 text-fg">© {currentYear} {SITE.name}</p>
 
       <nav aria-label="Privacy e cookie" class="m-0">
         <ul class="list-none m-0 p-0 flex flex-wrap gap-fluid-3 items-center">
@@ -65,7 +65,7 @@ const currentYear = new Date().getFullYear();
               href="https://www.iubenda.com/privacy-policy/16220679"
               target="_blank"
               rel="noopener"
-              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow"
+              class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg"
             >
               Privacy Policy
             </a>
@@ -75,7 +75,7 @@ const currentYear = new Date().getFullYear();
               href="https://www.iubenda.com/privacy-policy/16220679/cookie-policy"
               target="_blank"
               rel="noopener"
-              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow"
+              class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg"
             >
               Cookie Policy
             </a>
@@ -84,7 +84,7 @@ const currentYear = new Date().getFullYear();
             <button
               type="button"
               data-iubenda-preferences
-              class="text-pink hover:text-yellow underline underline-offset-4 decoration-2 decoration-pink/40 hover:decoration-yellow bg-transparent border-0 p-0 font-inherit cursor-pointer"
+              class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg bg-transparent border-0 p-0 font-inherit cursor-pointer"
             >
               Modifica preferenze privacy
             </button>
@@ -101,7 +101,7 @@ const currentYear = new Date().getFullYear();
                   href={s.href}
                   rel="me noopener"
                   target="_blank"
-                  class="text-pink hover:text-yellow"
+                  class="relative text-fg before:absolute before:inset-x-0 before:top-1/2 before:h-11 before:-translate-y-1/2 before:content-[''] underline underline-offset-4 decoration-1 decoration-fg/50 hover:decoration-2 hover:decoration-fg"
                 >
                   {s.label}
                 </a>
