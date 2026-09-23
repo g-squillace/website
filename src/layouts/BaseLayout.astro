@@ -63,6 +63,26 @@ const personLd = {
     'E-commerce',
     'Accessibilità web',
   ],
+  workLocation: {
+    '@type': 'Place',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Siena',
+      addressRegion: 'Toscana',
+      addressCountry: 'IT',
+    },
+  },
+};
+
+const serviceLd = {
+  '@type': 'Service',
+  '@id': `${SITE.url}/#service`,
+  serviceType: 'Sviluppo di siti web e applicazioni su misura',
+  provider: { '@id': `${SITE.url}/#person` },
+  areaServed: [
+    { '@type': 'City', name: 'Siena' },
+    { '@type': 'Country', name: 'Italia' },
+  ],
 };
 
 const websiteLd = {
@@ -77,7 +97,7 @@ const websiteLd = {
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@graph': [personLd, websiteLd],
+  '@graph': [personLd, websiteLd, serviceLd],
 };
 ---
 

@@ -1,8 +1,8 @@
 export const SITE = {
   name: 'Guido Squillace',
-  tagline: 'Sviluppo siti web e applicazioni su misura',
+  tagline: 'Siti web e app su misura a Siena',
   description:
-    'Sviluppatore web frontend. Siti vetrina, e-commerce, web app e gestionali su misura. Si parte dal budget, da un\'idea, o da un brief già definito.',
+    'Sviluppatore web con base a Siena. Vetrine, e-commerce e applicazioni su misura, con un solo interlocutore dalla prima call alla messa online.',
   url: 'https://www.guidosquillace.it',
   locale: 'it-IT',
   author: 'Guido Squillace',
