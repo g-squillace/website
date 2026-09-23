@@ -60,9 +60,6 @@ const cardClass = (variant: Service['variant']) => ({
   beige: 'bg-beige text-fg',
 })[variant];
 
-// I titoli sono text-3xl (~30px): rientrano in "large text" WCAG, soglia AA = 3:1.
-// Su orange #ff5354, bianco passa (~3.3:1) — quindi solo qui torno bianco per
-// mantenere il contrast brand del titolo. Il body resta nero (servono 4.5:1).
 const titleClass = (variant: Service['variant']) => ({
   orange: 'text-white',
   pink: 'text-blue',

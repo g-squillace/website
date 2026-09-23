@@ -1,15 +1,4 @@
 #!/usr/bin/env node
-/**
- * Pipeline import progetti da URL → mockup browser frame → upload DatoCMS + create post.
- *
- * Uso:
- *   npm run import:projects                       # legge data/imports.json
- *   npm run import:projects -- --file=urls.json   # file custom
- *   npm run import:projects -- --url=https://... --title="Nome"  # singolo
- *   npm run import:projects -- --dry              # niente upload/create, salva PNG in /tmp
- *
- * Richiede: DATOCMS_FULLACCESS_TOKEN in .env, model `post` con slug/title/blog_image.
- */
 
 import { readFile, mkdir, writeFile, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -22,15 +11,12 @@ import { marked } from 'marked';
 import { parse5ToStructuredText } from 'datocms-html-to-structured-text';
 import { parse } from 'parse5';
 
-// ---------- Config ----------
 const TOKEN = process.env.DATOCMS_FULLACCESS_TOKEN;
 const POST_MODEL_API_KEY = 'post';
 const LOCALE = 'it';
 
-// Palette ciclica per lo sfondo del mockup (coerente col sito)
 const PALETTE = ['#FF5354', '#D6DF4A', '#FFB5D2', '#E0C8BB', '#0900FF'];
 
-// Dimensioni — browser
 const SHOT_W = 1440;
 const SHOT_H = 900;
 const PAD = 80;
@@ -39,7 +25,6 @@ const CORNER = 16;
 const FINAL_W = SHOT_W + PAD * 2;
 const FINAL_H = SHOT_H + CHROME_H + PAD * 2;
 
-// Dimensioni — phone
 const PHONE_SHOT_W = 390;
 const PHONE_SHOT_H = 844;
 const PHONE_BEZEL = 14;
@@ -51,7 +36,6 @@ const PHONE_PAD_Y = 100;
 const PHONE_FINAL_W = PHONE_W + PHONE_PAD_X * 2;
 const PHONE_FINAL_H = PHONE_H + PHONE_PAD_Y * 2;
 
-// CSS che nasconde i banner di consenso cookie più diffusi
 const HIDE_COOKIE_BANNERS_CSS = `
   [id^="iubenda" i], [class^="iubenda" i],
   [id*="iubenda" i], [class*="iubenda" i],
@@ -75,7 +59,6 @@ const HIDE_COOKIE_BANNERS_CSS = `
   html, body { overflow: auto !important; }
 `;
 
-// ---------- CLI args ----------
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
     const m = a.match(/^--([^=]+)(?:=(.*))?$/);
@@ -84,7 +67,6 @@ const args = Object.fromEntries(
 );
 const DRY = !!args.dry;
 
-// ---------- Helpers ----------
 function makeSlug(title) {
   return slugify(title, { lower: true, strict: true, locale: 'it' });
 }
@@ -93,9 +75,6 @@ function pickBgColor(index) {
   return PALETTE[index % PALETTE.length];
 }
 
-/**
- * SVG della barra browser stile macOS: traffic lights + address bar con URL.
- */
 function browserChromeSvg(url, width, height) {
   const safeUrl = url.replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const addressY = height / 2;
@@ -133,7 +112,6 @@ async function screenshotUrl(url, { device = 'browser' } = {}) {
       userAgent: ua,
     });
     const page = await ctx.newPage();
-    // Inietta il CSS che nasconde i cookie banner prima del primo paint
     await page.addInitScript((css) => {
       const style = document.createElement('style');
       style.textContent = css;
@@ -145,7 +123,6 @@ async function screenshotUrl(url, { device = 'browser' } = {}) {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     });
 
-    // Backup: alcuni banner si attaccano via JS DOPO il load → re-iniezione
     await page.addStyleTag({ content: HIDE_COOKIE_BANNERS_CSS }).catch(() => {});
     await page.waitForTimeout(2500);
 
@@ -163,10 +140,6 @@ async function composeMockup({ screenshot, url, bgColor, device = 'browser' }) {
   return composeBrowserMockup({ screenshot, url, bgColor });
 }
 
-/**
- * Placeholder generico per quando non vogliamo (ancora) lo screenshot vero.
- * Canvas colorato, label "PLACEHOLDER" piccola in alto, titolo a tutta larghezza.
- */
 async function composePlaceholder({ title, bgColor }) {
   const W = 1600;
   const H = 900;
@@ -175,7 +148,6 @@ async function composePlaceholder({ title, bgColor }) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Word wrap molto semplice: max ~16 char per riga
   const words = safeTitle.split(' ');
   const lines = [];
   let cur = '';
@@ -218,13 +190,10 @@ async function composePlaceholder({ title, bgColor }) {
 }
 
 async function composeBrowserMockup({ screenshot, url, bgColor }) {
-  // Screenshot Playwright è a deviceScaleFactor 2 (retina), lo riporto a 1x
-  // così le dimensioni combaciano col device buffer logico.
   const screenshot1x = await sharp(screenshot)
     .resize(SHOT_W, SHOT_H, { fit: 'fill' })
     .toBuffer();
 
-  // 1) Compongo browser chrome (in alto) + screenshot (sotto) in un buffer "device"
   const deviceW = SHOT_W;
   const deviceH = SHOT_H + CHROME_H;
   const chromeSvg = Buffer.from(browserChromeSvg(url, deviceW, CHROME_H));
@@ -244,7 +213,6 @@ async function composeBrowserMockup({ screenshot, url, bgColor }) {
     .png()
     .toBuffer();
 
-  // 2) Arrotondo gli angoli + applico ombra (overlay su sfondo colorato)
   const roundedMask = Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${deviceW}" height="${deviceH}">
        <rect width="${deviceW}" height="${deviceH}" rx="${CORNER}" ry="${CORNER}" fill="#fff"/>
@@ -255,7 +223,6 @@ async function composeBrowserMockup({ screenshot, url, bgColor }) {
     .png()
     .toBuffer();
 
-  // 3) Sfondo finale colorato + device centrato con ombra (drop shadow tramite blur)
   const shadowOffset = 24;
   const shadowBuf = await sharp({
     create: {
@@ -289,12 +256,10 @@ async function composeBrowserMockup({ screenshot, url, bgColor }) {
 }
 
 async function composePhoneMockup({ screenshot, bgColor }) {
-  // Screenshot a 1x logico
   const screenshot1x = await sharp(screenshot)
     .resize(PHONE_SHOT_W, PHONE_SHOT_H, { fit: 'fill' })
     .toBuffer();
 
-  // Maschera tonda dello screenshot (angoli arrotondati dello schermo interno)
   const innerCorner = PHONE_CORNER - PHONE_BEZEL;
   const innerMask = Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${PHONE_SHOT_W}" height="${PHONE_SHOT_H}">
@@ -306,7 +271,6 @@ async function composePhoneMockup({ screenshot, bgColor }) {
     .png()
     .toBuffer();
 
-  // Cornice del telefono: rettangolo nero arrotondato + bezel + notch (dynamic island)
   const islandW = 120;
   const islandH = 32;
   const islandX = (PHONE_W - islandW) / 2;
@@ -320,13 +284,11 @@ async function composePhoneMockup({ screenshot, bgColor }) {
      </svg>`,
   );
 
-  // Compongo: cornice + screenshot dentro la cornice (offset = bezel)
   const phoneBuf = await sharp(frameSvg)
     .composite([{ input: roundedShot, top: PHONE_BEZEL, left: PHONE_BEZEL }])
     .png()
     .toBuffer();
 
-  // Maschera esterna per arrotondare la cornice del phone (ridondante ma garantita)
   const outerMask = Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${PHONE_W}" height="${PHONE_H}">
        <rect width="${PHONE_W}" height="${PHONE_H}" rx="${PHONE_CORNER}" ry="${PHONE_CORNER}" fill="#fff"/>
@@ -337,7 +299,6 @@ async function composePhoneMockup({ screenshot, bgColor }) {
     .png()
     .toBuffer();
 
-  // Drop shadow blurred
   const shadowOffset = 30;
   const shadowBuf = await sharp({
     create: {
@@ -352,7 +313,6 @@ async function composePhoneMockup({ screenshot, bgColor }) {
     .png()
     .toBuffer();
 
-  // Canvas finale colorato + phone centrato con ombra
   const final = await sharp({
     create: {
       width: PHONE_FINAL_W,
@@ -376,7 +336,6 @@ async function composePhoneMockup({ screenshot, bgColor }) {
 }
 
 async function ensureUniqueSlug(client, slug) {
-  // Cerco un post esistente con quel slug per gestire l'idempotenza
   const existing = await client.items.list({
     filter: {
       type: POST_MODEL_API_KEY,
@@ -392,7 +351,6 @@ async function loadCaseStudyDast(slug) {
   if (!existsSync(mdPath)) return null;
   const md = await readFile(mdPath, 'utf8');
   const html = await marked.parse(md);
-  // parse5 → AST → DAST (in Node niente DOMParser)
   const tree = parse(html);
   const dast = await parse5ToStructuredText(tree);
   return dast;
@@ -423,13 +381,11 @@ async function processOne(item, index, client) {
     `    slug: ${slug}, bg: ${bg}, device: ${dev}, year: ${year ?? '—'}, placeholder: ${usePlaceholder}`,
   );
 
-  // Carico content da data/case-studies/<slug>.md se presente
   const contentDast = await loadCaseStudyDast(slug);
   if (contentDast) console.log(`    case study trovato (${slug}.md → DAST)`);
 
   const existingId = client ? await ensureUniqueSlug(client, slug) : null;
 
-  // Se update_only e l'item esiste già, salta upload immagine
   const skipImage = update_only && existingId;
 
   let uploadId = null;
@@ -513,14 +469,11 @@ async function processOne(item, index, client) {
     });
     targetId = created.id;
   }
-  // Pubblica sempre (anche dopo update, altrimenti i campi nuovi
-  // restano "draft" e GraphQL non li espone)
   console.log(`    pubblicazione...`);
   await client.items.publish(targetId);
   console.log(`    ✓ fatto`);
 }
 
-// ---------- Main ----------
 async function main() {
   if (!TOKEN && !DRY) {
     console.error('ERRORE: DATOCMS_FULLACCESS_TOKEN mancante in .env');

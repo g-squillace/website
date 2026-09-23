@@ -3,9 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 
 interface Props {
   project: CollectionEntry<'projects'>;
-  /** Se true il link ha aria-hidden e tabindex -1 (per duplicati del marquee). */
   duplicate?: boolean;
-  /** Se true la card si adatta al container (per grid responsive). */
   fluid?: boolean;
 }
 
@@ -17,7 +15,6 @@ const altText = duplicate
   ? ''
   : responsive?.alt ?? cover?.alt ?? `Anteprima del progetto ${data.title}`;
 
-// L'abstract su DatoCMS può contenere tag HTML residui (es. <p>...</p>)
 const cleanAbstract = data.abstract
   ? data.abstract.replace(/<\/?[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
   : null;
