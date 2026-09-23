@@ -48,7 +48,7 @@ const personLd = {
   '@type': 'Person',
   '@id': `${SITE.url}/#person`,
   name: SITE.author,
-  url: SITE.url,
+  url: `${SITE.url}/`,
   image: new URL(SITE.ogImage.path, SITE.url).toString(),
   jobTitle: 'Sviluppatore web frontend',
   email: `mailto:${CONTACT.email}`,
@@ -68,7 +68,7 @@ const personLd = {
 const websiteLd = {
   '@type': 'WebSite',
   '@id': `${SITE.url}/#website`,
-  url: SITE.url,
+  url: `${SITE.url}/`,
   name: SITE.name,
   description: SITE.description,
   inLanguage: SITE.locale,

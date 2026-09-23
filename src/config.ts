@@ -17,10 +17,10 @@ export const SITE = {
 
 export const NAV: ReadonlyArray<{ href: string; label: string }> = [
   { href: '/', label: 'Home' },
-  { href: '/servizi', label: 'Servizi' },
-  { href: '/lavori', label: 'Lavori' },
-  { href: '/chi-sono', label: 'Chi sono' },
-  { href: '/contatti', label: 'Contatti' },
+  { href: '/servizi/', label: 'Servizi' },
+  { href: '/lavori/', label: 'Lavori' },
+  { href: '/chi-sono/', label: 'Chi sono' },
+  { href: '/contatti/', label: 'Contatti' },
 ];
 
 export const CONTACT = {
