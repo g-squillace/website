@@ -110,7 +110,6 @@ const jsonLd = {
 
     <link rel="preconnect" href="https://cdn.iubenda.com" crossorigin />
     <link rel="preconnect" href="https://cs.iubenda.com" crossorigin />
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -207,44 +206,95 @@ const jsonLd = {
           rejectButtonCaptionColor: '#111111',
         },
         callback: {
-          onConsentGiven: function () {
-            if (typeof gtag === 'function') {
-              gtag('consent', 'update', {
-                ad_storage: 'granted',
-                ad_user_data: 'granted',
-                ad_personalization: 'granted',
-                analytics_storage: 'granted',
-                functionality_storage: 'granted',
-                personalization_storage: 'granted',
-              });
-            }
+          onPreferenceExpressedOrNotNeeded: function (preference) {
+            applyConsent(preference);
           },
         },
       };
       window._iub.csLangConfiguration = { it: { cookiePolicyId: 16220679 } };
 
-      function loadThirdPartyScripts() {
+      var GA_MEASUREMENT_ID = 'G-C6KMJ4K1MV';
+      var isGoogleTagLoaded = false;
+
+      function hasPurposeConsent(preference, purposeId) {
+        if (!preference) return false;
+        if (preference.purposes) return preference.purposes[purposeId] === true;
+        return preference.consent === true;
+      }
+
+      function toConsentState(isGranted) {
+        return isGranted ? 'granted' : 'denied';
+      }
+
+      function applyConsent(preference) {
+        var isMeasurementGranted = hasPurposeConsent(preference, '4');
+        var isAdvertisingGranted = hasPurposeConsent(preference, '5');
+
+        window['ga-disable-' + GA_MEASUREMENT_ID] = !isMeasurementGranted;
+        gtag('consent', 'update', {
+          ad_storage: toConsentState(isAdvertisingGranted),
+          ad_user_data: toConsentState(isAdvertisingGranted),
+          ad_personalization: toConsentState(isAdvertisingGranted),
+          analytics_storage: toConsentState(isMeasurementGranted),
+          functionality_storage: toConsentState(hasPurposeConsent(preference, '2')),
+          personalization_storage: toConsentState(hasPurposeConsent(preference, '3')),
+        });
+
+        if (isMeasurementGranted) {
+          loadGoogleTag();
+        } else {
+          removeGoogleAnalyticsCookies();
+        }
+      }
+
+      function isGoogleAnalyticsCookie(name) {
+        return name === '_ga' || name.indexOf('_ga_') === 0;
+      }
+
+      function removeGoogleAnalyticsCookies() {
+        var cookieNames = document.cookie
+          .split(';')
+          .map(function (cookie) { return cookie.split('=')[0].trim(); })
+          .filter(isGoogleAnalyticsCookie);
+        if (cookieNames.length === 0) return;
+
+        var hostLabels = location.hostname.split('.');
+        var cookieDomains = [''];
+        for (var i = 0; i < hostLabels.length - 1; i++) {
+          cookieDomains.push('; domain=' + hostLabels.slice(i).join('.'));
+        }
+
+        cookieNames.forEach(function (name) {
+          cookieDomains.forEach(function (domain) {
+            document.cookie = name + '=; Max-Age=0; path=/' + domain;
+          });
+        });
+      }
+
+      function loadGoogleTag() {
+        if (isGoogleTagLoaded) return;
+        isGoogleTagLoaded = true;
+        gtag('js', new Date());
+        gtag('config', GA_MEASUREMENT_ID);
+        var gtm = document.createElement('script');
+        gtm.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+        gtm.async = true;
+        document.head.appendChild(gtm);
+      }
+
+      function loadIubenda() {
         var iub = document.createElement('script');
         iub.src = 'https://cdn.iubenda.com/cs/iubenda_cs.js';
         iub.async = true;
         iub.charset = 'UTF-8';
         document.head.appendChild(iub);
-
-        var gtm = document.createElement('script');
-        gtm.src = 'https://www.googletagmanager.com/gtag/js?id=G-C6KMJ4K1MV';
-        gtm.async = true;
-        gtm.onload = function () {
-          gtag('js', new Date());
-          gtag('config', 'G-C6KMJ4K1MV');
-        };
-        document.head.appendChild(gtm);
       }
 
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(loadThirdPartyScripts, { timeout: 2500 });
+        requestIdleCallback(loadIubenda, { timeout: 2500 });
       } else {
         window.addEventListener('load', function () {
-          setTimeout(loadThirdPartyScripts, 200);
+          setTimeout(loadIubenda, 200);
         });
       }
     </script>
