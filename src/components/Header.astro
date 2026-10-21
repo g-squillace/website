@@ -21,21 +21,33 @@ const isActive = (href: string) => {
       </span>
     </a>
 
-    <button
-      type="button"
-      class="group inline-flex items-center gap-fluid-2 bg-transparent border-2 border-yellow rounded-md px-[0.875em] py-[0.5em] text-yellow cursor-pointer font-semibold text-sm transition-colors duration-150 hover:bg-yellow hover:text-orange"
-      aria-controls="primary-nav"
-      aria-expanded="false"
-      aria-label="Apri il menu"
-      data-menu-toggle
-    >
-      <span class="inline-flex flex-col gap-[4px] w-[1.125rem]" aria-hidden="true">
-        <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:translate-y-[6px] group-aria-expanded:rotate-45"></span>
-        <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:opacity-0"></span>
-        <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:-translate-y-[6px] group-aria-expanded:-rotate-45"></span>
-      </span>
-      <span>Menu</span>
-    </button>
+    <div class="flex items-center gap-fluid-3">
+      {
+        !isActive('/contatti') && (
+          <a
+            href="/contatti"
+            class="hidden sm:inline-flex items-center rounded-md border-2 border-yellow bg-yellow px-[0.875em] py-[0.5em] text-sm font-semibold text-blue no-underline transition-colors duration-150 hover:bg-pink hover:border-pink"
+          >
+            Scrivimi
+          </a>
+        )
+      }
+      <button
+        type="button"
+        class="group inline-flex items-center gap-fluid-2 bg-transparent border-2 border-yellow rounded-md px-[0.875em] py-[0.5em] text-yellow cursor-pointer font-semibold text-sm transition-colors duration-150 hover:bg-yellow hover:text-orange"
+        aria-controls="primary-nav"
+        aria-expanded="false"
+        aria-label="Apri il menu"
+        data-menu-toggle
+      >
+        <span class="inline-flex flex-col gap-[4px] w-[1.125rem]" aria-hidden="true">
+          <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:translate-y-[6px] group-aria-expanded:rotate-45"></span>
+          <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:opacity-0"></span>
+          <span class="block h-[2px] bg-current rounded-[2px] transition-[transform,opacity] duration-250 ease-soft group-aria-expanded:-translate-y-[6px] group-aria-expanded:-rotate-45"></span>
+        </span>
+        <span>Menu</span>
+      </button>
+    </div>
   </div>
 
   <div
