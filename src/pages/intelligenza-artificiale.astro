@@ -1,0 +1,292 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+
+const pageUrl = new URL('/intelligenza-artificiale', SITE.url).toString();
+
+interface Area {
+  title: string;
+  intro: string;
+  examples: string[];
+  card: string;
+  rot: string;
+}
+
+const areas: Area[] = [
+  {
+    title: 'Al lavoro',
+    intro: 'Le attività ripetitive che rubano ore ogni settimana sono le prime candidate.',
+    examples: [
+      'Leggere fatture, ordini e PDF ed estrarre i dati in automatico',
+      'Smistare le email in arrivo e preparare bozze di risposta',
+      'Generare preventivi, report e riepiloghi a partire dai tuoi dati',
+      'Collegare fra loro software che oggi non si parlano (CRM, gestionale, fogli di calcolo)',
+    ],
+    card: 'bg-orange text-black',
+    rot: '-rotate-1',
+  },
+  {
+    title: 'Nel tuo sito o gestionale',
+    intro: "L'AI dentro gli strumenti che usi già, non come un'app in più da imparare.",
+    examples: [
+      'Assistente che risponde ai clienti usando i tuoi documenti e le tue FAQ',
+      'Ricerca che capisce le domande, non solo le parole chiave',
+      'Schede prodotto, traduzioni e testi generati e poi rivisti da te',
+      'Classificazione automatica di richieste, ticket e contatti',
+    ],
+    card: 'bg-pink text-blue',
+    rot: 'rotate-1',
+  },
+  {
+    title: 'Nel quotidiano',
+    intro: 'Piccole automazioni che, sommate, liberano tempo e testa.',
+    examples: [
+      'Riassunti automatici di riunioni, documenti e newsletter',
+      'Organizzare file, foto e cartelle con regole che decidi tu',
+      'Promemoria e liste che si aggiornano da sole da email e calendario',
+      'Tenere traccia di spese e scadenze senza compilare fogli a mano',
+    ],
+    card: 'bg-yellow text-blue',
+    rot: '-rotate-[0.5deg]',
+  },
+];
+
+const steps = [
+  {
+    title: 'Partiamo da un problema vero',
+    text: 'Mi racconti cosa fai ogni giorno e cosa ti fa perdere tempo. Non si parte dalla tecnologia, si parte dal processo.',
+  },
+  {
+    title: 'Scegliamo cosa automatizzare',
+    text: "Non tutto conviene. Individuiamo le attività dove l'AI fa davvero risparmiare tempo, e quelle dove è meglio lasciar perdere.",
+  },
+  {
+    title: 'Prototipo in tempi brevi',
+    text: "Grazie all'AI anche nello sviluppo, una prima versione funzionante arriva in giorni, non in mesi. La provi sui tuoi dati reali.",
+  },
+  {
+    title: 'Messa in produzione, con controllo',
+    text: 'Integro la soluzione nei tuoi strumenti, con i punti di verifica umana dove servono. Resta tua, documentata e modificabile.',
+  },
+];
+
+const faqs = [
+  {
+    q: "Cosa si può automatizzare con l'intelligenza artificiale?",
+    a: "Quasi ogni attività ripetitiva che passa da testi, documenti o dati: leggere e smistare email, estrarre informazioni da PDF e fatture, compilare report, rispondere alle domande frequenti dei clienti, collegare software diversi fra loro. Il modo più rapido per capirlo è raccontarmi la tua giornata tipo.",
+  },
+  {
+    q: 'Serve essere una grande azienda per usare l\'AI?',
+    a: "No, anzi. Oggi l'AI ha abbassato molto i tempi e i costi di sviluppo: strumenti su misura che prima avevano senso solo per grandi aziende ora sono alla portata di professionisti, studi e piccole imprese.",
+  },
+  {
+    q: 'Che differenza c\'è con usare ChatGPT o Claude da solo?',
+    a: "Usare un chatbot è utile, ma resta un lavoro manuale: copi, incolli, ricontrolli. Un'automazione su misura lavora direttamente sui tuoi dati e dentro i tuoi strumenti, sempre allo stesso modo, senza che tu debba ricordarti di farlo.",
+  },
+  {
+    q: 'I miei dati sono al sicuro?',
+    a: "La gestione dei dati si decide all'inizio, non dopo. Scegliamo insieme quali dati possono passare da un servizio AI esterno e quali no, preferendo fornitori e configurazioni conformi al GDPR, e lasciando un controllo umano dove le decisioni contano.",
+  },
+  {
+    q: 'Quanto costa un progetto di automazione con AI?',
+    a: "Dipende da cosa c'è da automatizzare e da quanti strumenti vanno collegati. Dopo una prima chiacchierata ti mando una valutazione concreta, con tempi e costi chiari prima di iniziare.",
+  },
+  {
+    q: "L'AI sostituirà le persone del mio team?",
+    a: "L'obiettivo non è sostituire nessuno, ma togliere al team il lavoro meccanico e lasciargli quello in cui le persone fanno la differenza: relazioni, decisioni, qualità.",
+  },
+];
+
+const schema = [
+  {
+    '@type': 'Service',
+    '@id': `${pageUrl}#service`,
+    name: 'Automazioni e sviluppo con intelligenza artificiale',
+    serviceType: 'Automazione dei processi con intelligenza artificiale',
+    description:
+      "Automazioni su misura con l'intelligenza artificiale per il lavoro e il quotidiano: estrazione dati da documenti, gestione email, assistenti per siti web, integrazioni fra software.",
+    provider: { '@id': `${SITE.url}/#person` },
+    areaServed: { '@type': 'Country', name: 'Italia' },
+    url: pageUrl,
+  },
+  {
+    '@type': 'FAQPage',
+    '@id': `${pageUrl}#faq`,
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Intelligenza artificiale e automazioni su misura"
+  description="Automazioni con l'intelligenza artificiale per il lavoro e il quotidiano: email, documenti, report, assistenti per il tuo sito. Sviluppo su misura, raccontami cosa vuoi automatizzare."
+  schema={schema}
+>
+  <section class="bg-orange pt-fluid-6 pb-fluid-7">
+    <div class="page">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-black mb-fluid-4">AI e automazioni</p>
+      <h1 class="text-4xl sm:text-5xl text-yellow mb-fluid-4 leading-[0.95] max-w-[18ch] animate-fade-up motion-reduce:animate-none">
+        L'intelligenza artificiale, <em class="italic text-pink">al lavoro per te</em>.
+      </h1>
+      <p class="text-lg text-black m-0 mb-fluid-5 max-w-prose">
+        Con l'AI oggi si può costruire molto di più, molto più in fretta.
+        Automazioni che prima richiedevano mesi di sviluppo ora sono alla
+        portata di chiunque: per semplificare il lavoro, e anche la vita di
+        tutti i giorni.
+      </p>
+      <a
+        href="/contatti?tipo=ai"
+        class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-yellow text-blue no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full -rotate-[1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-blue)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:bg-pink hover:shadow-[0.95rem_1.1rem_0_var(--color-blue)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-blue)]"
+      >
+        <span>Cosa vuoi automatizzare?</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+             class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+          <path d="M5 12h14" />
+          <path d="M13 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Cosa è cambiato</p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Sviluppare software non è più un lusso</h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Uso l'intelligenza artificiale ogni giorno nello sviluppo. Scrivere
+          codice, collegare servizi, costruire un piccolo strumento interno:
+          cose che richiedevano settimane oggi si fanno in pochi giorni.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Non è magia. L'AI è velocissima a produrre, ma serve qualcuno che
+          sappia cosa chiederle, che controlli il risultato e che lo renda
+          sicuro e affidabile. È lì che entro in gioco io.
+        </p>
+        <p class="text-lg leading-[1.55] m-0">
+          Il risultato è semplice: <strong>automazioni su misura che prima
+          erano roba da grandi aziende ora hanno senso anche per un
+          professionista, uno studio o una piccola impresa</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-beige py-fluid-7">
+    <div class="page">
+      <header class="mb-fluid-6 max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Esempi concreti</p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Cosa puoi automatizzare con l'AI</h2>
+        <p class="text-base text-muted m-0">
+          Qualche idea per cominciare. Se la tua attività ripetitiva non è
+          in lista, è probabile che si possa automatizzare lo stesso.
+        </p>
+      </header>
+
+      <ul role="list" class="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-3 gap-fluid-5">
+        {
+          areas.map((area) => (
+            <li
+              class:list={[
+                'p-fluid-5 rounded-lg shadow-[0.45rem_0.45rem_0_var(--color-blue)] transition-transform duration-400 ease-spring hover:rotate-0 motion-reduce:rotate-0',
+                area.card,
+                area.rot,
+              ]}
+            >
+              <h3 class="font-display text-2xl leading-tight mb-fluid-2 text-current">{area.title}</h3>
+              <p class="m-0 mb-fluid-3 text-base leading-[1.55]">{area.intro}</p>
+              <ul role="list" class="list-none p-0 m-0 flex flex-col gap-fluid-2">
+                {area.examples.map((item) => (
+                  <li class="pl-5 relative text-sm leading-[1.55] before:content-['→'] before:absolute before:left-0 before:font-bold before:opacity-70">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-blue py-fluid-7">
+    <div class="page">
+      <header class="mb-fluid-6 max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-pink mb-fluid-3">Come lavoro</p>
+        <h2 class="font-display text-3xl text-white mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Dall'idea all'automazione, in quattro passi</h2>
+      </header>
+
+      <ol role="list" class="list-none m-0 p-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-fluid-5">
+        {
+          steps.map((step, i) => (
+            <li class="text-white">
+              <span class="block font-display text-3xl text-yellow leading-none mb-fluid-2" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3 class="font-display text-xl text-pink leading-tight m-0 mb-fluid-2">{step.title}</h3>
+              <p class="m-0 text-sm leading-[1.55]">{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-6 lg:grid-cols-[1fr_1.6fr] lg:items-start">
+        <header class="max-w-prose">
+          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Domande frequenti</p>
+          <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">AI e automazioni: le domande che mi fanno più spesso</h2>
+        </header>
+
+        <div class="flex flex-col gap-fluid-3">
+          {
+            faqs.map((faq) => (
+              <details class="group bg-beige rounded-md px-fluid-4 py-fluid-3 [&[open]]:bg-yellow transition-colors duration-150">
+                <summary class="cursor-pointer list-none flex items-start justify-between gap-fluid-3 font-display text-lg text-blue leading-tight [&::-webkit-details-marker]:hidden">
+                  <h3 class="m-0 text-inherit font-inherit text-[length:inherit] leading-[inherit]">{faq.q}</h3>
+                  <span class="shrink-0 transition-transform duration-250 ease-soft group-open:rotate-45" aria-hidden="true">+</span>
+                </summary>
+                <p class="m-0 mt-fluid-2 text-base leading-[1.6] text-fg">{faq.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-yellow py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-4 items-end md:grid-cols-[2fr_1fr]">
+        <div class="max-w-prose">
+          <h2 class="font-display text-4xl text-blue leading-[0.95] m-0 mb-fluid-3 tracking-[-0.02em]">
+            Cosa ti piacerebbe non dover fare più a mano?
+          </h2>
+          <p class="text-lg text-fg m-0">
+            Scrivimi anche se hai solo un'idea vaga. Ti dico se e come si può
+            automatizzare, e quanto tempo ti farebbe risparmiare.
+          </p>
+        </div>
+        <div class="flex md:justify-end">
+          <a
+            href="/contatti?tipo=ai"
+            class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-blue text-yellow no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-orange)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]"
+          >
+            <span>Parliamone</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+              <path d="M5 12h14" />
+              <path d="M13 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

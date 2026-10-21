@@ -75,6 +75,7 @@ import { CONTACT } from '../config';
                 <option value="Web app su misura">Web app su misura</option>
                 <option value="Gestionale interno">Gestionale interno</option>
                 <option value="Landing page">Landing page</option>
+                <option value="Automazione / intelligenza artificiale">Automazione con intelligenza artificiale</option>
                 <option value="Manutenzione / evoluzione">Manutenzione / evoluzione di un sito esistente</option>
                 <option value="Non lo so ancora">Non lo so ancora</option>
               </select>
@@ -180,6 +181,11 @@ import { CONTACT } from '../config';
     const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
     const submitLabel = form?.querySelector<HTMLSpanElement>('[data-submit-label]');
     const defaultLabel = submitLabel?.textContent ?? 'Invia';
+
+    const PRESET_KIND: Record<string, string> = { ai: 'Automazione / intelligenza artificiale' };
+    const presetKind = PRESET_KIND[new URLSearchParams(location.search).get('tipo') ?? ''];
+    const kindSelect = document.getElementById('kind');
+    if (presetKind && kindSelect instanceof HTMLSelectElement) kindSelect.value = presetKind;
 
     const track = (name: string, params: Record<string, unknown>) =>
       (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', name, params);
