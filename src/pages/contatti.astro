@@ -102,6 +102,16 @@ import { CONTACT } from '../config';
               ></textarea>
             </div>
 
+            <p class="text-xs text-muted m-0">
+              Inviando il modulo accetti il trattamento dei dati per rispondere alla tua richiesta, come descritto nella
+              <a
+                href="https://www.iubenda.com/privacy-policy/16220679"
+                target="_blank"
+                rel="noopener"
+                class="underline underline-offset-2 text-inherit"
+              >privacy policy</a>.
+            </p>
+
             <div
               id="form-status"
               role="status"
@@ -171,6 +181,9 @@ import { CONTACT } from '../config';
     const submitLabel = form?.querySelector<HTMLSpanElement>('[data-submit-label]');
     const defaultLabel = submitLabel?.textContent ?? 'Invia';
 
+    const track = (name: string, params: Record<string, unknown>) =>
+      (window as Window & { gtag?: (...args: unknown[]) => void }).gtag?.('event', name, params);
+
     if (form instanceof HTMLFormElement && status && submit && submitLabel) {
       const STATUS_BASE = 'text-sm px-fluid-3 py-fluid-3 rounded-md font-medium m-0';
 
@@ -201,6 +214,8 @@ import { CONTACT } from '../config';
           });
 
           if (response.ok) {
+            const kind = new FormData(form).get('Tipo di progetto');
+            track('generate_lead', { form_id: 'contact', project_type: kind });
             setStatus(
               'Grazie! Ho ricevuto il tuo messaggio. Ti rispondo entro 24 ore lavorative.',
               'success',
@@ -211,6 +226,7 @@ import { CONTACT } from '../config';
             const errors = Array.isArray(data?.errors)
               ? data.errors.map((e: { message?: string }) => e.message).filter(Boolean).join(' ')
               : '';
+            track('form_error', { form_id: 'contact', status: response.status });
             setStatus(
               errors || 'Qualcosa è andato storto. Riprova o scrivimi direttamente via email.',
               'error',
