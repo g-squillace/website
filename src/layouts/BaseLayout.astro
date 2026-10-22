@@ -11,6 +11,8 @@ interface Props {
   imageAlt?: string;
   noindex?: boolean;
   ogType?: 'website' | 'article' | 'profile';
+  /** Nodi JSON-LD aggiuntivi (Service, FAQPage, ...) da affiancare a Person e WebSite */
+  schema?: Record<string, unknown>[];
 }
 
 const netlifyContext = process.env.CONTEXT;
@@ -23,6 +25,7 @@ const {
   imageAlt,
   noindex = isPreviewContext,
   ogType = 'website',
+  schema = [],
 } = Astro.props;
 
 const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
@@ -62,6 +65,8 @@ const personLd = {
     'Headless CMS',
     'E-commerce',
     'Accessibilità web',
+    'Intelligenza artificiale',
+    'Automazione dei processi',
   ],
 };
 
@@ -77,7 +82,7 @@ const websiteLd = {
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@graph': [personLd, websiteLd],
+  '@graph': [personLd, websiteLd, ...schema],
 };
 ---
 

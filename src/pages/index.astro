@@ -253,6 +253,7 @@ const marqueeItems = [
           { side: 'right', title: 'Gestionali interni', text: 'Software che fa funzionare meglio l\'azienda dietro le quinte: CRM su misura, gestione ordini, anagrafiche, flussi di approvazione.' },
           { side: 'left', title: 'Landing page', text: 'Una pagina che fa una cosa sola, e la fa bene: convertire. Per campagne, lanci di prodotto, acquisizione contatti.' },
           { side: 'right', title: 'Manutenzione ed evoluzione', text: 'Hai già un sito che va aggiornato, esteso, o messo in sicurezza? Posso prendermi cura di quello che hai senza rifare tutto da zero.' },
+          { side: 'left', title: 'Automazioni con AI', text: 'L\'intelligenza artificiale al lavoro sulle attività ripetitive: email, documenti, report, assistenti per il tuo sito. Su misura, anche per piccole realtà.' },
         ].map((s) => (
           <li
             tabindex="0"
@@ -288,6 +289,38 @@ const marqueeItems = [
           Approfondisci ogni servizio →
         </a>
       </p>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       AI E AUTOMAZIONI — teaser verso /intelligenza-artificiale
+       ============================================================= -->
+  <section class="bg-yellow py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-4 items-end md:grid-cols-[2fr_1fr]">
+        <div class="max-w-prose">
+          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-blue mb-fluid-3">AI e automazioni</p>
+          <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Con l'intelligenza artificiale si fa di più, in meno tempo</h2>
+          <p class="text-lg text-fg m-0">
+            Email da smistare, documenti da trascrivere, report da compilare:
+            oggi un'automazione su misura costa molto meno di quanto pensi,
+            e semplifica il lavoro e anche la vita di tutti i giorni.
+          </p>
+        </div>
+        <div class="flex md:justify-end">
+          <a
+            href="/intelligenza-artificiale"
+            class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-blue text-yellow no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-orange)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]"
+          >
+            <span>Scopri cosa automatizzare</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+              <path d="M5 12h14" />
+              <path d="M13 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 

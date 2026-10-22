@@ -8,6 +8,7 @@ interface Service {
   whenItFits: string[];
   includes: string[];
   startsFrom?: string;
+  link?: { href: string; label: string };
   variant: 'orange' | 'pink' | 'yellow' | 'blue' | 'beige';
 }
 
@@ -32,6 +33,12 @@ const services: Service[] = [
     whenItFits: ['I gestionali generici sul mercato non si adattano al tuo modo di lavorare','Le tue persone passano ore a fare avanti e indietro tra fogli e software','Hai dati sparsi in posti diversi che non parlano fra loro'],
     includes: ['Mappatura dei processi e dei dati esistenti','Sviluppo del gestionale con interfaccia su misura','Importazione dati legacy e integrazione con sistemi esistenti','Formazione del team e supporto post-rilascio'],
     startsFrom: 'Tempi tipici: dalle 6 settimane in su' },
+  { id: 'automazioni-ai', name: 'Automazioni con intelligenza artificiale', variant: 'pink',
+    intro: 'L\'AI messa al lavoro sulle attività ripetitive: email, documenti, report, risposte ai clienti. Automazioni su misura che oggi hanno senso anche per professionisti e piccole imprese.',
+    whenItFits: ['Tu o il tuo team passate ore su attività ripetitive','Ricevi documenti, ordini o richieste da smistare e trascrivere a mano','Vuoi un assistente sul sito che risponda ai clienti con le tue informazioni'],
+    includes: ['Analisi delle attività da automatizzare e di quelle da lasciare alle persone','Prototipo funzionante sui tuoi dati reali','Integrazione con email, gestionale, CRM e strumenti che usi già','Scelte di privacy e controllo umano definite fin dall\'inizio'],
+    startsFrom: 'Tempi tipici: da pochi giorni per un\'automazione singola',
+    link: { href: '/intelligenza-artificiale', label: 'Scopri cosa puoi automatizzare →' } },
   { id: 'landing', name: 'Landing page', variant: 'beige',
     intro: 'Una pagina, un obiettivo. Per una campagna, il lancio di un prodotto, l\'acquisizione di contatti. Pensata e scritta per convertire, non per essere bella e basta.',
     whenItFits: ['Stai lanciando un nuovo prodotto o servizio','Hai una campagna pubblicitaria attiva e ti serve dove portare il traffico','Vuoi testare un\'idea sul mercato senza costruire un sito completo'],
@@ -74,7 +81,7 @@ const titleClass = (variant: Service['variant']) => ({
 
 <BaseLayout
   title="Servizi: siti web, e-commerce e web app"
-  description="Siti vetrina, e-commerce, web app, gestionali, landing page e manutenzione di siti esistenti. Sviluppo frontend su misura per ogni esigenza e budget."
+  description="Siti vetrina, e-commerce, web app, gestionali, automazioni con intelligenza artificiale, landing page e manutenzione di siti esistenti. Sviluppo frontend su misura per ogni esigenza e budget."
 >
   <section class="bg-orange pt-fluid-6 pb-fluid-7">
     <div class="page">
@@ -83,7 +90,7 @@ const titleClass = (variant: Service['variant']) => ({
         Cosa posso<br /><em class="italic text-pink">fare per te</em>.
       </h1>
       <p class="text-lg text-black m-0 max-w-prose">
-        Sei tipi di lavoro, una sola filosofia: capire cosa ti serve davvero
+        Sette tipi di lavoro, una sola filosofia: capire cosa ti serve davvero
         prima di scrivere una riga di codice. Qui sotto i dettagli di ognuno.
       </p>
     </div>
@@ -173,6 +180,13 @@ const titleClass = (variant: Service['variant']) => ({
 
               {service.startsFrom && (
                 <p class="mt-fluid-3 m-0 italic text-sm opacity-85">{service.startsFrom}</p>
+              )}
+              {service.link && (
+                <p class="mt-fluid-3 m-0">
+                  <a href={service.link.href} class="font-display font-bold text-inherit underline underline-offset-4">
+                    {service.link.label}
+                  </a>
+                </p>
               )}
             </li>
           ))
