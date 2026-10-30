@@ -5,7 +5,8 @@ lavori gestiti su [DatoCMS](https://www.datocms.com) (model `post`).
 
 ## Stack
 
-- **Astro 5** con TypeScript strict, output statico (SSG)
+- **Astro 5** con TypeScript strict, output statico (SSG) e adapter Netlify
+  per le poche rotte server-side (`/report`)
 - **Content Collections** con custom loader che fetcha da DatoCMS al build
 - **DatoCMS** — Content Delivery API via `@datocms/cda-client`, structured
   text renderizzato server-side
@@ -28,6 +29,13 @@ npm run dev
 ```
 
 Apri http://localhost:4321/.
+
+## Cruscotto settimanale
+
+Pagina privata su `/report`, protetta da login, con i risultati del sito
+settimana per settimana (GA4 + Search Console, opportunità SEO e spunti di
+upselling). Istruzioni e setup delle credenziali Google in
+[docs/cruscotto-settimanale.md](docs/cruscotto-settimanale.md).
 
 ## Build per produzione
 

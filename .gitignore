@@ -26,3 +26,6 @@ pnpm-debug.log*
 !.vscode/launch.json
 .idea/
 .history
+
+# Local Netlify folder
+.netlify

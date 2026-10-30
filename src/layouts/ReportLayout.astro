@@ -1,0 +1,66 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+
+interface Props {
+  title: string;
+  showLogout?: boolean;
+}
+
+const { title, showLogout = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/fonts/Figtree/Figtree-VariableFont_wght.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <title>{title} — {SITE.name}</title>
+  </head>
+  <body class="bg-surface">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-100 focus:bg-fg focus:text-bg focus:px-4 focus:py-2"
+    >
+      Salta al contenuto
+    </a>
+
+    <header class="border-b-2 border-fg bg-bg">
+      <div class="page flex flex-wrap items-center justify-between gap-fluid-3 py-fluid-3">
+        <p class="font-display text-lg">
+          <a href="/" class="underline-offset-4 hover:underline">{SITE.name}</a>
+          <span class="text-muted font-sans text-sm font-normal"> / cruscotto</span>
+        </p>
+        {
+          showLogout && (
+            <form method="POST" action="/api/report/logout">
+              <button
+                type="submit"
+                class="min-h-11 rounded-md border-2 border-fg px-fluid-3 py-fluid-1 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg"
+              >
+                Esci
+              </button>
+            </form>
+          )
+        }
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="page py-fluid-5 text-sm text-muted">
+      <p>Pagina privata, non indicizzata. I dati arrivano da Google Analytics 4 e Google Search Console.</p>
+    </footer>
+  </body>
+</html>

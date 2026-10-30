@@ -1,0 +1,104 @@
+---
+export const prerender = false;
+
+import ReportLayout from '../../layouts/ReportLayout.astro';
+import {
+  createSessionToken,
+  credentialsConfigured,
+  isAuthenticated,
+  setSessionCookie,
+  verifyCredentials,
+} from '../../lib/report/auth';
+
+const configured = credentialsConfigured();
+
+if (await isAuthenticated(Astro.cookies)) {
+  return Astro.redirect('/report', 302);
+}
+
+let error: string | null = null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const user = form.get('user');
+  const password = form.get('password');
+  if (typeof user !== 'string' || typeof password !== 'string') {
+    error = 'Compila entrambi i campi.';
+  } else if (!configured) {
+    error = 'Le credenziali non sono ancora configurate su questo ambiente.';
+  } else if (verifyCredentials(user, password)) {
+    const token = await createSessionToken(user.trim().toLowerCase());
+    setSessionCookie(Astro.cookies, token, Astro.url.protocol === 'https:');
+    return Astro.redirect('/report', 303);
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    error = 'Utente o password non corretti.';
+  }
+}
+---
+
+<ReportLayout title="Accesso al cruscotto">
+  <div class="page flex min-h-[70vh] items-center justify-center py-fluid-6">
+    <div class="w-full max-w-md rounded-lg border-2 border-fg bg-bg p-fluid-5 shadow-[0.5rem_0.5rem_0_var(--color-blue)]">
+      <h1 class="font-display text-3xl">Area riservata</h1>
+      <p class="mt-fluid-2 text-sm text-muted">
+        I risultati del sito, settimana per settimana. Solo per te.
+      </p>
+
+      {
+        error !== null && (
+          <p
+            role="alert"
+            class="mt-fluid-4 rounded-md border-2 border-fg bg-orange px-fluid-3 py-fluid-2 text-sm font-semibold text-black"
+          >
+            {error}
+          </p>
+        )
+      }
+
+      {
+        !configured && (
+          <p class="mt-fluid-4 rounded-md border-2 border-border bg-surface px-fluid-3 py-fluid-2 text-sm">
+            Imposta <code class="font-mono">REPORT_USER</code>, <code class="font-mono">REPORT_PASSWORD</code> e{' '}
+            <code class="font-mono">REPORT_SESSION_SECRET</code> nelle variabili d'ambiente per abilitare l'accesso.
+          </p>
+        )
+      }
+
+      <form method="POST" class="mt-fluid-5 flex flex-col gap-fluid-4">
+        <div class="flex flex-col gap-fluid-1">
+          <label for="user" class="text-sm font-semibold">Utente</label>
+          <input
+            id="user"
+            name="user"
+            type="text"
+            required
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            class="min-h-11 rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2"
+          />
+        </div>
+
+        <div class="flex flex-col gap-fluid-1">
+          <label for="password" class="text-sm font-semibold">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autocomplete="current-password"
+            class="min-h-11 rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="min-h-11 rounded-md border-2 border-fg bg-blue px-fluid-4 py-fluid-2 font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none"
+        >
+          Entra
+        </button>
+      </form>
+    </div>
+  </div>
+</ReportLayout>

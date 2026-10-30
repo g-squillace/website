@@ -1,0 +1,45 @@
+---
+import DeltaBadge from './DeltaBadge.astro';
+
+interface Props {
+  label: string;
+  value: string;
+  current: number;
+  previous: number;
+  previousLabel: string;
+  hint?: string;
+  lowerIsBetter?: boolean;
+  variant?: 'plain' | 'orange' | 'yellow' | 'pink' | 'beige';
+}
+
+const {
+  label,
+  value,
+  current,
+  previous,
+  previousLabel,
+  hint,
+  lowerIsBetter = false,
+  variant = 'plain',
+} = Astro.props;
+
+const surface = {
+  plain: 'bg-bg text-fg',
+  orange: 'bg-orange text-black',
+  yellow: 'bg-yellow text-blue',
+  pink: 'bg-pink text-blue',
+  beige: 'bg-beige text-fg',
+}[variant];
+
+const subdued = variant === 'plain' ? 'text-muted' : 'font-medium';
+---
+
+<div class={`flex flex-col gap-fluid-2 rounded-lg border-2 border-fg p-fluid-4 ${surface}`}>
+  <p class={`text-xs font-semibold uppercase tracking-[0.12em] ${subdued}`}>{label}</p>
+  <p class="font-display text-4xl leading-none">{value}</p>
+  <div class="flex flex-wrap items-center gap-fluid-2">
+    <DeltaBadge current={current} previous={previous} lowerIsBetter={lowerIsBetter} />
+    <span class={`text-xs ${subdued}`}>da {previousLabel}</span>
+  </div>
+  {hint && <p class={`text-sm ${subdued}`}>{hint}</p>}
+</div>

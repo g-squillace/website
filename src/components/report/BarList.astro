@@ -1,0 +1,43 @@
+---
+import { formatNumber, formatPercent } from '../../lib/report/format';
+import type { NamedRow } from '../../lib/report/types';
+
+interface Props {
+  title: string;
+  rows: NamedRow[];
+  unit: string;
+  emptyMessage?: string;
+}
+
+const { title, rows, unit, emptyMessage = 'Nessun dato per questa settimana.' } = Astro.props;
+const peak = rows.reduce((max, row) => Math.max(max, row.value), 0);
+---
+
+<section class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
+  <h3 class="mb-fluid-3 text-base font-semibold">{title}</h3>
+  {
+    rows.length === 0 ? (
+      <p class="text-sm text-muted">{emptyMessage}</p>
+    ) : (
+      <ul class="flex flex-col gap-fluid-2">
+        {rows.map((row) => (
+          <li class="flex flex-col gap-1">
+            <div class="flex items-baseline justify-between gap-fluid-2">
+              <span class="text-sm font-medium break-words">{row.label}</span>
+              <span class="shrink-0 text-sm tabular-nums text-muted">
+                {formatNumber(row.value)} {unit}
+                <span class="ml-1">({formatPercent(row.share, 0)})</span>
+              </span>
+            </div>
+            <div class="h-2 w-full overflow-hidden rounded-sm bg-surface" aria-hidden="true">
+              <div
+                class="h-full rounded-sm bg-blue"
+                style={`width: ${peak > 0 ? Math.max(2, (row.value / peak) * 100) : 0}%`}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>

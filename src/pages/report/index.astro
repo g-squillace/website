@@ -1,0 +1,305 @@
+---
+export const prerender = false;
+
+import ReportLayout from '../../layouts/ReportLayout.astro';
+import StatCard from '../../components/report/StatCard.astro';
+import BarList from '../../components/report/BarList.astro';
+import WeekBars from '../../components/report/WeekBars.astro';
+import QueryTable from '../../components/report/QueryTable.astro';
+import OpportunityList from '../../components/report/OpportunityList.astro';
+import { isAuthenticated } from '../../lib/report/auth';
+import { buildWeeklyReport, MAX_WEEKS_BACK } from '../../lib/report';
+import {
+  formatDate,
+  formatDecimal,
+  formatDuration,
+  formatNumber,
+  formatPercent,
+} from '../../lib/report/format';
+
+if (!(await isAuthenticated(Astro.cookies))) {
+  return Astro.redirect('/report/login', 302);
+}
+
+const requested = Number.parseInt(Astro.url.searchParams.get('w') ?? '0', 10);
+const weeksBack = Number.isFinite(requested) ? Math.min(Math.max(requested, 0), MAX_WEEKS_BACK) : 0;
+
+const report = await buildWeeklyReport(weeksBack);
+
+const navLink =
+  'inline-flex min-h-11 items-center rounded-md border-2 border-fg px-fluid-3 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg';
+const navDisabled =
+  'inline-flex min-h-11 items-center rounded-md border-2 border-border px-fluid-3 text-sm font-semibold text-muted';
+
+const { week, previousWeek, traffic, search, leads } = report;
+
+const notices = [report.analyticsSource, report.searchSource].filter(
+  (source) => source.status !== 'live' && source.message !== null,
+);
+
+const staleSearch =
+  search.freshUntil !== null && search.freshUntil < week.end ? formatDate(search.freshUntil) : null;
+
+const topPageRows = traffic.topPages.slice(0, 8).map((page) => ({
+  label: page.path,
+  value: page.views,
+  share: traffic.pageViews.current > 0 ? page.views / traffic.pageViews.current : 0,
+}));
+
+const searchPageRows = search.topPages.map((page) => ({
+  label: page.path,
+  value: page.views,
+  share: search.clicks.current > 0 ? page.views / search.clicks.current : 0,
+}));
+
+const brandedRows = [
+  {
+    label: 'Ti cercano per nome',
+    value: search.brandedClicks,
+    share: search.clicks.current > 0 ? search.brandedClicks / search.clicks.current : 0,
+  },
+  {
+    label: 'Ti hanno scoperto da zero',
+    value: search.nonBrandedClicks,
+    share: search.clicks.current > 0 ? search.nonBrandedClicks / search.clicks.current : 0,
+  },
+];
+---
+
+<ReportLayout title={`Risultati ${week.label}`} showLogout>
+  <div class="page flex flex-col gap-fluid-6 py-fluid-5">
+    <header class="flex flex-col gap-fluid-4">
+      <div class="flex flex-wrap items-end justify-between gap-fluid-3">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+            Settimana {week.isoWeek} · {week.year}
+          </p>
+          <h1 class="mt-fluid-1 font-display text-4xl">{week.label}</h1>
+        </div>
+
+        <nav aria-label="Scegli la settimana" class="flex items-center gap-fluid-2">
+          {
+            weeksBack >= MAX_WEEKS_BACK ? (
+              <span class={navDisabled}>← Precedente</span>
+            ) : (
+              <a href={`/report?w=${weeksBack + 1}`} class={navLink}>
+                ← Precedente
+              </a>
+            )
+          }
+          {
+            weeksBack === 0 ? (
+              <span class={navDisabled}>Successiva →</span>
+            ) : (
+              <a href={`/report?w=${weeksBack - 1}`} class={navLink}>
+                Successiva →
+              </a>
+            )
+          }
+        </nav>
+      </div>
+
+      <p class="max-w-prose rounded-lg border-2 border-fg bg-yellow px-fluid-4 py-fluid-3 font-display text-xl text-blue">
+        {report.headline}
+      </p>
+
+      {
+        notices.length > 0 && (
+          <div class="flex flex-col gap-fluid-2">
+            {notices.map((notice) => (
+              <p
+                role={notice.status === 'error' ? 'alert' : undefined}
+                class="rounded-md border-2 border-fg bg-pink px-fluid-3 py-fluid-2 text-sm text-blue"
+              >
+                <strong>{notice.status === 'error' ? 'Collegamento non riuscito: ' : 'Anteprima: '}</strong>
+                {notice.message}
+              </p>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <section aria-labelledby="sintesi" class="flex flex-col gap-fluid-3">
+      <h2 id="sintesi" class="font-display text-2xl">In breve</h2>
+      <div class="grid gap-fluid-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Contatti ricevuti"
+          value={formatNumber(leads.total.current)}
+          current={leads.total.current}
+          previous={leads.total.previous}
+          previousLabel={previousWeek.label}
+          variant="orange"
+          hint={leads.tracked
+            ? 'Invii del form contatti e clic sulla mail.'
+            : 'Nessun evento di contatto registrato su GA4 in questa settimana.'}
+        />
+        <StatCard
+          label="Clic da Google"
+          value={formatNumber(search.clicks.current)}
+          current={search.clicks.current}
+          previous={search.clicks.previous}
+          previousLabel={previousWeek.label}
+          variant="yellow"
+          hint={`${formatNumber(search.impressions.current)} volte sei comparso nei risultati.`}
+        />
+        <StatCard
+          label="Sessioni sul sito"
+          value={formatNumber(traffic.sessions.current)}
+          current={traffic.sessions.current}
+          previous={traffic.sessions.previous}
+          previousLabel={previousWeek.label}
+          variant="beige"
+          hint={`${formatNumber(traffic.users.current)} persone, ${formatDuration(traffic.averageSessionSeconds.current)} in media.`}
+        />
+        <StatCard
+          label="Posizione media"
+          value={formatDecimal(search.position.current, 1)}
+          current={search.position.current}
+          previous={search.position.previous}
+          previousLabel={previousWeek.label}
+          lowerIsBetter
+          variant="pink"
+          hint={`CTR ${formatPercent(search.ctr.current, 1)} sui risultati mostrati.`}
+        />
+      </div>
+
+      {
+        staleSearch !== null && (
+          <p class="text-sm text-muted">
+            Search Console ha dati definitivi fino al {staleSearch}: gli ultimi giorni della settimana possono
+            ancora salire.
+          </p>
+        )
+      }
+    </section>
+
+    <section aria-labelledby="andamento" class="flex flex-col gap-fluid-3">
+      <h2 id="andamento" class="font-display text-2xl">Giorno per giorno</h2>
+      <div class="grid gap-fluid-3 lg:grid-cols-2">
+        <WeekBars
+          points={report.daily}
+          metric="sessions"
+          title="Sessioni sul sito"
+          description={`${formatNumber(traffic.sessions.current)} in tutta la settimana`}
+        />
+        <WeekBars
+          points={report.daily}
+          metric="clicks"
+          title="Clic arrivati da Google"
+          description={`${formatNumber(search.clicks.current)} in tutta la settimana`}
+        />
+      </div>
+    </section>
+
+    <section aria-labelledby="come-ti-trovano" class="flex flex-col gap-fluid-3">
+      <h2 id="come-ti-trovano" class="font-display text-2xl">Come ti trovano</h2>
+      <p class="max-w-prose text-sm text-muted">
+        Le ricerche su Google che hanno mostrato il tuo sito. "Viste" è quante volte sei comparso, "clic" quante
+        volte qualcuno è entrato.
+      </p>
+      <div class="grid gap-fluid-3 lg:grid-cols-[2fr_1fr]">
+        <div class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
+          <h3 class="mb-fluid-3 text-base font-semibold">Ricerche che portano più visite</h3>
+          <QueryTable caption="Ricerche con più clic nella settimana" rows={search.topQueries} />
+        </div>
+        <div class="flex flex-col gap-fluid-3">
+          <BarList title="Ti conoscevano già?" rows={brandedRows} unit="clic" />
+          <BarList title="Pagine di atterraggio da Google" rows={searchPageRows} unit="clic" />
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="opportunita" class="flex flex-col gap-fluid-3">
+      <h2 id="opportunita" class="font-display text-2xl">Dove sei a un passo</h2>
+      <p class="max-w-prose text-sm text-muted">
+        Ricerche in cui Google ti mostra già, ma troppo in basso perché qualcuno clicchi. Sono il margine più
+        facile da recuperare: il contenuto esiste, va solo rinforzato.
+      </p>
+      <OpportunityList
+        items={report.opportunities}
+        emptyMessage="Nessuna ricerca in zona utile questa settimana."
+      />
+    </section>
+
+    <section aria-labelledby="potresti-comparire" class="flex flex-col gap-fluid-3">
+      <h2 id="potresti-comparire" class="font-display text-2xl">Dove potresti comparire</h2>
+      <p class="max-w-prose text-sm text-muted">
+        Google ti considera pertinente per queste ricerche, ma ti piazza oltre la seconda pagina: in pratica non
+        ti vede nessuno. Se sono servizi che vuoi vendere, qui manca una pagina dedicata.
+      </p>
+      <OpportunityList
+        items={report.invisible}
+        showPotential={false}
+        emptyMessage="Nessuna ricerca fuori portata registrata questa settimana."
+      />
+    </section>
+
+    <section aria-labelledby="upselling" class="flex flex-col gap-fluid-3">
+      <h2 id="upselling" class="font-display text-2xl">Spunti di upselling</h2>
+      <p class="max-w-prose text-sm text-muted">
+        Cosa cerca davvero chi arriva da te, raggruppato per servizio. Dove la domanda è alta e l'offerta sul
+        sito è magra, c'è un lavoro da proporre.
+      </p>
+      {
+        report.upsell.length === 0 ? (
+          <p class="text-sm text-muted">
+            Nessun segnale commerciale chiaro questa settimana: troppe poche ricerche per trarne qualcosa.
+          </p>
+        ) : (
+          <ul class="grid gap-fluid-3 md:grid-cols-2">
+            {report.upsell.map((signal) => (
+              <li class="flex flex-col gap-fluid-2 rounded-lg border-2 border-fg bg-bg p-fluid-4">
+                <div class="flex flex-wrap items-baseline justify-between gap-fluid-2">
+                  <h3 class="text-base font-semibold">{signal.service}</h3>
+                  <span class="rounded-sm bg-beige px-2 py-0.5 text-xs font-semibold text-fg tabular-nums">
+                    {formatNumber(signal.impressions)} viste · {formatNumber(signal.clicks)} clic
+                  </span>
+                </div>
+                <p class="text-sm">{signal.pitch}</p>
+                <ul class="flex flex-wrap gap-fluid-1">
+                  {signal.queries.map((query) => (
+                    <li class="rounded-sm bg-surface px-2 py-0.5 text-xs text-muted">{query}</li>
+                  ))}
+                </ul>
+                <a
+                  href={signal.href}
+                  class="mt-auto inline-flex min-h-11 items-center text-sm font-semibold text-accent underline underline-offset-4"
+                >
+                  Vedi la pagina che vende questo servizio →
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+
+    <section aria-labelledby="traffico" class="flex flex-col gap-fluid-3">
+      <h2 id="traffico" class="font-display text-2xl">Da dove arriva il traffico</h2>
+      <div class="grid gap-fluid-3 md:grid-cols-2 lg:grid-cols-3">
+        <BarList title="Canali" rows={traffic.channels} unit="sessioni" />
+        <BarList title="Dispositivi" rows={traffic.devices} unit="sessioni" />
+        <BarList title="Pagine più viste" rows={topPageRows} unit="viste" />
+      </div>
+      <dl class="grid gap-fluid-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-md border-2 border-border bg-bg p-fluid-3">
+          <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Nuove persone</dt>
+          <dd class="mt-1 font-display text-2xl">{formatNumber(traffic.newUsers.current)}</dd>
+        </div>
+        <div class="rounded-md border-2 border-border bg-bg p-fluid-3">
+          <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Pagine viste</dt>
+          <dd class="mt-1 font-display text-2xl">{formatNumber(traffic.pageViews.current)}</dd>
+        </div>
+        <div class="rounded-md border-2 border-border bg-bg p-fluid-3">
+          <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Coinvolgimento</dt>
+          <dd class="mt-1 font-display text-2xl">{formatPercent(traffic.engagementRate.current, 0)}</dd>
+        </div>
+        <div class="rounded-md border-2 border-border bg-bg p-fluid-3">
+          <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Durata media</dt>
+          <dd class="mt-1 font-display text-2xl">{formatDuration(traffic.averageSessionSeconds.current)}</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+</ReportLayout>

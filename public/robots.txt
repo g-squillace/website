@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /report
+Disallow: /api/report
 
 Sitemap: https://www.guidosquillace.it/sitemap.xml

@@ -1,0 +1,32 @@
+---
+import { delta } from '../../lib/report/format';
+
+interface Props {
+  current: number;
+  previous: number;
+  lowerIsBetter?: boolean;
+  comparedTo?: string;
+}
+
+const { current, previous, lowerIsBetter = false, comparedTo = 'settimana precedente' } = Astro.props;
+const change = delta(current, previous, lowerIsBetter);
+
+const tone = {
+  up: 'bg-yellow text-blue',
+  down: 'bg-orange text-black',
+  flat: 'bg-bg text-fg border-2 border-border',
+}[change.direction];
+
+const arrow = { up: '▲', down: '▼', flat: '■' }[change.direction];
+const spoken = {
+  up: lowerIsBetter ? 'in miglioramento' : 'in crescita',
+  down: lowerIsBetter ? 'in peggioramento' : 'in calo',
+  flat: 'stabile',
+}[change.direction];
+---
+
+<span class={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs font-semibold ${tone}`}>
+  <span aria-hidden="true">{arrow}</span>
+  <span>{change.label}</span>
+  <span class="sr-only">{spoken} rispetto alla {comparedTo}</span>
+</span>
