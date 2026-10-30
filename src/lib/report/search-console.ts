@@ -1,5 +1,6 @@
 import { googlePost } from './google';
 import { readEnv } from './env';
+import { REPORT } from '../../config';
 import type { QueryRow, WeekRange } from './types';
 
 const SEARCH_CONSOLE_API = 'https://searchconsole.googleapis.com/webmasters/v3';
@@ -28,7 +29,7 @@ interface RawRow {
 }
 
 export function siteUrl(): string | null {
-  return readEnv('SEARCH_CONSOLE_SITE_URL');
+  return readEnv('SEARCH_CONSOLE_SITE_URL') ?? REPORT.searchConsoleSiteUrl;
 }
 
 function readRows(payload: unknown): RawRow[] {

@@ -30,8 +30,19 @@ runtime risultano `undefined`.
 | `REPORT_PASSWORD` | password per il login |
 | `REPORT_SESSION_SECRET` | chiave con cui si firma il cookie di sessione |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | credenziali del service account, JSON intero o in base64 |
-| `GA4_PROPERTY_ID` | id numerico della property GA4 |
-| `SEARCH_CONSOLE_SITE_URL` | proprietà Search Console, es. `https://www.guidosquillace.it/` |
+
+L'id della property GA4 e la proprietà Search Console non sono segreti e
+stanno in `REPORT` dentro `src/config.ts`. `GA4_PROPERTY_ID` e
+`SEARCH_CONSOLE_SITE_URL` restano accettate come override.
+
+Su questo progetto Netlify le variabili impostate **senza** `--secret` non
+arrivano al runtime delle function: `netlify env:set` risponde ok ma il valore
+non compare. Per questo nell'ambiente vive solo ciò che è davvero segreto, e
+va impostato così:
+
+```sh
+netlify env:set NOME "valore" --secret --scope builds functions runtime --context production
+```
 
 L'utente del login è `guido`, fissato in `DEFAULT_USER` dentro
 `src/lib/report/auth.ts`. Non è un segreto, quindi non sta fra le variabili

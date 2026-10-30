@@ -24,6 +24,11 @@ export const NAV: ReadonlyArray<{ href: string; label: string }> = [
   { href: '/contatti', label: 'Contatti' },
 ];
 
+export const REPORT = {
+  ga4PropertyId: '538345796',
+  searchConsoleSiteUrl: 'sc-domain:guidosquillace.it',
+} as const;
+
 export const CONTACT = {
   email: 'info@guidosquillace.it',
 } as const;

@@ -64,7 +64,7 @@ export async function buildWeeklyReport(
     analytics = demoAnalytics(week);
     analyticsSource = {
       status: 'demo',
-      message: `Dati di esempio: manca ${missingList(['GOOGLE_SERVICE_ACCOUNT_JSON', 'GA4_PROPERTY_ID'])}.`,
+      message: `Dati di esempio: manca ${missingList(['GOOGLE_SERVICE_ACCOUNT_JSON'])}.`,
     };
   }
 
@@ -82,7 +82,7 @@ export async function buildWeeklyReport(
     search = demoSearchConsole(week);
     searchSource = {
       status: 'demo',
-      message: `Dati di esempio: manca ${missingList(['GOOGLE_SERVICE_ACCOUNT_JSON', 'SEARCH_CONSOLE_SITE_URL'])}.`,
+      message: `Dati di esempio: manca ${missingList(['GOOGLE_SERVICE_ACCOUNT_JSON'])}.`,
     };
   }
 

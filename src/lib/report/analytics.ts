@@ -1,5 +1,6 @@
 import { googlePost } from './google';
 import { readEnv } from './env';
+import { REPORT } from '../../config';
 import type { NamedRow, PageRow, WeekRange } from './types';
 
 const DATA_API = 'https://analyticsdata.googleapis.com/v1beta';
@@ -30,8 +31,8 @@ export interface AnalyticsWeek {
 }
 
 export function propertyId(): string | null {
-  const raw = readEnv('GA4_PROPERTY_ID');
-  if (raw === null) return null;
+  const raw = readEnv('GA4_PROPERTY_ID') ?? REPORT.ga4PropertyId;
+  if (raw === '') return null;
   return raw.replace(/^properties\//, '');
 }
 
