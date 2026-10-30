@@ -60,6 +60,12 @@ function isSessionPayload(value: unknown): value is SessionPayload {
   return typeof candidate.user === 'string' && typeof candidate.exp === 'number';
 }
 
+export function missingCredentialVars(): string[] {
+  return ['REPORT_USER', 'REPORT_PASSWORD', 'REPORT_SESSION_SECRET'].filter(
+    (name) => readEnv(name) === null,
+  );
+}
+
 export function credentialsConfigured(): boolean {
   return readEnv('REPORT_USER') !== null && readEnv('REPORT_PASSWORD') !== null;
 }
