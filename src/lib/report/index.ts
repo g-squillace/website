@@ -2,6 +2,7 @@ import { fetchAnalytics, propertyId, LEAD_EVENTS, type AnalyticsTotals, type Ana
 import { fetchSearchConsole, siteUrl, type SearchTotals, type SearchWeek } from './search-console';
 import { demoAnalytics, demoSearchConsole } from './demo';
 import { serviceAccount } from './google';
+import { readEnv } from './env';
 import {
   buildHeadline,
   invisibleQueries,
@@ -17,6 +18,11 @@ export { completeWeek } from './week';
 export type { WeeklyReport } from './types';
 
 export const MAX_WEEKS_BACK = 25;
+
+function missingList(names: string[]): string {
+  const missing = names.filter((name) => readEnv(name) === null);
+  return missing.length > 0 ? missing.join(', ') : 'credenziali non valide';
+}
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Errore sconosciuto';
@@ -58,7 +64,7 @@ export async function buildWeeklyReport(
     analytics = demoAnalytics(week);
     analyticsSource = {
       status: 'demo',
-      message: 'Dati di esempio: mancano GOOGLE_SERVICE_ACCOUNT_JSON o GA4_PROPERTY_ID.',
+      message: `Dati di esempio: manca ${missingList(['GOOGLE_SERVICE_ACCOUNT_JSON', 'GA4_PROPERTY_ID'])}.`,
     };
   }
 
@@ -76,7 +82,7 @@ export async function buildWeeklyReport(
     search = demoSearchConsole(week);
     searchSource = {
       status: 'demo',
-      message: 'Dati di esempio: mancano GOOGLE_SERVICE_ACCOUNT_JSON o SEARCH_CONSOLE_SITE_URL.',
+      message: `Dati di esempio: manca ${missingList(['GOOGLE_SERVICE_ACCOUNT_JSON', 'SEARCH_CONSOLE_SITE_URL'])}.`,
     };
   }
 
