@@ -2,7 +2,14 @@ import { fetchAnalytics, propertyId, LEAD_EVENTS, type AnalyticsTotals, type Ana
 import { fetchSearchConsole, siteUrl, type SearchTotals, type SearchWeek } from './search-console';
 import { demoAnalytics, demoSearchConsole } from './demo';
 import { serviceAccount } from './google';
-import { buildHeadline, invisibleQueries, isBranded, strikingDistance, upsellSignals } from './insights';
+import {
+  buildHeadline,
+  invisibleQueries,
+  isBranded,
+  portfolioMatcher,
+  strikingDistance,
+  upsellSignals,
+} from './insights';
 import { completeWeek, weekDays, weekdayLabel } from './week';
 import type { DailyPoint, NamedRow, SourceState, WeeklyReport } from './types';
 
@@ -28,7 +35,10 @@ function leadsFromEvents(events: NamedRow[]): { total: number; byEvent: NamedRow
   };
 }
 
-export async function buildWeeklyReport(weeksBack: number): Promise<WeeklyReport> {
+export async function buildWeeklyReport(
+  weeksBack: number,
+  portfolioTitles: string[] = [],
+): Promise<WeeklyReport> {
   const week = completeWeek(new Date(), weeksBack);
   const previousWeek = completeWeek(new Date(), weeksBack + 1);
 
@@ -87,7 +97,10 @@ export async function buildWeeklyReport(weeksBack: number): Promise<WeeklyReport
   });
 
   const queries = search.current.queries;
-  const opportunities = strikingDistance(queries);
+  const isPortfolio = portfolioMatcher(portfolioTitles);
+  const isService = (query: string) => !isPortfolio(query);
+  const opportunities = strikingDistance(queries, isService);
+  const portfolioOpportunities = strikingDistance(queries, isPortfolio);
   const brandedClicks = queries.filter((row) => isBranded(row.query)).reduce((sum, row) => sum + row.clicks, 0);
 
   return {
@@ -133,8 +146,9 @@ export async function buildWeeklyReport(weeksBack: number): Promise<WeeklyReport
     },
     daily,
     opportunities,
-    invisible: invisibleQueries(queries),
-    upsell: upsellSignals(queries),
+    portfolioOpportunities,
+    invisible: invisibleQueries(queries, isService),
+    upsell: upsellSignals(queries, isService),
     headline: buildHeadline(
       leads.total,
       previousLeads.total,

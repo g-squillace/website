@@ -90,11 +90,21 @@ anche lì.
 | File | Cosa contiene |
 |---|---|
 | `src/lib/report/index.ts` | assembla il report e gestisce il fallback ai dati di esempio |
-| `src/lib/report/insights.ts` | soglie delle opportunità, curva di CTR, mappa ricerche → servizi per l'upselling |
+| `src/lib/report/insights.ts` | soglie delle opportunità, curva di CTR, mappa ricerche → servizi, riconoscimento delle ricerche sui nomi dei clienti |
+| `scripts/insights.test.mts` | test di quel riconoscimento (`npm test`) |
 | `src/lib/report/analytics.ts` | query a GA4 |
 | `src/lib/report/search-console.ts` | query a Search Console |
 | `src/lib/report/demo.ts` | dati di esempio |
 | `src/pages/report/index.astro` | la pagina |
+
+Le ricerche che contengono il nome di un cliente (prese dai titoli dei
+progetti su DatoCMS) finiscono in un gruppo separato dentro "Dove sei a un
+passo": portano visite alle schede lavori ma non clienti nuovi, e in cima
+coprirebbero le ricerche che contano. La distinzione sta in `portfolioMatcher`,
+che riconosce le coppie di parole dei titoli e i nomi propri, ignorando le
+parole di settore elencate in `GENERIC_TERMS` — senza quelle, "sito web studio
+legale" verrebbe scambiata per una ricerca su "Studio Legale BCM". Se sbaglia,
+si aggiusta quella lista e si aggiunge il caso a `scripts/insights.test.mts`.
 
 La mappa `SERVICE_SIGNALS` in `insights.ts` è l'unico punto da aggiornare se
 cambi o aggiungi servizi: raggruppa le ricerche per servizio e genera gli

@@ -7,6 +7,7 @@ import BarList from '../../components/report/BarList.astro';
 import WeekBars from '../../components/report/WeekBars.astro';
 import QueryTable from '../../components/report/QueryTable.astro';
 import OpportunityList from '../../components/report/OpportunityList.astro';
+import { getCollection } from 'astro:content';
 import { isAuthenticated } from '../../lib/report/auth';
 import { buildWeeklyReport, MAX_WEEKS_BACK } from '../../lib/report';
 import {
@@ -24,7 +25,11 @@ if (!(await isAuthenticated(Astro.cookies))) {
 const requested = Number.parseInt(Astro.url.searchParams.get('w') ?? '0', 10);
 const weeksBack = Number.isFinite(requested) ? Math.min(Math.max(requested, 0), MAX_WEEKS_BACK) : 0;
 
-const report = await buildWeeklyReport(weeksBack);
+const projects = await getCollection('projects');
+const report = await buildWeeklyReport(
+  weeksBack,
+  projects.map((project) => project.data.title),
+);
 
 const navLink =
   'inline-flex min-h-11 items-center rounded-md border-2 border-fg px-fluid-3 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg';
@@ -218,8 +223,25 @@ const brandedRows = [
       </p>
       <OpportunityList
         items={report.opportunities}
-        emptyMessage="Nessuna ricerca in zona utile questa settimana."
+        emptyMessage="Nessuna ricerca sui tuoi servizi in zona utile questa settimana."
       />
+
+      {
+        report.portfolioOpportunities.length > 0 && (
+          <details class="rounded-lg border-2 border-border bg-bg p-fluid-4">
+            <summary class="min-h-11 cursor-pointer text-base font-semibold">
+              Ricerche sulle schede lavori ({report.portfolioOpportunities.length})
+            </summary>
+            <p class="mt-fluid-2 max-w-prose text-sm text-muted">
+              Sono i nomi dei tuoi clienti: portano visite alle schede, ma chi cerca così sta cercando loro,
+              non te. Salire qui non porta lavoro nuovo.
+            </p>
+            <div class="mt-fluid-3">
+              <OpportunityList items={report.portfolioOpportunities} emptyMessage="" />
+            </div>
+          </details>
+        )
+      }
     </section>
 
     <section aria-labelledby="potresti-comparire" class="flex flex-col gap-fluid-3">

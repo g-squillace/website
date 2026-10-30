@@ -56,6 +56,67 @@ const SERVICE_SIGNALS: ServiceSignal[] = [
   },
 ];
 
+function normalise(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const GENERIC_TERMS = [
+  'siena', 'firenze', 'toscana', 'italia', 'roma', 'milano', 'online',
+  'studio', 'studi', 'legale', 'legali', 'avvocato', 'avvocati', 'associati',
+  'commerciale', 'commercialista', 'architetti', 'architetto', 'architettura',
+  'ingegneria', 'ingegneri', 'geometra', 'notaio', 'dottore', 'dottor',
+  'catering', 'ristorante', 'cucina', 'bottega', 'officina', 'azienda',
+  'gruppo', 'centro', 'agenzia', 'immobiliare', 'fotografo', 'fotografia',
+  'contrada', 'nobile', 'scheda', 'ordine', 'latte', 'maglia', 'moda',
+  'sartoria', 'clinica', 'medico', 'dentista', 'hotel', 'albergo', 'scuola',
+  'impresa', 'costruzioni', 'arredamenti', 'falegnameria', 'cercare',
+];
+
+function serviceVocabulary(): Set<string> {
+  const words = new Set<string>();
+  for (const signal of SERVICE_SIGNALS) {
+    for (const term of signal.terms) {
+      for (const word of normalise(term).split(' ')) {
+        if (word.length > 2) words.add(word);
+      }
+    }
+  }
+  for (const term of GENERIC_TERMS) words.add(term);
+  return words;
+}
+
+export function portfolioMatcher(titles: string[]): (query: string) => boolean {
+  const vocabulary = serviceVocabulary();
+  const phrases = new Set<string>();
+  for (const title of titles) {
+    const tokens = normalise(title)
+      .split(' ')
+      .filter((token) => token.length > 1);
+    for (let index = 0; index + 1 < tokens.length; index += 1) {
+      const left = tokens[index];
+      const right = tokens[index + 1];
+      if (vocabulary.has(left) && vocabulary.has(right)) continue;
+      phrases.add(`${left} ${right}`);
+    }
+    for (const token of tokens) {
+      if (token.length >= 5 && !vocabulary.has(token)) phrases.add(token);
+    }
+  }
+  return (query: string) => {
+    const haystack = normalise(query);
+    for (const phrase of phrases) {
+      if (haystack === phrase || haystack.includes(phrase)) return true;
+    }
+    return false;
+  };
+}
+
 function expectedCtr(position: number): number {
   const index = Math.max(0, Math.round(position) - 1);
   if (index < CTR_BY_POSITION.length) return CTR_BY_POSITION[index];
@@ -68,9 +129,19 @@ export function isBranded(query: string): boolean {
   return BRAND_TERMS.some((term) => normalised.includes(term));
 }
 
-export function strikingDistance(queries: QueryRow[]): Opportunity[] {
+export function strikingDistance(
+  queries: QueryRow[],
+  accept: (query: string) => boolean = () => true,
+): Opportunity[] {
   return queries
-    .filter((row) => !isBranded(row.query) && row.position > 3.5 && row.position <= 20 && row.impressions >= 5)
+    .filter(
+      (row) =>
+        !isBranded(row.query) &&
+        accept(row.query) &&
+        row.position > 3.5 &&
+        row.position <= 20 &&
+        row.impressions >= 5,
+    )
     .map((row) => {
       const target = Math.max(3, Math.floor(row.position) - 3);
       const potential = Math.max(0, row.impressions * (expectedCtr(target) - row.ctr));
@@ -92,9 +163,12 @@ export function strikingDistance(queries: QueryRow[]): Opportunity[] {
     .slice(0, 12);
 }
 
-export function invisibleQueries(queries: QueryRow[]): Opportunity[] {
+export function invisibleQueries(
+  queries: QueryRow[],
+  accept: (query: string) => boolean = () => true,
+): Opportunity[] {
   return queries
-    .filter((row) => !isBranded(row.query) && row.position > 20 && row.impressions >= 3)
+    .filter((row) => !isBranded(row.query) && accept(row.query) && row.position > 20 && row.impressions >= 3)
     .map((row) => ({
       query: row.query,
       impressions: row.impressions,
@@ -116,10 +190,14 @@ export function zeroClickQueries(queries: QueryRow[]): QueryRow[] {
     .slice(0, 6);
 }
 
-export function upsellSignals(queries: QueryRow[]): UpsellSignal[] {
+export function upsellSignals(
+  queries: QueryRow[],
+  accept: (query: string) => boolean = () => true,
+): UpsellSignal[] {
   const signals: UpsellSignal[] = [];
   for (const signal of SERVICE_SIGNALS) {
     const matched = queries.filter((row) => {
+      if (!accept(row.query)) return false;
       const padded = ` ${row.query.toLowerCase()} `;
       return signal.terms.some((term) => padded.includes(term));
     });

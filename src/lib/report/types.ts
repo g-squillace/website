@@ -108,6 +108,7 @@ export interface WeeklyReport {
   search: SearchSection;
   daily: DailyPoint[];
   opportunities: Opportunity[];
+  portfolioOpportunities: Opportunity[];
   invisible: Opportunity[];
   upsell: UpsellSignal[];
   headline: string;

@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "import:projects": "node --env-file=.env scripts/import-projects.mjs",
-    "assets:generate": "node scripts/generate-static-assets.mjs"
+    "assets:generate": "node scripts/generate-static-assets.mjs",
+    "test": "node --experimental-strip-types --test scripts/*.test.mts"
   },
   "dependencies": {
     "@astrojs/netlify": "^6.6.5",
