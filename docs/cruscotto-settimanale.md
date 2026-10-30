@@ -27,12 +27,16 @@ runtime risultano `undefined`.
 
 | Variabile | A cosa serve |
 |---|---|
-| `REPORT_USER` | utente per il login |
 | `REPORT_PASSWORD` | password per il login |
 | `REPORT_SESSION_SECRET` | chiave con cui si firma il cookie di sessione |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | credenziali del service account, JSON intero o in base64 |
 | `GA4_PROPERTY_ID` | id numerico della property GA4 |
 | `SEARCH_CONSOLE_SITE_URL` | proprietà Search Console, es. `https://www.guidosquillace.it/` |
+
+L'utente del login è `guido`, fissato in `DEFAULT_USER` dentro
+`src/lib/report/auth.ts`. Non è un segreto, quindi non sta fra le variabili
+d'ambiente; `REPORT_USER` resta accettata come override se serve cambiarlo
+senza toccare il codice.
 
 Se `REPORT_SESSION_SECRET` manca, la firma del cookie ricade su utente e
 password: funziona, ma cambiando la password si invalidano le sessioni aperte.

@@ -3,6 +3,8 @@ import { readEnv } from './env';
 
 export const SESSION_COOKIE = 'gs_report_session';
 
+const DEFAULT_USER = 'guido';
+
 const SESSION_HOURS = 12;
 const encoder = new TextEncoder();
 
@@ -37,9 +39,7 @@ function constantTimeEquals(left: string, right: string): boolean {
 function sessionSecret(): string {
   const explicit = readEnv('REPORT_SESSION_SECRET');
   if (explicit !== null) return explicit;
-  const user = readEnv('REPORT_USER') ?? '';
-  const password = readEnv('REPORT_PASSWORD') ?? '';
-  return `fallback:${user}:${password}`;
+  return `fallback:${expectedUser()}:${readEnv('REPORT_PASSWORD') ?? ''}`;
 }
 
 async function sign(value: string): Promise<string> {
@@ -60,21 +60,22 @@ function isSessionPayload(value: unknown): value is SessionPayload {
   return typeof candidate.user === 'string' && typeof candidate.exp === 'number';
 }
 
+function expectedUser(): string {
+  return readEnv('REPORT_USER') ?? DEFAULT_USER;
+}
+
 export function missingCredentialVars(): string[] {
-  return ['REPORT_USER', 'REPORT_PASSWORD', 'REPORT_SESSION_SECRET'].filter(
-    (name) => readEnv(name) === null,
-  );
+  return ['REPORT_PASSWORD', 'REPORT_SESSION_SECRET'].filter((name) => readEnv(name) === null);
 }
 
 export function credentialsConfigured(): boolean {
-  return readEnv('REPORT_USER') !== null && readEnv('REPORT_PASSWORD') !== null;
+  return readEnv('REPORT_PASSWORD') !== null;
 }
 
 export function verifyCredentials(user: string, password: string): boolean {
-  const expectedUser = readEnv('REPORT_USER');
   const expectedPassword = readEnv('REPORT_PASSWORD');
-  if (expectedUser === null || expectedPassword === null) return false;
-  const userMatches = constantTimeEquals(user.trim().toLowerCase(), expectedUser.toLowerCase());
+  if (expectedPassword === null) return false;
+  const userMatches = constantTimeEquals(user.trim().toLowerCase(), expectedUser().toLowerCase());
   const passwordMatches = constantTimeEquals(password, expectedPassword);
   return userMatches && passwordMatches;
 }
