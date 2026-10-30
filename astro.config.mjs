@@ -10,7 +10,7 @@ export default defineConfig({
   trailingSlash: 'ignore',
   output: 'static',
   adapter: netlify(),
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/report') })],
   build: {
     inlineStylesheets: 'always',
   },
