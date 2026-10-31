@@ -280,16 +280,43 @@ const brandedRows = [
                 </div>
                 <p class="text-sm">{signal.pitch}</p>
                 <ul class="flex flex-wrap gap-fluid-1">
-                  {signal.queries.map((query) => (
-                    <li class="rounded-sm bg-surface px-2 py-0.5 text-xs text-muted">{query}</li>
+                  {signal.queries.map((row) => (
+                    <li class="rounded-sm bg-surface px-2 py-0.5 text-xs text-muted">
+                      {row.query}
+                      <span class="ml-1 tabular-nums">({formatNumber(row.impressions)})</span>
+                    </li>
                   ))}
                 </ul>
+
                 <a
                   href={signal.href}
-                  class="mt-auto inline-flex min-h-11 items-center text-sm font-semibold text-accent underline underline-offset-4"
+                  class="inline-flex min-h-11 items-center text-sm font-semibold text-accent underline underline-offset-4"
                 >
                   Vedi la pagina che vende questo servizio →
                 </a>
+
+                <details class="mt-auto rounded-md border-2 border-border bg-surface p-fluid-3" data-prompt-box>
+                  <summary class="min-h-11 cursor-pointer text-sm font-semibold">
+                    Prompt da lanciare sul progetto
+                  </summary>
+                  <p class="mt-fluid-2 text-xs text-muted">
+                    Copialo e incollalo in Claude Code dentro il repository del sito.
+                  </p>
+                  <pre
+                    class="mt-fluid-2 max-h-72 overflow-auto rounded-sm border border-border bg-bg p-fluid-2 font-mono text-xs whitespace-pre-wrap"
+                    data-prompt-text
+                  >{signal.prompt}</pre>
+                  <div class="mt-fluid-2 flex flex-wrap items-center gap-fluid-2">
+                    <button
+                      type="button"
+                      data-copy-prompt
+                      class="min-h-11 rounded-md border-2 border-fg bg-blue px-fluid-3 py-fluid-1 text-sm font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none"
+                    >
+                      Copia il prompt
+                    </button>
+                    <span role="status" class="text-sm font-medium" data-copy-status></span>
+                  </div>
+                </details>
               </li>
             ))}
           </ul>
@@ -325,3 +352,23 @@ const brandedRows = [
     </section>
   </div>
 </ReportLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-prompt]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const box = button.closest('[data-prompt-box]');
+      const text = box?.querySelector('[data-prompt-text]')?.textContent ?? '';
+      const status = box?.querySelector('[data-copy-status]');
+      if (status === null || status === undefined) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        status.textContent = 'Copiato negli appunti';
+      } catch {
+        status.textContent = 'Copia non riuscita: selezionalo a mano';
+      }
+      window.setTimeout(() => {
+        status.textContent = '';
+      }, 4000);
+    });
+  });
+</script>

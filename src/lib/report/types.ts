@@ -58,8 +58,9 @@ export interface UpsellSignal {
   href: string;
   impressions: number;
   clicks: number;
-  queries: string[];
+  queries: QueryRow[];
   pitch: string;
+  prompt: string;
 }
 
 export interface TrafficSection {

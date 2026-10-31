@@ -1,3 +1,4 @@
+import { formatDecimal, formatNumber } from './format.ts';
 import type { Opportunity, QueryRow, UpsellSignal } from './types';
 
 const CTR_BY_POSITION = [0.27, 0.15, 0.11, 0.08, 0.06, 0.05, 0.04, 0.033, 0.028, 0.025];
@@ -190,8 +191,30 @@ export function zeroClickQueries(queries: QueryRow[]): QueryRow[] {
     .slice(0, 6);
 }
 
+function buildUpsellPrompt(service: string, weekLabel: string, matched: QueryRow[]): string {
+  const lines = matched.map(
+    (row) =>
+      `- "${row.query}" — ${formatNumber(row.impressions)} viste, ${formatNumber(row.clicks)} clic, posizione media ${formatDecimal(row.position, 1)}`,
+  );
+  return [
+    `Sul sito c'è domanda di ricerca su "${service}" che oggi non stiamo intercettando bene.`,
+    '',
+    `Dati reali della settimana ${weekLabel}, da Google Search Console:`,
+    ...lines,
+    '',
+    'Cosa voglio da te, in quest\'ordine:',
+    '1. Trova nel repository le pagine che oggi parlano di questo tema e dimmi cosa manca rispetto a quello che la gente sta cercando.',
+    '2. Decidi se conviene rinforzare una pagina esistente o crearne una dedicata, e motiva la scelta.',
+    '3. Proponi title, meta description e struttura dei contenuti usando le parole esatte delle ricerche qui sopra, senza forzarle.',
+    '4. Elenca i link interni da aggiungere dalle pagine più visitate del sito.',
+    '',
+    'Fermati prima di scrivere codice: voglio approvare l\'impostazione.',
+  ].join('\n');
+}
+
 export function upsellSignals(
   queries: QueryRow[],
+  weekLabel: string,
   accept: (query: string) => boolean = () => true,
 ): UpsellSignal[] {
   const signals: UpsellSignal[] = [];
@@ -205,16 +228,17 @@ export function upsellSignals(
     const impressions = matched.reduce((sum, row) => sum + row.impressions, 0);
     const clicks = matched.reduce((sum, row) => sum + row.clicks, 0);
     if (impressions < 3) continue;
+    const top = [...matched]
+      .sort((left, right) => right.impressions - left.impressions)
+      .slice(0, 5);
     signals.push({
       service: signal.service,
       href: signal.href,
       impressions,
       clicks,
-      queries: matched
-        .sort((left, right) => right.impressions - left.impressions)
-        .slice(0, 5)
-        .map((row) => row.query),
+      queries: top,
       pitch: signal.pitch,
+      prompt: buildUpsellPrompt(signal.service, weekLabel, top),
     });
   }
   return signals.sort((left, right) => right.impressions - left.impressions);

@@ -154,7 +154,7 @@ export async function buildWeeklyReport(
     opportunities,
     portfolioOpportunities,
     invisible: invisibleQueries(queries, isService),
-    upsell: upsellSignals(queries, isService),
+    upsell: upsellSignals(queries, week.label, isService),
     headline: buildHeadline(
       leads.total,
       previousLeads.total,
