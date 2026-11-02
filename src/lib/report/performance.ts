@@ -130,6 +130,7 @@ export async function runPageSpeed(url: string, strategy: string, key: string): 
   endpoint.searchParams.set('url', url);
   endpoint.searchParams.set('strategy', strategy);
   for (const category of CATEGORY_LABELS) endpoint.searchParams.append('category', category.id);
+  endpoint.searchParams.set('locale', 'it');
   endpoint.searchParams.set('key', key);
 
   try {
