@@ -27,6 +27,11 @@ export const NAV: ReadonlyArray<{ href: string; label: string }> = [
 export const REPORT = {
   ga4PropertyId: '538345796',
   searchConsoleSiteUrl: 'sc-domain:guidosquillace.it',
+  performanceTargets: [
+    { label: 'Home', path: '/' },
+    { label: 'Servizi', path: '/servizi' },
+    { label: 'Contatti', path: '/contatti' },
+  ],
 } as const;
 
 export const CONTACT = {

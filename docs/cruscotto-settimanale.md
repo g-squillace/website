@@ -30,6 +30,7 @@ runtime risultano `undefined`.
 | `REPORT_PASSWORD` | password per il login |
 | `REPORT_SESSION_SECRET` | chiave con cui si firma il cookie di sessione |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | credenziali del service account, JSON intero o in base64 |
+| `PAGESPEED_API_KEY` | chiave API per la sezione Prestazioni (facoltativa) |
 
 L'id della property GA4 e la proprietà Search Console non sono segreti e
 stanno in `REPORT` dentro `src/config.ts`. `GA4_PROPERTY_ID` e
@@ -88,6 +89,25 @@ entrambe le forme.
 
 In alternativa si possono usare `GOOGLE_CLIENT_EMAIL` e `GOOGLE_PRIVATE_KEY`
 separate, con gli `\n` letterali nella chiave.
+
+## Prestazioni
+
+La sezione usa l'API di PageSpeed Insights, che vuole una **chiave API**, non il
+service account: Google Cloud → Credenziali → Crea credenziali → Chiave API,
+dopo aver abilitato *PageSpeed Insights API*. Conviene limitarla a quella sola
+API e al referrer del dominio.
+
+Una misurazione Lighthouse dura 15-30 secondi per indirizzo, oltre il limite di
+10 secondi delle function Netlify: per questo parte **dal browser** quando premi
+"Misura adesso", non al caricamento della pagina. La chiave finisce quindi nel
+sorgente della pagina, che però è servita solo dietro login e con `no-store`.
+
+Gli indirizzi misurati sono in `REPORT.performanceTargets` dentro
+`src/config.ts`. Senza chiave la sezione lo dice e non mostra il pulsante.
+
+I punteggi non vengono salvati: non c'è confronto settimana su settimana, perché
+le prestazioni cambiano solo quando si fa un deploy. Per avere lo storico
+servirebbe archiviarli (Netlify Blobs) da una scheduled function.
 
 ## Contatti ricevuti
 

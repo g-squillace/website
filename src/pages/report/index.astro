@@ -7,9 +7,11 @@ import BarList from '../../components/report/BarList.astro';
 import WeekBars from '../../components/report/WeekBars.astro';
 import QueryTable from '../../components/report/QueryTable.astro';
 import OpportunityList from '../../components/report/OpportunityList.astro';
+import Performance from '../../components/report/Performance.astro';
 import { getCollection } from 'astro:content';
 import { isAuthenticated } from '../../lib/report/auth';
 import { buildWeeklyReport, MAX_WEEKS_BACK } from '../../lib/report';
+import { readEnv } from '../../lib/report/env';
 import {
   formatDate,
   formatDecimal,
@@ -323,6 +325,8 @@ const brandedRows = [
         )
       }
     </section>
+
+    <Performance apiKey={readEnv('PAGESPEED_API_KEY')} />
 
     <section aria-labelledby="traffico" class="flex flex-col gap-fluid-3">
       <h2 id="traffico" class="font-display text-2xl">Da dove arriva il traffico</h2>
