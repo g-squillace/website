@@ -18,9 +18,18 @@ export const AUDIT_LABELS: ReadonlyArray<{ id: string; label: string }> = [
   { id: 'total-blocking-time', label: 'TBT' },
 ];
 
+export interface AuditIssue {
+  id: string;
+  category: string;
+  title: string;
+  detail: string | null;
+  weight: number;
+}
+
 export interface StrategyResult {
   scores: Record<string, number | null>;
   audits: Record<string, string | null>;
+  issues: AuditIssue[];
   error: string | null;
 }
 
@@ -121,8 +130,50 @@ function emptyStrategy(error: string | null): StrategyResult {
   return {
     scores: Object.fromEntries(CATEGORY_LABELS.map((category) => [category.id, null])),
     audits: Object.fromEntries(AUDIT_LABELS.map((audit) => [audit.id, null])),
+    issues: [],
     error,
   };
+}
+
+const SKIPPED_MODES = ['notApplicable', 'manual', 'informative'];
+
+function readIssues(categories: unknown, audits: unknown): AuditIssue[] {
+  if (typeof categories !== 'object' || categories === null) return [];
+  if (typeof audits !== 'object' || audits === null) return [];
+
+  const issues: AuditIssue[] = [];
+  for (const category of CATEGORY_LABELS) {
+    const node: unknown = Reflect.get(categories, category.id);
+    const refs: unknown = typeof node === 'object' && node !== null ? Reflect.get(node, 'auditRefs') : null;
+    if (!Array.isArray(refs)) continue;
+
+    for (const ref of refs) {
+      const id: unknown = typeof ref === 'object' && ref !== null ? Reflect.get(ref, 'id') : null;
+      const weight: unknown = typeof ref === 'object' && ref !== null ? Reflect.get(ref, 'weight') : null;
+      if (typeof id !== 'string') continue;
+
+      const audit: unknown = Reflect.get(audits, id);
+      if (typeof audit !== 'object' || audit === null) continue;
+
+      const mode: unknown = Reflect.get(audit, 'scoreDisplayMode');
+      if (typeof mode === 'string' && SKIPPED_MODES.includes(mode)) continue;
+
+      const score: unknown = Reflect.get(audit, 'score');
+      if (typeof score !== 'number' || score >= 0.9) continue;
+
+      const title: unknown = Reflect.get(audit, 'title');
+      const detail: unknown = Reflect.get(audit, 'displayValue');
+      issues.push({
+        id,
+        category: category.id,
+        title: typeof title === 'string' ? title : id,
+        detail: typeof detail === 'string' ? detail : null,
+        weight: typeof weight === 'number' ? weight : 0,
+      });
+    }
+  }
+
+  return issues.sort((left, right) => right.weight - left.weight).slice(0, 10);
 }
 
 export async function runPageSpeed(url: string, strategy: string, key: string): Promise<StrategyResult> {
@@ -149,11 +200,65 @@ export async function runPageSpeed(url: string, strategy: string, key: string): 
     return {
       scores: Object.fromEntries(CATEGORY_LABELS.map((category) => [category.id, readScore(categories, category.id)])),
       audits: Object.fromEntries(AUDIT_LABELS.map((audit) => [audit.id, readAudit(audits, audit.id)])),
+      issues: readIssues(categories, audits),
       error: null,
     };
   } catch (error) {
     return emptyStrategy(error instanceof Error ? error.message : 'errore di rete');
   }
+}
+
+const CATEGORY_NAMES: Record<string, string> = Object.fromEntries(
+  CATEGORY_LABELS.map((category) => [category.id, category.label]),
+);
+
+export function targetIssues(target: TargetResult): AuditIssue[] {
+  const seen = new Map<string, AuditIssue>();
+  for (const strategy of [target.mobile, target.desktop]) {
+    for (const issue of strategy.issues ?? []) {
+      const existing = seen.get(issue.id);
+      if (existing === undefined || issue.weight > existing.weight) seen.set(issue.id, issue);
+    }
+  }
+  return [...seen.values()].sort((left, right) => right.weight - left.weight);
+}
+
+export function buildPerformancePrompt(target: TargetResult, measuredAt: string): string | null {
+  const describe = (strategy: StrategyResult, device: string): string[] => {
+    const issues = strategy.issues ?? [];
+    if (issues.length === 0) return [];
+    return [
+      `Su ${device}:`,
+      ...issues.map(
+        (issue) =>
+          `- [${CATEGORY_NAMES[issue.category] ?? issue.category}] ${issue.title}${issue.detail === null ? '' : ` — ${issue.detail}`}`,
+      ),
+    ];
+  };
+
+  const mobile = describe(target.mobile, 'telefono');
+  const desktop = describe(target.desktop, 'computer');
+  if (mobile.length === 0 && desktop.length === 0) return null;
+
+  const when = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'long' }).format(
+    new Date(measuredAt),
+  );
+
+  return [
+    `Lighthouse ha trovato dei problemi sulla pagina ${target.label} (${target.url}), misurati il ${when}.`,
+    '',
+    ...mobile,
+    ...(mobile.length > 0 && desktop.length > 0 ? [''] : []),
+    ...desktop,
+    '',
+    "Cosa voglio da te, in quest'ordine:",
+    '1. Apri il codice della pagina e dimmi quali di questi punti sono reali e quali sono rumore di Lighthouse, con il motivo.',
+    '2. Ordinali per quanto pesano davvero sulla persona che usa il sito, non per quanto pesano sul punteggio.',
+    '3. Per i problemi di accessibilità dimmi anche quale criterio WCAG 2.2 viene violato.',
+    '4. Proponi la correzione per ciascuno, indicando file e riga.',
+    '',
+    'Fermati prima di scrivere codice: voglio approvare cosa tocchiamo.',
+  ].join('\n');
 }
 
 export async function measureAll(key: string): Promise<PerformanceSnapshot> {

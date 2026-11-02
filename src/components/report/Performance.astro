@@ -1,12 +1,14 @@
 ---
 import {
   AUDIT_LABELS,
+  buildPerformancePrompt,
   CATEGORY_LABELS,
   LATEST_KEY,
   pageSpeedKey,
   performanceTargets,
   readPreviousSnapshot,
   readSnapshot,
+  targetIssues,
   type TargetResult,
 } from '../../lib/report/performance';
 
@@ -168,6 +170,59 @@ const tone = (score: number) => {
               {current?.mobile.error !== null && current?.mobile.error !== undefined && (
                 <p class="mt-fluid-2 text-sm text-muted">Telefono: {current.mobile.error}</p>
               )}
+
+              {
+                current !== null && targetIssues(current).length > 0 && latest !== null && (
+                  <div class="mt-fluid-4 flex flex-col gap-fluid-3">
+                    <div>
+                      <h4 class="text-sm font-semibold">Da sistemare</h4>
+                      <ul class="mt-fluid-2 flex flex-col gap-fluid-1">
+                        {targetIssues(current).map((issue) => (
+                          <li class="text-sm">
+                            <span class="mr-2 rounded-sm bg-surface px-2 py-0.5 text-xs font-semibold">
+                              {CATEGORY_LABELS.find((category) => category.id === issue.category)?.label ??
+                                issue.category}
+                            </span>
+                            {issue.title}
+                            {issue.detail !== null && (
+                              <span class="text-muted"> — {issue.detail}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <details class="rounded-md border-2 border-border bg-surface p-fluid-3" data-prompt-box>
+                      <summary class="min-h-11 cursor-pointer text-sm font-semibold">
+                        Prompt per sistemarli
+                      </summary>
+                      <p class="mt-fluid-2 text-xs text-muted">
+                        Copialo e incollalo in Claude Code dentro il repository del sito.
+                      </p>
+                      <pre
+                        class="mt-fluid-2 max-h-72 overflow-auto rounded-sm border border-border bg-bg p-fluid-2 font-mono text-xs whitespace-pre-wrap"
+                        data-prompt-text
+                      >{buildPerformancePrompt(current, latest.measuredAt)}</pre>
+                      <div class="mt-fluid-2 flex flex-wrap items-center gap-fluid-2">
+                        <button
+                          type="button"
+                          data-copy-prompt
+                          class="min-h-11 rounded-md border-2 border-fg bg-blue px-fluid-3 py-fluid-1 text-sm font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none"
+                        >
+                          Copia il prompt
+                        </button>
+                        <span role="status" class="text-sm font-medium" data-copy-status />
+                      </div>
+                    </details>
+                  </div>
+                )
+              }
+
+              {
+                current !== null && targetIssues(current).length === 0 && (
+                  <p class="mt-fluid-3 text-sm text-muted">Niente da sistemare su questa pagina.</p>
+                )
+              }
             </article>
           );
         })}
