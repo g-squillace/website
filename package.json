@@ -19,6 +19,7 @@
     "@astrojs/netlify": "^6.6.5",
     "@astrojs/sitemap": "^3.2.0",
     "@datocms/cda-client": "^0.2.10",
+    "@netlify/blobs": "^11.1.7",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^5.0.0",
     "datocms-structured-text-to-html-string": "^5.1.16",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@datocms/cma-client-node": "^5.4.18",
+    "@netlify/functions": "^6.0.3",
     "datocms-html-to-structured-text": "^5.1.16",
     "marked": "^18.0.3",
     "parse5": "^8.0.1",

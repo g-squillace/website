@@ -95,19 +95,31 @@ separate, con gli `\n` letterali nella chiave.
 La sezione usa l'API di PageSpeed Insights, che vuole una **chiave API**, non il
 service account: Google Cloud → Credenziali → Crea credenziali → Chiave API,
 dopo aver abilitato *PageSpeed Insights API*. Conviene limitarla a quella sola
-API e al referrer del dominio.
+API.
 
-Una misurazione Lighthouse dura 15-30 secondi per indirizzo, oltre il limite di
-10 secondi delle function Netlify: per questo parte **dal browser** quando premi
-"Misura adesso", non al caricamento della pagina. La chiave finisce quindi nel
-sorgente della pagina, che però è servita solo dietro login e con `no-store`.
+Una misurazione Lighthouse dura 15-30 secondi per indirizzo: sei indirizzi non
+stanno nei 10 secondi di una function Netlify sincrona. Per questo gira in due
+pezzi:
+
+- `netlify/functions/lighthouse-scheduled.mts` — parte ogni lunedì alle 4 UTC e
+  non fa il lavoro: chiama la background function e torna subito.
+- `netlify/functions/lighthouse-background.mts` — ha 15 minuti di budget,
+  misura tutti gli indirizzi e salva su **Netlify Blobs** sotto `latest` e sotto
+  la settimana ISO. Accetta solo richieste con l'header `x-report-trigger`
+  uguale a `REPORT_SESSION_SECRET`.
+
+La pagina legge lo snapshot salvato, quindi è istantanea, e confronta con la
+**misurazione precedente trovata negli snapshot** — non con una settimana fissa,
+così il confronto regge anche se un lunedì il cron salta.
+
+Il pulsante "Rimisura adesso" chiama `/api/report/performance` (POST), che
+inoltra alla background function; la pagina poi interroga lo stesso endpoint in
+GET finché `measuredAt` cambia, e si ricarica.
 
 Gli indirizzi misurati sono in `REPORT.performanceTargets` dentro
-`src/config.ts`. Senza chiave la sezione lo dice e non mostra il pulsante.
-
-I punteggi non vengono salvati: non c'è confronto settimana su settimana, perché
-le prestazioni cambiano solo quando si fa un deploy. Per avere lo storico
-servirebbe archiviarli (Netlify Blobs) da una scheduled function.
+`src/config.ts`. Senza chiave la sezione lo dice per nome. In locale con
+`astro dev` i Blobs non esistono: la sezione degrada a "nessuna misurazione"
+invece di rompersi.
 
 ## Contatti ricevuti
 

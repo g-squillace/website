@@ -1,36 +1,55 @@
 ---
-import { REPORT, SITE } from '../../config';
+import {
+  AUDIT_LABELS,
+  CATEGORY_LABELS,
+  LATEST_KEY,
+  pageSpeedKey,
+  performanceTargets,
+  readPreviousSnapshot,
+  readSnapshot,
+  type TargetResult,
+} from '../../lib/report/performance';
 
-interface Props {
-  apiKey: string | null;
-}
+const apiKey = pageSpeedKey();
+const latest = await readSnapshot(LATEST_KEY);
 
-const { apiKey } = Astro.props;
+const previous = await readPreviousSnapshot(latest);
 
-const targets = REPORT.performanceTargets.map((target) => ({
-  label: target.label,
-  url: new URL(target.path, SITE.url).toString(),
-}));
+const targets = performanceTargets();
 
-const categories = [
-  { id: 'performance', label: 'Prestazioni' },
-  { id: 'accessibility', label: 'Accessibilità' },
-  { id: 'best-practices', label: 'Buone pratiche' },
-  { id: 'seo', label: 'SEO' },
-];
+const measuredLabel =
+  latest === null
+    ? null
+    : new Intl.DateTimeFormat('it-IT', {
+        day: 'numeric',
+        month: 'long',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(new Date(latest.measuredAt));
 
-const vitals = [
-  { id: 'largest-contentful-paint', label: 'LCP' },
-  { id: 'cumulative-layout-shift', label: 'CLS' },
-  { id: 'total-blocking-time', label: 'TBT' },
-];
+const findTarget = (snapshot: typeof latest, url: string): TargetResult | null =>
+  snapshot?.targets.find((target) => target.url === url) ?? null;
+
+const tone = (score: number) => {
+  if (score >= 90) return { className: 'bg-beige text-fg', word: 'buono' };
+  if (score >= 50) return { className: 'bg-yellow text-blue', word: 'da migliorare' };
+  return { className: 'bg-orange text-black', word: 'scarso' };
+};
 ---
 
 <section aria-labelledby="prestazioni" class="flex flex-col gap-fluid-3">
-  <h2 id="prestazioni" class="font-display text-2xl">Prestazioni</h2>
+  <div class="flex flex-wrap items-baseline justify-between gap-fluid-2">
+    <h2 id="prestazioni" class="font-display text-2xl">Prestazioni</h2>
+    {
+      measuredLabel !== null && (
+        <p class="text-sm text-muted">Misurato il {measuredLabel}</p>
+      )
+    }
+  </div>
+
   <p class="max-w-prose text-sm text-muted">
-    Gli stessi punteggi di PageSpeed Insights, misurati da Google su questa pagina. La misurazione dura
-    una ventina di secondi per indirizzo, quindi parte solo quando la chiedi.
+    Gli stessi punteggi di PageSpeed Insights. La misurazione gira da sola ogni lunedì notte, così il
+    lunedì mattina i numeri sono già qui. La freccia confronta con la misurazione precedente.
   </p>
 
   {
@@ -40,73 +59,123 @@ const vitals = [
         manca <code class="font-mono">PAGESPEED_API_KEY</code>.
       </p>
     ) : (
-      <div data-performance data-key={apiKey} class="flex flex-col gap-fluid-3">
+      <div data-performance class="flex flex-col gap-fluid-3">
+        {
+          latest === null && (
+            <p class="rounded-md border-2 border-border bg-surface px-fluid-3 py-fluid-2 text-sm">
+              Nessuna misurazione ancora salvata. La prima parte in automatico lunedì notte, oppure
+              lanciala adesso.
+            </p>
+          )
+        }
+
         <div class="flex flex-wrap items-center gap-fluid-3">
           <button
             type="button"
             data-performance-run
             class="min-h-11 rounded-md border-2 border-fg bg-blue px-fluid-4 py-fluid-2 text-sm font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none"
           >
-            Misura adesso
+            Rimisura adesso
           </button>
           <p role="status" data-performance-status class="text-sm font-medium" />
         </div>
 
-        {targets.map((target) => (
-          <article data-performance-target data-url={target.url} class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
-            <div class="flex flex-wrap items-baseline justify-between gap-fluid-2">
-              <h3 class="text-base font-semibold">{target.label}</h3>
-              <a href={target.url} class="text-xs text-muted underline underline-offset-4 break-all">
-                {target.url}
-              </a>
-            </div>
+        {targets.map((target) => {
+          const current = findTarget(latest, target.url);
+          const before = findTarget(previous, target.url);
+          return (
+            <article class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
+              <div class="flex flex-wrap items-baseline justify-between gap-fluid-2">
+                <h3 class="text-base font-semibold">{target.label}</h3>
+                <a
+                  href={`https://pagespeed.web.dev/analysis?url=${encodeURIComponent(target.url)}`}
+                  class="text-xs text-accent underline underline-offset-4"
+                >
+                  Rapporto completo su PageSpeed →
+                </a>
+              </div>
 
-            <div class="mt-fluid-3 overflow-x-auto">
-              <table class="w-full border-collapse text-sm">
-                <caption class="sr-only">Punteggi PageSpeed per {target.label}</caption>
-                <thead>
-                  <tr class="border-b-2 border-fg text-left">
-                    <th scope="col" class="py-2 pr-fluid-3 font-semibold">Dispositivo</th>
-                    {categories.map((category) => (
-                      <th scope="col" class="py-2 px-fluid-2 text-right font-semibold">
-                        {category.label}
-                      </th>
-                    ))}
-                    {vitals.map((vital) => (
-                      <th scope="col" class="py-2 px-fluid-2 text-right font-semibold">
-                        {vital.label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {['mobile', 'desktop'].map((strategy) => (
-                    <tr data-performance-row={strategy} class="border-b border-border">
-                      <th scope="row" class="py-2 pr-fluid-3 text-left font-normal">
-                        {strategy === 'mobile' ? 'Telefono' : 'Computer'}
-                      </th>
-                      {categories.map((category) => (
-                        <td class="py-2 px-fluid-2 text-right" data-score={category.id}>
-                          <span class="text-muted">—</span>
-                        </td>
+              <div class="mt-fluid-3 overflow-x-auto">
+                <table class="w-full border-collapse text-sm">
+                  <caption class="sr-only">Punteggi PageSpeed per {target.label}</caption>
+                  <thead>
+                    <tr class="border-b-2 border-fg text-left">
+                      <th scope="col" class="py-2 pr-fluid-3 font-semibold">Dispositivo</th>
+                      {CATEGORY_LABELS.map((category) => (
+                        <th scope="col" class="py-2 px-fluid-2 text-right font-semibold">
+                          {category.label}
+                        </th>
                       ))}
-                      {vitals.map((vital) => (
-                        <td class="py-2 px-fluid-2 text-right tabular-nums" data-audit={vital.id}>
-                          <span class="text-muted">—</span>
-                        </td>
+                      {AUDIT_LABELS.map((audit) => (
+                        <th scope="col" class="py-2 px-fluid-2 text-right font-semibold">
+                          {audit.label}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </article>
-        ))}
+                  </thead>
+                  <tbody>
+                    {(['mobile', 'desktop'] as const).map((strategy) => {
+                      const result = current === null ? null : current[strategy];
+                      const past = before === null ? null : before[strategy];
+                      return (
+                        <tr class="border-b border-border">
+                          <th scope="row" class="py-2 pr-fluid-3 text-left font-normal">
+                            {strategy === 'mobile' ? 'Telefono' : 'Computer'}
+                          </th>
+                          {CATEGORY_LABELS.map((category) => {
+                            const score = result?.scores[category.id] ?? null;
+                            const old = past?.scores[category.id] ?? null;
+                            const change = score !== null && old !== null ? score - old : 0;
+                            return (
+                              <td class="py-2 px-fluid-2 text-right whitespace-nowrap">
+                                {score === null ? (
+                                  <span class="text-muted">—</span>
+                                ) : (
+                                  <>
+                                    <span
+                                      class={`inline-block rounded-sm px-2 py-0.5 font-semibold tabular-nums ${tone(score).className}`}
+                                    >
+                                      {score}
+                                    </span>
+                                    <span class="sr-only"> su 100, {tone(score).word}</span>
+                                    {change !== 0 && (
+                                      <span class="ml-1 text-xs tabular-nums">
+                                        <span aria-hidden="true">{change > 0 ? '▲' : '▼'}</span>
+                                        {Math.abs(change)}
+                                        <span class="sr-only">
+                                          {change > 0 ? ' in miglioramento' : ' in peggioramento'} rispetto alla
+                                          misurazione precedente
+                                        </span>
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </td>
+                            );
+                          })}
+                          {AUDIT_LABELS.map((audit) => (
+                            <td class="py-2 px-fluid-2 text-right tabular-nums whitespace-nowrap">
+                              {result?.audits[audit.id] ?? <span class="text-muted">—</span>}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {current?.mobile.error !== null && current?.mobile.error !== undefined && (
+                <p class="mt-fluid-2 text-sm text-muted">Telefono: {current.mobile.error}</p>
+              )}
+            </article>
+          );
+        })}
 
         <p class="text-xs text-muted">
-          LCP = quanto ci mette a comparire il contenuto principale. CLS = quanto salta il layout mentre carica.
-          TBT = quanto resta bloccata l'interazione. I punteggi sono di laboratorio: contano per capire cosa
-          sistemare, non sono la velocità percepita dai tuoi visitatori.
+          LCP = quanto ci mette a comparire il contenuto principale. CLS = quanto salta il layout mentre
+          carica. TBT = quanto resta bloccata l'interazione. Sono misure di laboratorio: servono a capire
+          cosa sistemare, non sono la velocità percepita dai visitatori.
         </p>
       </div>
     )
@@ -117,100 +186,51 @@ const vitals = [
   const root = document.querySelector<HTMLElement>('[data-performance]');
 
   if (root !== null) {
-    const apiKey = root.dataset.key ?? '';
     const button = root.querySelector<HTMLButtonElement>('[data-performance-run]');
     const status = root.querySelector<HTMLElement>('[data-performance-status]');
-    const targets = Array.from(root.querySelectorAll<HTMLElement>('[data-performance-target]'));
-    const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo'];
-    const AUDITS = ['largest-contentful-paint', 'cumulative-layout-shift', 'total-blocking-time'];
 
-    const toneFor = (score: number) => {
-      if (score >= 90) return { className: 'bg-beige text-fg', word: 'buono' };
-      if (score >= 50) return { className: 'bg-yellow text-blue', word: 'da migliorare' };
-      return { className: 'bg-orange text-black', word: 'scarso' };
+    const say = (message: string) => {
+      if (status !== null) status.textContent = message;
     };
 
-    const paint = (cell: Element | null, markup: string) => {
-      if (cell !== null) cell.innerHTML = markup;
-    };
-
-    const measure = async (url: string, strategy: string) => {
-      const endpoint = new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');
-      endpoint.searchParams.set('url', url);
-      endpoint.searchParams.set('strategy', strategy);
-      for (const category of CATEGORIES) endpoint.searchParams.append('category', category);
-      if (apiKey !== '') endpoint.searchParams.set('key', apiKey);
-      const response = await fetch(endpoint.toString());
-      if (!response.ok) throw new Error(`PageSpeed ha risposto ${response.status}`);
-      return response.json();
-    };
-
-    const fill = (row: Element, payload: Record<string, unknown>) => {
-      const lighthouse = Reflect.get(payload, 'lighthouseResult');
-      const resultCategories = Reflect.get(lighthouse ?? {}, 'categories') ?? {};
-      const audits = Reflect.get(lighthouse ?? {}, 'audits') ?? {};
-
-      for (const category of CATEGORIES) {
-        const raw = Reflect.get(Reflect.get(resultCategories, category) ?? {}, 'score');
-        const cell = row.querySelector(`[data-score="${category}"]`);
-        if (typeof raw !== 'number') {
-          paint(cell, '<span class="text-muted">n/d</span>');
-          continue;
-        }
-        const score = Math.round(raw * 100);
-        const tone = toneFor(score);
-        paint(
-          cell,
-          `<span class="inline-block rounded-sm px-2 py-0.5 font-semibold tabular-nums ${tone.className}">${score}</span><span class="sr-only"> su 100, ${tone.word}</span>`,
-        );
-      }
-
-      for (const audit of AUDITS) {
-        const value = Reflect.get(Reflect.get(audits, audit) ?? {}, 'displayValue');
-        const cell = row.querySelector(`[data-audit="${audit}"]`);
-        paint(cell, typeof value === 'string' ? value : '<span class="text-muted">n/d</span>');
-      }
+    const currentMeasuredAt = async (): Promise<string | null> => {
+      const response = await fetch('/api/report/performance');
+      if (!response.ok) return null;
+      const payload: unknown = await response.json();
+      const value =
+        typeof payload === 'object' && payload !== null ? Reflect.get(payload, 'measuredAt') : null;
+      return typeof value === 'string' ? value : null;
     };
 
     button?.addEventListener('click', async () => {
       button.disabled = true;
       button.classList.add('opacity-60');
-      const jobs = targets.flatMap((target) =>
-        ['mobile', 'desktop'].map((strategy) => ({ target, strategy })),
-      );
-      let done = 0;
-      let failures = 0;
+      const before = await currentMeasuredAt();
+      say('Avvio la misurazione…');
 
-      for (const job of jobs) {
-        const label = job.target.querySelector('h3')?.textContent?.trim() ?? '';
-        const device = job.strategy === 'mobile' ? 'telefono' : 'computer';
-        if (status !== null) {
-          status.textContent = `Misuro ${label} su ${device} — ${done + 1} di ${jobs.length}, ci vuole qualche secondo`;
-        }
-        const row = job.target.querySelector(`[data-performance-row="${job.strategy}"]`);
-        try {
-          const payload = await measure(job.target.dataset.url ?? '', job.strategy);
-          if (row !== null) fill(row, payload);
-        } catch (error) {
-          failures += 1;
-          const message = error instanceof Error ? error.message : 'errore';
-          row?.querySelectorAll('[data-score], [data-audit]').forEach((cell) => {
-            cell.innerHTML = '<span class="text-muted">errore</span>';
-          });
-          if (status !== null) status.textContent = `${label} su ${device}: ${message}`;
-        }
-        done += 1;
+      const started = await fetch('/api/report/performance', { method: 'POST' });
+      if (!started.ok && started.status !== 202) {
+        say('Avvio non riuscito. Riprova fra poco.');
+        button.disabled = false;
+        button.classList.remove('opacity-60');
+        return;
       }
 
+      say('Google sta misurando le pagine, ci vogliono un paio di minuti.');
+
+      for (let attempt = 0; attempt < 40; attempt += 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, 6000));
+        const now = await currentMeasuredAt();
+        if (now !== null && now !== before) {
+          say('Misurazione completata, ricarico la pagina…');
+          window.location.reload();
+          return;
+        }
+      }
+
+      say('Ci sta mettendo più del previsto. Ricarica fra qualche minuto.');
       button.disabled = false;
       button.classList.remove('opacity-60');
-      if (status !== null) {
-        const when = new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit' }).format(new Date());
-        status.textContent =
-          failures === 0
-            ? `Misurazione completata alle ${when}`
-            : `Misurazione completata alle ${when}, ${failures} indirizzi non misurati`;
-      }
     });
   }
 </script>
