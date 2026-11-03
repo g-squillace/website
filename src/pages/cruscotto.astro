@@ -1,0 +1,445 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+
+const pageUrl = new URL('/cruscotto', SITE.url).toString();
+
+interface Step {
+  title: string;
+  text: string;
+}
+
+const steps: Step[] = [
+  {
+    title: 'Lo installo io, gratis',
+    text: 'Mi dai accesso in sola lettura ai tuoi account Google Analytics e Search Console. Non si tocca il sito, non si installa niente, non si rallenta nulla. Un pomeriggio di lavoro mio, zero di tuo.',
+  },
+  {
+    title: 'Ogni lunedì si aggiorna da solo',
+    text: 'Trovi la settimana appena chiusa a un indirizzo privato, protetto da password. Puoi anche tornare indietro e confrontare le settimane precedenti.',
+  },
+  {
+    title: 'Lo leggo e ti scrivo solo se serve',
+    text: 'Il cruscotto segnala molto. Io ti scrivo quando trovo una cosa che vale davvero il tuo tempo, con cosa farei e quante ore ci vogliono. Se la settimana non dice niente, non ti scrivo.',
+  },
+  {
+    title: 'Gli interventi scalano dal pacchetto ore',
+    text: 'Le ore le concordiamo all\'inizio, una volta. Da lì in poi ogni intervento che approvi scala da quel monte ore, e sai sempre quanto ne resta. Niente preventivi da rincorrere per ogni piccola modifica.',
+  },
+];
+
+interface Signal {
+  title: string;
+  text: string;
+  card: string;
+  rot: string;
+}
+
+const signals: Signal[] = [
+  {
+    title: 'Dove sei a un passo',
+    text: 'Le ricerche in cui Google ti mostra già, ma troppo in basso perché qualcuno ti clicchi. Sono il lavoro più redditizio che esista: non parti da zero, recuperi posizioni che hai quasi.',
+    card: 'bg-orange text-black',
+    rot: '-rotate-1',
+  },
+  {
+    title: 'Dove ti vedono e non ti cliccano',
+    text: 'Compari in prima pagina, centinaia di persone ti vedono, nessuno entra. Quasi sempre è il titolo che non convince, ed è mezz\'ora di lavoro.',
+    card: 'bg-pink text-blue',
+    rot: 'rotate-1',
+  },
+  {
+    title: 'Cosa cercava chi non ti ha trovato',
+    text: 'Le domande su cui Google ti considera pertinente ma dove sei oltre la ventesima posizione. Qui non hai ancora contenuto: è la lista della spesa delle pagine che ti mancano.',
+    card: 'bg-yellow text-blue',
+    rot: '-rotate-[0.5deg]',
+  },
+];
+
+const faqs = [
+  {
+    q: 'Quanto costa?',
+    a: 'Installazione e configurazione sono gratuite, e restano gratuite: non c\'è un canone per il cruscotto. Si paga solo il lavoro che decidi di fare, scalandolo da un pacchetto di ore concordato all\'inizio. Quante ore servano dipende da quanto è grande il sito e da quanto vuoi muoverti: te lo dico dopo averlo guardato, prima di cominciare.',
+  },
+  {
+    q: 'Perché l\'installazione è gratis?',
+    a: 'Perché a me costa poco: il cruscotto è già scritto, collegarlo al tuo sito è questione di ore. E perché è il modo più onesto che conosco per farti vedere se c\'è del lavoro utile da fare, invece di chiedertelo sulla fiducia. Se il cruscotto non trova niente di interessante, hai comunque guadagnato una pagina che ti dice come va il sito.',
+  },
+  {
+    q: 'È intelligenza artificiale?',
+    a: 'No, e non per pigrizia. I numeri li prende da Google — Analytics e Search Console — e li confronta con le stesse soglie ogni settimana. Il risultato è confrontabile nel tempo: se questa settimana una ricerca sale, lo vedi davvero, non è il programma che ha deciso di raccontartela in un altro modo. A leggere i segnali e a decidere quali valgono ci penso io.',
+  },
+  {
+    q: 'Devo già avere Google Analytics?',
+    a: 'Se ce l\'hai, uso quello che c\'è. Se non ce l\'hai o è configurato male, lo sistemo durante l\'installazione: fa parte della parte gratuita. Search Console va collegata comunque, ed è quella che porta le informazioni più utili.',
+  },
+  {
+    q: 'Funziona anche se il sito non l\'hai fatto tu?',
+    a: 'Sì. Il cruscotto legge i dati dagli account Google, non dal codice del sito, quindi non importa con cosa è costruito né chi l\'ha fatto. Se poi serve metterci mano, valutiamo insieme cosa si può fare su quello che c\'è.',
+  },
+  {
+    q: 'Chi può vedere i miei dati?',
+    a: 'Il cruscotto sta a un indirizzo privato protetto da password, escluso dai motori di ricerca. Gli accessi ai tuoi account Google sono in sola lettura: posso guardare, non posso modificare né cancellare niente. Nessun dato passa da servizi terzi, e quando il rapporto finisce revochi l\'accesso in trenta secondi dal tuo pannello Google.',
+  },
+  {
+    q: 'E se una settimana non c\'è niente da fare?',
+    a: 'Allora non ti scrivo, e non ti costa niente. Capita, soprattutto all\'inizio o quando il sito è appena stato sistemato. Un servizio che ogni settimana trova per forza qualcosa da venderti è un servizio che sta inventando.',
+  },
+  {
+    q: 'Posso smettere quando voglio?',
+    a: 'Sì. Non c\'è un abbonamento da disdire: le ore sono un pacchetto, finite quelle decidi se farne un altro. Se non vuoi più il cruscotto, revochi gli accessi Google e la pagina smette di aggiornarsi.',
+  },
+];
+
+const schema = [
+  {
+    '@type': 'Service',
+    '@id': `${pageUrl}#service`,
+    name: 'Cruscotto settimanale e manutenzione del sito',
+    serviceType: 'Monitoraggio SEO e manutenzione sito web',
+    description:
+      'Un cruscotto settimanale privato che legge Google Analytics e Search Console e dice in italiano cosa conviene sistemare sul sito. Installazione gratuita, interventi scalati da un pacchetto di ore concordato.',
+    provider: { '@id': `${SITE.url}/#person` },
+    areaServed: { '@type': 'Country', name: 'Italia' },
+    url: pageUrl,
+    offers: {
+      '@type': 'Offer',
+      name: 'Installazione e configurazione del cruscotto',
+      price: '0',
+      priceCurrency: 'EUR',
+      description:
+        'Collegamento agli account Google, configurazione e messa online del cruscotto privato, senza costi.',
+    },
+  },
+  {
+    '@type': 'FAQPage',
+    '@id': `${pageUrl}#faq`,
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+
+const ctaClass =
+  'group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full -rotate-[1.5deg] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem]';
+
+const stats = [
+  { label: 'Visite', value: '412', delta: '+18%', up: true },
+  { label: 'Da Google', value: '231', delta: '+9%', up: true },
+  { label: 'Contatti', value: '3', delta: '+2', up: true },
+  { label: 'A un passo', value: '7', delta: 'ricerche', up: false },
+];
+---
+
+<BaseLayout
+  title="Cruscotto settimanale: cosa sistemare sul sito, ogni lunedì"
+  description="Un cruscotto privato che legge Google Analytics e Search Console e ti dice in italiano dove stai perdendo clienti. Installazione gratuita, si paga solo il lavoro che decidi di fare."
+  schema={schema}
+>
+  <section class="bg-blue pt-fluid-6 pb-fluid-7">
+    <div class="page">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-pink mb-fluid-4">
+        Cruscotto settimanale
+      </p>
+      <h1 class="text-4xl sm:text-5xl text-yellow mb-fluid-4 leading-[0.95] max-w-[20ch] animate-fade-up motion-reduce:animate-none">
+        Google sa già cosa cercava <em class="italic text-pink">chi non ti ha trovato</em>.
+      </h1>
+      <p class="text-lg text-white m-0 mb-fluid-5 max-w-prose">
+        Quelle ricerche sono dentro i tuoi account Google in questo momento, e
+        quasi nessuno le guarda mai. Il cruscotto le legge al posto tuo e ogni
+        lunedì ti lascia una pagina sola, in italiano: com'è andata, dove sei a
+        un passo dal risultato, cosa conviene sistemare.
+      </p>
+      <p class="text-lg text-yellow font-semibold m-0 mb-fluid-5 max-w-prose">
+        Installarlo non costa niente. Si paga solo il lavoro che decidi di fare.
+      </p>
+      <a
+        href="/contatti?tipo=cruscotto"
+        class:list={[ctaClass, 'bg-yellow text-blue shadow-[0.5rem_0.5rem_0_var(--color-orange)] hover:bg-pink hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]']}
+      >
+        <span>Attivalo sul tuo sito</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+             class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+          <path d="M5 12h14" />
+          <path d="M13 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Il problema vero
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Gli accessi a Google Analytics ce li hai già
+        </h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Il punto è che non li apri. E hai ragione: Analytics è uno strumento
+          per analisti, con quaranta voci di menu e nessuna che dica cosa fare
+          domani. Ci entri due volte dopo il lancio del sito, poi basta.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Il paradosso è che le informazioni che contano davvero non sono
+          nemmeno lì. Stanno in <strong>Search Console</strong>, che quasi
+          nessuno apre mai: è lo strumento che registra tutte le ricerche in cui
+          il tuo sito è comparso, anche quelle in cui nessuno ti ha cliccato.
+        </p>
+        <p class="text-lg leading-[1.55] m-0">
+          Sono le domande che i tuoi clienti fanno a Google ogni giorno,
+          scritte con le loro parole. <strong>Sapere che cinquanta persone
+          cercano una cosa che tu fai, e che tu compari quattordicesimo, vale
+          più di qualunque grafico di sessioni.</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-beige py-fluid-7">
+    <div class="page">
+      <header class="mb-fluid-6 max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Cosa ci trovi
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Una pagina, sei sezioni, nessun grafico da interpretare
+        </h2>
+        <p class="text-base text-muted m-0">
+          Ogni numero è accompagnato da una frase che dice cosa significa. Se
+          una cosa non si capisce da sola, vuol dire che è scritta male.
+        </p>
+      </header>
+
+      <figure class="m-0">
+        <div class="rounded-lg border-2 border-fg bg-surface p-fluid-4 shadow-[0.45rem_0.45rem_0_var(--color-blue)]">
+          <div class="flex flex-wrap items-end justify-between gap-fluid-3 mb-fluid-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted m-0">
+                Settimana
+              </p>
+              <p class="mt-fluid-1 font-display text-2xl text-fg m-0">
+                13 — 19 ottobre
+              </p>
+            </div>
+            <p class="rounded-sm bg-beige px-3 py-1 text-xs font-semibold text-fg m-0">
+              Aggiornato lunedì alle 7:00
+            </p>
+          </div>
+
+          <p class="max-w-prose rounded-lg border-2 border-fg bg-yellow px-fluid-4 py-fluid-3 font-display text-xl text-blue m-0 mb-fluid-4">
+            3 contatti questa settimana, più della precedente. Caffè meritato.
+          </p>
+
+          <ul role="list" class="grid gap-fluid-3 grid-cols-2 lg:grid-cols-4 list-none m-0 p-0 mb-fluid-4">
+            {
+              stats.map((stat) => (
+                <li class="rounded-lg border-2 border-fg bg-bg p-fluid-3">
+                  <p class="text-xs font-semibold uppercase tracking-[0.1em] text-muted m-0">
+                    {stat.label}
+                  </p>
+                  <p class="font-display text-3xl text-fg tabular-nums m-0 mt-fluid-1 leading-none">
+                    {stat.value}
+                  </p>
+                  <p
+                    class:list={[
+                      'text-xs font-semibold m-0 mt-fluid-2',
+                      stat.up ? 'text-blue' : 'text-muted',
+                    ]}
+                  >
+                    {stat.delta}
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.1em] text-muted m-0 mb-fluid-3">
+              Dove sei a un passo
+            </p>
+            <p class="font-display text-lg text-fg m-0">
+              «ristrutturazione bagno chiavi in mano»
+            </p>
+            <p class="text-sm text-muted m-0 mt-fluid-2 max-w-prose">
+              Sei in posizione 9,2: Google ti mostra già, ma quasi nessuno
+              arriva così in basso. 186 persone ti hanno visto, 2 sono entrate.
+            </p>
+            <div class="mt-fluid-3 flex flex-wrap items-center gap-fluid-2">
+              <span class="rounded-sm bg-orange px-3 py-1 text-sm font-semibold text-black tabular-nums">
+                +14 visite stimate
+              </span>
+              <span class="rounded-sm bg-beige px-3 py-1 text-sm font-semibold text-fg">
+                Rinforzare la pagina che si posiziona
+              </span>
+            </div>
+          </div>
+        </div>
+        <figcaption class="mt-fluid-3 text-sm text-muted max-w-prose">
+          Esempio con dati di fantasia. Il cruscotto vero sta a un indirizzo
+          privato, protetto da password e invisibile ai motori di ricerca.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <header class="mb-fluid-6 max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Le tre domande che contano
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Non quanto traffico fai. Dove lo stai perdendo
+        </h2>
+      </header>
+
+      <ul role="list" class="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-3 gap-fluid-5">
+        {
+          signals.map((signal) => (
+            <li
+              class:list={[
+                'p-fluid-5 rounded-lg shadow-[0.45rem_0.45rem_0_var(--color-blue)] transition-transform duration-400 ease-spring hover:rotate-0 motion-reduce:rotate-0',
+                signal.card,
+                signal.rot,
+              ]}
+            >
+              <h3 class="font-display text-2xl leading-tight mb-fluid-2 text-current">
+                {signal.title}
+              </h3>
+              <p class="m-0 text-base leading-[1.55]">{signal.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-blue py-fluid-7">
+    <div class="page">
+      <header class="mb-fluid-6 max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-pink mb-fluid-3">
+          Come funziona
+        </p>
+        <h2 class="font-display text-3xl text-white mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Gratis da attivare, a ore quando serve davvero
+        </h2>
+        <p class="text-base text-white m-0">
+          Nessun canone mensile, nessun contratto da disdire. Paghi il lavoro,
+          non lo strumento che lo trova.
+        </p>
+      </header>
+
+      <ol role="list" class="list-none m-0 p-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-fluid-5">
+        {
+          steps.map((step, i) => (
+            <li class="text-white">
+              <span class="block font-display text-3xl text-yellow leading-none mb-fluid-2" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3 class="font-display text-xl text-pink leading-tight m-0 mb-fluid-2">
+                {step.title}
+              </h3>
+              <p class="m-0 text-sm leading-[1.55]">{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Una precisazione, visto che oggi la fanno in pochi
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Non c'è nessuna intelligenza artificiale qui dentro
+        </h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Il cruscotto prende i numeri da Google e li confronta con le stesse
+          soglie, ogni settimana, per sempre. Non è un dettaglio tecnico: è il
+          motivo per cui puoi fidarti di quello che leggi.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Uno strumento che ti riscrive l'analisi ogni volta ti lascia senza un
+          metro: non capisci se questa settimana è andata meglio o se è il
+          programma che ha scelto parole diverse. <strong>Stesso calcolo ogni
+          lunedì vuol dire che i progressi li vedi davvero.</strong>
+        </p>
+        <p class="text-lg leading-[1.55] m-0">
+          Poi c'è la parte che nessun programma fa al posto tuo: decidere quali
+          due cose, delle dodici che il cruscotto segnala, meritano il tuo
+          budget questo mese. Quella la faccio io, ed è il motivo per cui
+          esiste il pacchetto ore.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-surface py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-6 lg:grid-cols-[1fr_1.6fr] lg:items-start">
+        <header class="max-w-prose">
+          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+            Domande frequenti
+          </p>
+          <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+            Quello che mi chiedono prima di dire di sì
+          </h2>
+        </header>
+
+        <div class="flex flex-col gap-fluid-3">
+          {
+            faqs.map((faq) => (
+              <details class="group bg-beige rounded-md px-fluid-4 py-fluid-3 [&[open]]:bg-yellow transition-colors duration-150">
+                <summary class="cursor-pointer list-none flex items-start justify-between gap-fluid-3 font-display text-lg text-blue leading-tight [&::-webkit-details-marker]:hidden">
+                  <h3 class="m-0 text-inherit font-inherit text-[length:inherit] leading-[inherit]">
+                    {faq.q}
+                  </h3>
+                  <span class="shrink-0 transition-transform duration-250 ease-soft group-open:rotate-45" aria-hidden="true">+</span>
+                </summary>
+                <p class="m-0 mt-fluid-2 text-base leading-[1.6] text-fg">{faq.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-yellow py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-4 items-end md:grid-cols-[2fr_1fr]">
+        <div class="max-w-prose">
+          <h2 class="font-display text-4xl text-blue leading-[0.95] m-0 mb-fluid-3 tracking-[-0.02em]">
+            Vediamo cosa dice il tuo, di sito
+          </h2>
+          <p class="text-lg text-fg m-0">
+            Mandami l'indirizzo. Guardo cosa c'è già nei tuoi account Google e
+            ti dico se vale la pena attivarlo — anche se la risposta è no.
+            L'installazione è gratuita, quindi l'unica cosa che rischi è
+            scoprire cosa cercano i tuoi clienti.
+          </p>
+        </div>
+        <div class="flex md:justify-end">
+          <a
+            href="/contatti?tipo=cruscotto"
+            class:list={[ctaClass, 'bg-blue text-yellow shadow-[0.5rem_0.5rem_0_var(--color-orange)] hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]']}
+          >
+            <span>Scrivimi</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+              <path d="M5 12h14" />
+              <path d="M13 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

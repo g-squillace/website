@@ -182,7 +182,10 @@ import { CONTACT } from '../config';
     const submitLabel = form?.querySelector<HTMLSpanElement>('[data-submit-label]');
     const defaultLabel = submitLabel?.textContent ?? 'Invia';
 
-    const PRESET_KIND: Record<string, string> = { ai: 'Automazione / intelligenza artificiale' };
+    const PRESET_KIND: Record<string, string> = {
+      ai: 'Automazione / intelligenza artificiale',
+      cruscotto: 'Manutenzione / evoluzione',
+    };
     const presetKind = PRESET_KIND[new URLSearchParams(location.search).get('tipo') ?? ''];
     const kindSelect = document.getElementById('kind');
     if (presetKind && kindSelect instanceof HTMLSelectElement) kindSelect.value = presetKind;
