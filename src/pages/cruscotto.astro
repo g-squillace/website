@@ -137,6 +137,52 @@ const schema = [
 const ctaClass =
   'group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full -rotate-[1.5deg] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem]';
 
+const giorni = [
+  { giorno: 'lun', sessioni: 38 },
+  { giorno: 'mar', sessioni: 71 },
+  { giorno: 'mer', sessioni: 64 },
+  { giorno: 'gio', sessioni: 52 },
+  { giorno: 'ven', sessioni: 89 },
+  { giorno: 'sab', sessioni: 61 },
+  { giorno: 'dom', sessioni: 37 },
+];
+
+const maxSessioni = Math.max(...giorni.map((g) => g.sessioni));
+
+const ricerche = [
+  { q: 'impresa edile firenze', clic: 7, viste: 96, ctr: '7,3%', pos: '4,1' },
+  { q: 'preventivo ristrutturazione bagno', clic: 4, viste: 142, ctr: '2,8%', pos: '6,4' },
+  { q: 'ristrutturazione bagno chiavi in mano', clic: 2, viste: 186, ctr: '1,1%', pos: '9,2' },
+  { q: 'cambio vasca con doccia', clic: 1, viste: 73, ctr: '1,4%', pos: '12,9' },
+  { q: 'rifacimento bagno prezzi', clic: 0, viste: 128, ctr: '0,0%', pos: '14,7' },
+  { q: 'bonus ristrutturazione 2026', clic: 0, viste: 54, ctr: '0,0%', pos: '23,5' },
+];
+
+const occasioni = [
+  {
+    q: 'ristrutturazione bagno chiavi in mano',
+    nota: 'Sei in posizione 9,2: Google ti mostra già, ma quasi nessuno arriva così in basso. 186 persone ti hanno visto, 2 sono entrate.',
+    guadagno: '+14 visite stimate',
+    azione: 'Rinforzare la pagina che si posiziona',
+  },
+  {
+    q: 'rifacimento bagno prezzi',
+    nota: 'Seconda pagina, 128 viste e nessun clic. Chi cerca quanto costa non trova una risposta: la pagina dedicata non esiste.',
+    guadagno: '+9 visite stimate',
+    azione: 'Serve una pagina sui prezzi',
+  },
+];
+
+const lontane = [
+  { q: 'bonus ristrutturazione 2026', viste: 54, pos: '23,5' },
+  { q: 'detrazione 50 per cento lavori casa', viste: 31, pos: '28,1' },
+];
+
+const prestazioni = [
+  { dispositivo: 'Telefono', punteggio: 72, giudizio: 'da migliorare', lcp: '3,8 s' },
+  { dispositivo: 'Computer', punteggio: 96, giudizio: 'buono', lcp: '1,1 s' },
+];
+
 const stats = [
   { label: 'Visite', value: '412', delta: '+18%', up: true },
   { label: 'Da Google', value: '231', delta: '+9%', up: true },
@@ -280,72 +326,167 @@ const stats = [
       </header>
 
       <figure class="m-0">
-        <div class="rounded-lg border-2 border-fg bg-surface p-fluid-4 shadow-[0.45rem_0.45rem_0_var(--color-blue)]">
-          <div class="flex flex-wrap items-end justify-between gap-fluid-3 mb-fluid-4">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted m-0">
-                Settimana
-              </p>
-              <p class="mt-fluid-1 font-display text-2xl text-fg m-0">
-                13 — 19 ottobre
-              </p>
-            </div>
-            <p class="rounded-sm bg-beige px-3 py-1 text-xs font-semibold text-fg m-0">
-              Aggiornato lunedì alle 7:00
-            </p>
-          </div>
-
-          <p class="max-w-prose rounded-lg border-2 border-fg bg-yellow px-fluid-4 py-fluid-3 font-display text-xl text-blue m-0 mb-fluid-4">
-            3 contatti questa settimana, più della precedente. Caffè meritato.
-          </p>
-
-          <ul role="list" class="grid gap-fluid-3 grid-cols-2 lg:grid-cols-4 list-none m-0 p-0 mb-fluid-4">
-            {
-              stats.map((stat) => (
-                <li class="rounded-lg border-2 border-fg bg-bg p-fluid-3">
-                  <p class="text-xs font-semibold uppercase tracking-[0.1em] text-muted m-0">
-                    {stat.label}
-                  </p>
-                  <p class="font-display text-3xl text-fg tabular-nums m-0 mt-fluid-1 leading-none">
-                    {stat.value}
-                  </p>
-                  <p
-                    class:list={[
-                      'text-xs font-semibold m-0 mt-fluid-2',
-                      stat.up ? 'text-blue' : 'text-muted',
-                    ]}
-                  >
-                    {stat.delta}
-                  </p>
-                </li>
-              ))
-            }
-          </ul>
-
-          <div class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
-            <p class="text-xs font-semibold uppercase tracking-[0.1em] text-muted m-0 mb-fluid-3">
-              Dove sei a un passo
-            </p>
-            <p class="font-display text-lg text-fg m-0">
-              «ristrutturazione bagno chiavi in mano»
-            </p>
-            <p class="text-sm text-muted m-0 mt-fluid-2 max-w-prose">
-              Sei in posizione 9,2: Google ti mostra già, ma quasi nessuno
-              arriva così in basso. 186 persone ti hanno visto, 2 sono entrate.
-            </p>
-            <div class="mt-fluid-3 flex flex-wrap items-center gap-fluid-2">
-              <span class="rounded-sm bg-orange px-3 py-1 text-sm font-semibold text-black tabular-nums">
-                +14 visite stimate
+        <div class="mx-auto max-w-4xl">
+          <div class="rounded-lg border-2 border-fg bg-fg p-fluid-2 shadow-[0.45rem_0.45rem_0_var(--color-blue)]">
+            <div class="flex items-center gap-fluid-3 px-fluid-1 pb-fluid-2">
+              <span class="flex shrink-0 gap-1.5" aria-hidden="true">
+                <span class="block h-2.5 w-2.5 rounded-full bg-orange"></span>
+                <span class="block h-2.5 w-2.5 rounded-full bg-yellow"></span>
+                <span class="block h-2.5 w-2.5 rounded-full bg-beige"></span>
               </span>
-              <span class="rounded-sm bg-beige px-3 py-1 text-sm font-semibold text-fg">
-                Rinforzare la pagina che si posiziona
+              <span class="min-w-0 flex-1 truncate rounded-sm bg-white/20 px-3 py-1 font-mono text-xs text-white">
+                www.iltuosito.it/report
               </span>
             </div>
+
+            <div
+              id="anteprima-cruscotto"
+              tabindex="0"
+              role="region"
+              aria-label="Anteprima del cruscotto: scorri per vedere tutte le sezioni"
+              class="h-[28rem] overflow-y-auto overscroll-contain rounded-sm bg-surface p-fluid-4 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-yellow"
+            >
+              <div class="flex flex-wrap items-end justify-between gap-fluid-3">
+                <div>
+                  <p class="m-0 text-xs font-semibold uppercase tracking-[0.12em] text-muted">Settimana 42</p>
+                  <p class="m-0 mt-fluid-1 font-display text-2xl text-fg">13 — 19 ottobre</p>
+                </div>
+                <p class="m-0 rounded-sm bg-beige px-3 py-1 text-xs font-semibold text-fg">Aggiornato lunedì alle 7:00</p>
+              </div>
+
+              <p class="mt-fluid-4 max-w-prose rounded-lg border-2 border-fg bg-yellow px-fluid-4 py-fluid-3 font-display text-xl text-blue">
+                3 contatti questa settimana, più della precedente. Caffè meritato.
+              </p>
+
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">In breve</h4>
+              <ul role="list" class="grid list-none grid-cols-2 gap-fluid-3 p-0 lg:grid-cols-4">
+                {
+                  stats.map((stat) => (
+                    <li class="rounded-lg border-2 border-fg bg-bg p-fluid-3">
+                      <p class="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-muted">{stat.label}</p>
+                      <p class="m-0 mt-fluid-1 font-display text-3xl leading-none text-fg tabular-nums">{stat.value}</p>
+                      <p class:list={['m-0 mt-fluid-2 text-xs font-semibold', stat.up ? 'text-blue' : 'text-muted']}>
+                        {stat.delta}
+                      </p>
+                    </li>
+                  ))
+                }
+              </ul>
+
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Giorno per giorno</h4>
+              <div class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
+                <p class="m-0 mb-fluid-3 text-sm text-muted">412 sessioni in tutta la settimana</p>
+                <ul role="list" class="flex list-none items-end gap-fluid-2 p-0">
+                  {
+                    giorni.map((g) => (
+                      <li class="flex flex-1 flex-col items-center gap-fluid-1">
+                        <span class="text-xs font-semibold text-fg tabular-nums">{g.sessioni}</span>
+                        <span
+                          class="w-full rounded-sm bg-blue"
+                          style={`height: ${Math.round((g.sessioni / maxSessioni) * 80)}px`}
+                          aria-hidden="true"
+                        />
+                        <span class="text-xs text-muted">{g.giorno}</span>
+                      </li>
+                    ))
+                  }
+                </ul>
+              </div>
+
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Come ti trovano</h4>
+              <div class="overflow-x-auto rounded-lg border-2 border-fg bg-bg p-fluid-4">
+                <table class="w-full border-collapse text-sm">
+                  <thead>
+                    <tr class="border-b-2 border-border text-left">
+                      <th scope="col" class="pb-fluid-2 pr-fluid-3 font-semibold">Ricerca</th>
+                      <th scope="col" class="pb-fluid-2 pr-fluid-3 text-right font-semibold">Clic</th>
+                      <th scope="col" class="pb-fluid-2 pr-fluid-3 text-right font-semibold">Viste</th>
+                      <th scope="col" class="pb-fluid-2 pr-fluid-3 text-right font-semibold">CTR</th>
+                      <th scope="col" class="pb-fluid-2 text-right font-semibold">Posizione</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      ricerche.map((r) => (
+                        <tr class="border-b border-border last:border-0">
+                          <td class="py-fluid-2 pr-fluid-3">{r.q}</td>
+                          <td class="py-fluid-2 pr-fluid-3 text-right tabular-nums">{r.clic}</td>
+                          <td class="py-fluid-2 pr-fluid-3 text-right tabular-nums">{r.viste}</td>
+                          <td class="py-fluid-2 pr-fluid-3 text-right tabular-nums">{r.ctr}</td>
+                          <td class="py-fluid-2 text-right tabular-nums">{r.pos}</td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Dove sei a un passo</h4>
+              <ul role="list" class="flex list-none flex-col gap-fluid-3 p-0">
+                {
+                  occasioni.map((o) => (
+                    <li class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
+                      <p class="m-0 font-display text-lg text-fg">«{o.q}»</p>
+                      <p class="m-0 mt-fluid-2 max-w-prose text-sm text-muted">{o.nota}</p>
+                      <div class="mt-fluid-3 flex flex-wrap items-center gap-fluid-2">
+                        <span class="rounded-sm bg-orange px-3 py-1 text-sm font-semibold text-black tabular-nums">
+                          {o.guadagno}
+                        </span>
+                        <span class="rounded-sm bg-beige px-3 py-1 text-sm font-semibold text-fg">{o.azione}</span>
+                      </div>
+                    </li>
+                  ))
+                }
+              </ul>
+
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Dove potresti comparire</h4>
+              <ul role="list" class="flex list-none flex-col gap-fluid-2 p-0">
+                {
+                  lontane.map((l) => (
+                    <li class="flex flex-wrap items-baseline justify-between gap-fluid-2 rounded-lg border-2 border-border bg-bg px-fluid-4 py-fluid-3">
+                      <span class="text-sm text-fg">«{l.q}»</span>
+                      <span class="text-xs text-muted tabular-nums">{l.viste} viste · posizione {l.pos}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Prestazioni</h4>
+              <div class="overflow-x-auto rounded-lg border-2 border-fg bg-bg p-fluid-4">
+                <table class="w-full border-collapse text-sm">
+                  <thead>
+                    <tr class="border-b-2 border-border text-left">
+                      <th scope="col" class="pb-fluid-2 pr-fluid-3 font-semibold">Dispositivo</th>
+                      <th scope="col" class="pb-fluid-2 pr-fluid-3 text-right font-semibold">Punteggio</th>
+                      <th scope="col" class="pb-fluid-2 text-right font-semibold">Caricamento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      prestazioni.map((p) => (
+                        <tr class="border-b border-border last:border-0">
+                          <td class="py-fluid-2 pr-fluid-3">{p.dispositivo}</td>
+                          <td class="py-fluid-2 pr-fluid-3 text-right tabular-nums">
+                            {p.punteggio} su 100 <span class="text-muted">— {p.giudizio}</span>
+                          </td>
+                          <td class="py-fluid-2 text-right tabular-nums">{p.lcp}</td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
+
+          <div class="mx-auto h-4 w-1/4 border-x-2 border-b-2 border-fg bg-fg" aria-hidden="true"></div>
+          <div class="mx-auto h-2 w-2/5 rounded-full bg-fg" aria-hidden="true"></div>
         </div>
-        <figcaption class="mt-fluid-3 text-sm text-muted max-w-prose">
-          Esempio con dati di fantasia. Il cruscotto vero sta a un indirizzo
-          privato, protetto da password e invisibile ai motori di ricerca.
+
+        <figcaption class="mx-auto mt-fluid-4 max-w-prose text-sm text-muted">
+          Esempio con dati di fantasia, da un'impresa di ristrutturazioni. L'anteprima
+          scorre da sola: passaci sopra il mouse, o scorrila tu, per fermarla. Il cruscotto
+          vero sta a un indirizzo privato, protetto da password e invisibile ai motori di ricerca.
         </figcaption>
       </figure>
     </div>
@@ -508,3 +649,63 @@ const stats = [
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  const anteprima = document.getElementById('anteprima-cruscotto');
+  const vuoleMenoMovimento = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (anteprima !== null && !vuoleMenoMovimento.matches) {
+    let inPausa = false;
+    let fermata = false;
+    let visibile = false;
+    let direzione = 1;
+    let ultimoFotogramma = 0;
+
+    const metti = () => {
+      inPausa = true;
+    };
+    const togli = () => {
+      inPausa = false;
+    };
+    const ferma = () => {
+      fermata = true;
+    };
+
+    anteprima.addEventListener('pointerenter', metti);
+    anteprima.addEventListener('pointerleave', togli);
+    anteprima.addEventListener('focusin', metti);
+    anteprima.addEventListener('focusout', togli);
+    anteprima.addEventListener('wheel', ferma, { passive: true });
+    anteprima.addEventListener('touchstart', ferma, { passive: true });
+    anteprima.addEventListener('keydown', ferma);
+
+    new IntersectionObserver(
+      (voci) => {
+        visibile = voci[0].isIntersecting;
+      },
+      { threshold: 0.3 },
+    ).observe(anteprima);
+
+    const avanza = (ora: number) => {
+      const secondi = ultimoFotogramma === 0 ? 0 : Math.min((ora - ultimoFotogramma) / 1000, 0.1);
+      ultimoFotogramma = ora;
+
+      if (visibile && !inPausa && !fermata) {
+        const massimo = anteprima.scrollHeight - anteprima.clientHeight;
+        const prossimo = anteprima.scrollTop + direzione * 26 * secondi;
+        if (prossimo >= massimo) direzione = -1;
+        else if (prossimo <= 0) direzione = 1;
+        anteprima.scrollTop = Math.max(0, Math.min(massimo, prossimo));
+      }
+
+      requestAnimationFrame(avanza);
+    };
+
+    requestAnimationFrame(avanza);
+
+    vuoleMenoMovimento.addEventListener('change', (evento) => {
+      if (evento.matches) fermata = true;
+    });
+  }
+</script>
+
