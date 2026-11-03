@@ -24,9 +24,12 @@
     "astro": "^5.0.0",
     "datocms-structured-text-to-html-string": "^5.1.16",
     "datocms-structured-text-utils": "^5.1.16",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.12",
     "@datocms/cma-client-node": "^5.4.18",
     "@netlify/functions": "^6.0.3",
     "datocms-html-to-structured-text": "^5.1.16",

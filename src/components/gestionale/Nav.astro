@@ -1,0 +1,37 @@
+---
+import { PRIVATE_AREA } from '../../config';
+
+interface Props {
+  current: 'progetti' | 'clienti';
+}
+
+const { current } = Astro.props;
+
+const links: ReadonlyArray<{ href: string; label: string; key: 'progetti' | 'clienti' }> = [
+  { href: `${PRIVATE_AREA.path}/gestionale/progetti`, label: 'Progetti', key: 'progetti' },
+  { href: `${PRIVATE_AREA.path}/gestionale/clienti`, label: 'Clienti', key: 'clienti' },
+];
+
+const base =
+  'inline-flex min-h-11 items-center rounded-md border-2 px-fluid-3 text-sm font-semibold transition-soft';
+---
+
+{
+  links.map((link) => (
+    <a
+      href={link.href}
+      aria-current={link.key === current ? 'page' : undefined}
+      class={`${base} ${
+        link.key === current
+          ? 'border-fg bg-fg text-bg'
+          : 'border-fg hover:bg-fg hover:text-bg'
+      }`}
+    >
+      {link.label}
+    </a>
+  ))
+}
+
+<a href={PRIVATE_AREA.path} class={`${base} border-border text-muted hover:border-fg hover:text-fg`}>
+  Area riservata
+</a>

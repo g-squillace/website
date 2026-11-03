@@ -34,6 +34,17 @@ export const REPORT = {
   ],
 } as const;
 
+export const SUPABASE = {
+  url: 'https://grmbzzcospmdpaqzefay.supabase.co',
+} as const;
+
+export const PRIVATE_AREA = {
+  path: '/area-riservata',
+  loginPath: '/area-riservata/accesso',
+  gestionalePath: '/area-riservata/gestionale/progetti',
+  reportPath: '/report',
+} as const;
+
 export const CONTACT = {
   email: 'info@guidosquillace.it',
 } as const;

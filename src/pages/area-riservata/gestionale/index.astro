@@ -1,0 +1,7 @@
+---
+export const prerender = false;
+
+import { PRIVATE_AREA } from '../../../config';
+
+return Astro.redirect(PRIVATE_AREA.gestionalePath, 302);
+---

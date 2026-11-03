@@ -1,0 +1,14 @@
+---
+interface Props {
+  message: string;
+}
+
+const { message } = Astro.props;
+---
+
+<p
+  role="alert"
+  class="rounded-md border-2 border-fg bg-orange px-fluid-3 py-fluid-2 text-sm font-semibold text-black"
+>
+  {message}
+</p>

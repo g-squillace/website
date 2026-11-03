@@ -1,0 +1,23 @@
+<script>
+  for (const trigger of document.querySelectorAll<HTMLElement>('[data-dialog-open]')) {
+    trigger.addEventListener('click', () => {
+      const target = document.getElementById(trigger.dataset.dialogOpen ?? '');
+      if (target instanceof HTMLDialogElement) target.showModal();
+    });
+  }
+
+  for (const dialog of document.querySelectorAll<HTMLDialogElement>('dialog')) {
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    for (const closer of dialog.querySelectorAll<HTMLElement>('[data-dialog-close]')) {
+      closer.addEventListener('click', () => dialog.close());
+    }
+  }
+
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-confirm]')) {
+    form.addEventListener('submit', (event) => {
+      if (!window.confirm(form.dataset.confirm ?? 'Confermi?')) event.preventDefault();
+    });
+  }
+</script>

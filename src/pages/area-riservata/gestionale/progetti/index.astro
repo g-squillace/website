@@ -1,0 +1,322 @@
+---
+export const prerender = false;
+
+import PrivateLayout from '../../../../layouts/PrivateLayout.astro';
+import Alert from '../../../../components/gestionale/Alert.astro';
+import Dialog from '../../../../components/gestionale/Dialog.astro';
+import DialogController from '../../../../components/gestionale/DialogController.astro';
+import Field from '../../../../components/gestionale/Field.astro';
+import Nav from '../../../../components/gestionale/Nav.astro';
+import Select from '../../../../components/gestionale/Select.astro';
+import StatoBadge from '../../../../components/gestionale/StatoBadge.astro';
+import { PRIVATE_AREA } from '../../../../config';
+import { isAuthenticated, loginPath } from '../../../../lib/report/auth';
+import {
+  createProgetto,
+  deleteProgetto,
+  fetchClienti,
+  fetchProgetti,
+  updateProgetto,
+} from '../../../../lib/gestionale/api';
+import { errorMessage, missingSupabaseVars } from '../../../../lib/gestionale/supabase';
+import {
+  checkboxField,
+  field,
+  formatEuro,
+  numberField,
+  optionalField,
+} from '../../../../lib/gestionale/format';
+import {
+  STATI_PROGETTO,
+  toProgettoStato,
+  type Cliente,
+  type Progetto,
+  type ProgettoInput,
+} from '../../../../lib/gestionale/types';
+
+if (!(await isAuthenticated(Astro.cookies))) {
+  return Astro.redirect(loginPath(Astro.url), 302);
+}
+
+const self = `${PRIVATE_AREA.path}/gestionale/progetti`;
+
+const back = (message: string | null): Response =>
+  Astro.redirect(message === null ? self : `${self}?errore=${encodeURIComponent(message)}`, 303);
+
+const readInput = (form: FormData): ProgettoInput => ({
+  clienteId: optionalField(form, 'cliente_id'),
+  nome: field(form, 'nome'),
+  tipoLavoro: optionalField(form, 'tipo_lavoro'),
+  preventivo: numberField(form, 'preventivo'),
+  stato: toProgettoStato(field(form, 'stato')),
+  assistenzaAttiva: checkboxField(form, 'assistenza_attiva'),
+});
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const intent = field(form, 'intent');
+  const id = field(form, 'id');
+  try {
+    if (intent === 'create' || (intent === 'update' && id.length > 0)) {
+      const input = readInput(form);
+      if (input.nome.length === 0) return back('Il nome del progetto è obbligatorio.');
+      if (intent === 'create') await createProgetto(input);
+      else await updateProgetto(id, input);
+    } else if (intent === 'delete' && id.length > 0) {
+      await deleteProgetto(id);
+    } else {
+      return back('Richiesta non riconosciuta.');
+    }
+    return back(null);
+  } catch (error) {
+    return back(errorMessage(error, 'Operazione non riuscita.'));
+  }
+}
+
+const missing = missingSupabaseVars();
+
+let progetti: Progetto[] = [];
+let clienti: Cliente[] = [];
+let loadError: string | null = null;
+
+if (missing.length === 0) {
+  try {
+    [progetti, clienti] = await Promise.all([fetchProgetti(), fetchClienti()]);
+  } catch (error) {
+    loadError = errorMessage(error, 'Non riesco a leggere i progetti.');
+  }
+}
+
+const nomeCliente = new Map(clienti.map((cliente) => [cliente.id, cliente.nome]));
+const clienteOptions = clienti.map((cliente) => ({ value: cliente.id, label: cliente.nome }));
+const statoOptions = STATI_PROGETTO.map((stato) => ({ value: stato.value, label: stato.label }));
+
+const actionError = Astro.url.searchParams.get('errore');
+
+const primaryButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-blue px-fluid-4 py-fluid-2 text-sm font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none';
+const quietButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg';
+const dangerButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-orange bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-orange hover:text-black';
+---
+
+<PrivateLayout title="Progetti" section="gestionale" showLogout>
+  <Nav slot="nav" current="progetti" />
+
+  <div class="page flex flex-col gap-fluid-5 py-fluid-6">
+    <div class="flex flex-wrap items-center justify-between gap-fluid-3">
+      <h1 class="font-display text-4xl">Progetti</h1>
+      <button type="button" data-dialog-open="progetto-nuovo" class={primaryButton}>
+        Nuovo progetto
+      </button>
+    </div>
+
+    {actionError !== null && <Alert message={actionError} />}
+    {loadError !== null && <Alert message={loadError} />}
+
+    {
+      missing.length > 0 && (
+        <div class="rounded-md border-2 border-fg bg-bg px-fluid-4 py-fluid-3">
+          <p class="font-semibold">Il gestionale non è ancora collegato a Supabase.</p>
+          <p class="mt-fluid-2 text-sm text-muted">
+            Mancano queste variabili d'ambiente su questo ambiente:
+          </p>
+          <ul class="mt-fluid-2 list-disc pl-fluid-4 text-sm">
+            {missing.map((name) => (
+              <li>
+                <code class="font-mono">{name}</code>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      missing.length === 0 && progetti.length === 0 && loadError === null && (
+        <p class="text-muted">Nessun progetto. Creane uno con «Nuovo progetto».</p>
+      )
+    }
+
+    {
+      progetti.length > 0 && (
+        <div class="overflow-x-auto rounded-lg border-2 border-fg bg-bg">
+          <table class="w-full border-collapse text-left text-sm">
+            <caption class="sr-only">Elenco dei progetti</caption>
+            <thead class="border-b-2 border-fg">
+              <tr>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Progetto</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Cliente</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Tipo</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Preventivo</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Stato</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 text-right font-semibold">Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {progetti.map((progetto) => (
+                <tr class="border-t border-border">
+                  <th scope="row" class="px-fluid-3 py-fluid-3 text-left font-semibold">
+                    <a
+                      href={`${self}/${progetto.id}`}
+                      class="text-blue underline underline-offset-4"
+                    >
+                      {progetto.nome}
+                    </a>
+                  </th>
+                  <td class="px-fluid-3 py-fluid-3 text-muted">
+                    {progetto.clienteId === null
+                      ? '—'
+                      : nomeCliente.get(progetto.clienteId) ?? '—'}
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3 text-muted">{progetto.tipoLavoro ?? '—'}</td>
+                  <td class="px-fluid-3 py-fluid-3 text-muted">
+                    {formatEuro(progetto.preventivo)}
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3">
+                    <StatoBadge stato={progetto.stato} />
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3">
+                    <div class="flex flex-wrap justify-end gap-fluid-2">
+                      <button
+                        type="button"
+                        data-dialog-open={`progetto-${progetto.id}`}
+                        class={quietButton}
+                      >
+                        Modifica
+                      </button>
+                      <form
+                        method="POST"
+                        data-confirm={`Eliminare il progetto "${progetto.nome}"?`}
+                      >
+                        <input type="hidden" name="intent" value="delete" />
+                        <input type="hidden" name="id" value={progetto.id} />
+                        <button type="submit" class={dangerButton}>
+                          Elimina
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </div>
+
+  <Dialog id="progetto-nuovo" title="Nuovo progetto">
+    <form method="POST" class="flex flex-col gap-fluid-4">
+      <input type="hidden" name="intent" value="create" />
+      <Field id="nuovo-progetto-nome" name="nome" label="Nome" required />
+      <Select
+        id="nuovo-progetto-cliente"
+        name="cliente_id"
+        label="Cliente"
+        options={clienteOptions}
+        placeholder="— Nessun cliente —"
+      />
+      <Field id="nuovo-progetto-tipo" name="tipo_lavoro" label="Tipo di lavoro" />
+      <div class="grid grid-cols-1 gap-fluid-4 sm:grid-cols-2">
+        <Field
+          id="nuovo-progetto-preventivo"
+          name="preventivo"
+          label="Preventivo (€)"
+          type="number"
+          min="0"
+          step="0.01"
+        />
+        <Select
+          id="nuovo-progetto-stato"
+          name="stato"
+          label="Stato"
+          options={statoOptions}
+          value="lead"
+        />
+      </div>
+      <label class="flex min-h-11 items-center gap-fluid-2 text-sm font-semibold">
+        <input
+          type="checkbox"
+          name="assistenza_attiva"
+          class="h-5 w-5 rounded-sm border-2 border-fg accent-blue"
+        />
+        Assistenza attiva
+      </label>
+      <div class="flex justify-end gap-fluid-2">
+        <button type="button" data-dialog-close class={quietButton}>Annulla</button>
+        <button type="submit" class={primaryButton}>Salva</button>
+      </div>
+    </form>
+  </Dialog>
+
+  {
+    progetti.map((progetto) => (
+      <Dialog id={`progetto-${progetto.id}`} title={`Modifica ${progetto.nome}`}>
+        <form method="POST" class="flex flex-col gap-fluid-4">
+          <input type="hidden" name="intent" value="update" />
+          <input type="hidden" name="id" value={progetto.id} />
+          <Field
+            id={`progetto-nome-${progetto.id}`}
+            name="nome"
+            label="Nome"
+            value={progetto.nome}
+            required
+          />
+          <Select
+            id={`progetto-cliente-${progetto.id}`}
+            name="cliente_id"
+            label="Cliente"
+            options={clienteOptions}
+            value={progetto.clienteId}
+            placeholder="— Nessun cliente —"
+          />
+          <Field
+            id={`progetto-tipo-${progetto.id}`}
+            name="tipo_lavoro"
+            label="Tipo di lavoro"
+            value={progetto.tipoLavoro}
+          />
+          <div class="grid grid-cols-1 gap-fluid-4 sm:grid-cols-2">
+            <Field
+              id={`progetto-preventivo-${progetto.id}`}
+              name="preventivo"
+              label="Preventivo (€)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={progetto.preventivo}
+            />
+            <Select
+              id={`progetto-stato-${progetto.id}`}
+              name="stato"
+              label="Stato"
+              options={statoOptions}
+              value={progetto.stato}
+            />
+          </div>
+          <label class="flex min-h-11 items-center gap-fluid-2 text-sm font-semibold">
+            <input
+              type="checkbox"
+              name="assistenza_attiva"
+              checked={progetto.assistenzaAttiva}
+              class="h-5 w-5 rounded-sm border-2 border-fg accent-blue"
+            />
+            Assistenza attiva
+          </label>
+          <div class="flex justify-end gap-fluid-2">
+            <button type="button" data-dialog-close class={quietButton}>
+              Annulla
+            </button>
+            <button type="submit" class={primaryButton}>
+              Salva
+            </button>
+          </div>
+        </form>
+      </Dialog>
+    ))
+  }
+
+  <DialogController />
+</PrivateLayout>

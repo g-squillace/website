@@ -1,0 +1,39 @@
+---
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<dialog
+  id={id}
+  aria-labelledby={`${id}-title`}
+  class="m-auto w-[min(34rem,92vw)] rounded-lg border-2 border-fg bg-bg p-0 text-fg backdrop:bg-fg/50"
+>
+  <div class="flex items-center justify-between gap-fluid-3 border-b-2 border-fg px-fluid-4 py-fluid-3">
+    <h2 id={`${id}-title`} class="font-sans text-lg font-semibold">{title}</h2>
+    <button
+      type="button"
+      data-dialog-close
+      aria-label="Chiudi"
+      class="inline-flex h-11 w-11 items-center justify-center rounded-md border-2 border-fg transition-soft hover:bg-fg hover:text-bg"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        aria-hidden="true"
+        class="h-4 w-4"
+      >
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
+  </div>
+  <div class="px-fluid-4 py-fluid-4">
+    <slot />
+  </div>
+</dialog>

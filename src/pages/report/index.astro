@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 
-import ReportLayout from '../../layouts/ReportLayout.astro';
+import PrivateLayout from '../../layouts/PrivateLayout.astro';
 import StatCard from '../../components/report/StatCard.astro';
 import BarList from '../../components/report/BarList.astro';
 import WeekBars from '../../components/report/WeekBars.astro';
@@ -9,7 +9,8 @@ import QueryTable from '../../components/report/QueryTable.astro';
 import OpportunityList from '../../components/report/OpportunityList.astro';
 import Performance from '../../components/report/Performance.astro';
 import { getCollection } from 'astro:content';
-import { isAuthenticated } from '../../lib/report/auth';
+import { PRIVATE_AREA } from '../../config';
+import { isAuthenticated, loginPath } from '../../lib/report/auth';
 import { buildWeeklyReport, MAX_WEEKS_BACK } from '../../lib/report';
 import {
   formatDate,
@@ -20,7 +21,7 @@ import {
 } from '../../lib/report/format';
 
 if (!(await isAuthenticated(Astro.cookies))) {
-  return Astro.redirect('/report/login', 302);
+  return Astro.redirect(loginPath(Astro.url), 302);
 }
 
 const requested = Number.parseInt(Astro.url.searchParams.get('w') ?? '0', 10);
@@ -72,7 +73,19 @@ const brandedRows = [
 ];
 ---
 
-<ReportLayout title={`Risultati ${week.label}`} showLogout>
+<PrivateLayout
+  title={`Risultati ${week.label}`}
+  section="cruscotto"
+  showLogout
+  note="Pagina privata, non indicizzata. I dati arrivano da Google Analytics 4 e Google Search Console."
+>
+  <a
+    slot="nav"
+    href={PRIVATE_AREA.path}
+    class="inline-flex min-h-11 items-center rounded-md border-2 border-fg px-fluid-3 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg"
+  >
+    Area riservata
+  </a>
   <div class="page flex flex-col gap-fluid-6 py-fluid-5">
     <header class="flex flex-col gap-fluid-4">
       <div class="flex flex-wrap items-end justify-between gap-fluid-3">
@@ -354,7 +367,7 @@ const brandedRows = [
       </dl>
     </section>
   </div>
-</ReportLayout>
+</PrivateLayout>
 
 <script>
   document.querySelectorAll<HTMLButtonElement>('[data-copy-prompt]').forEach((button) => {

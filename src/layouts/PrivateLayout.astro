@@ -1,13 +1,20 @@
 ---
 import '../styles/global.css';
-import { SITE } from '../config';
+import { PRIVATE_AREA, SITE } from '../config';
 
 interface Props {
   title: string;
+  section?: string;
   showLogout?: boolean;
+  note?: string;
 }
 
-const { title, showLogout = false } = Astro.props;
+const {
+  title,
+  section,
+  showLogout = false,
+  note = 'Pagina privata, non indicizzata.',
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -37,21 +44,25 @@ const { title, showLogout = false } = Astro.props;
     <header class="border-b-2 border-fg bg-bg">
       <div class="page flex flex-wrap items-center justify-between gap-fluid-3 py-fluid-3">
         <p class="font-display text-lg">
-          <a href="/" class="underline-offset-4 hover:underline">{SITE.name}</a>
-          <span class="text-muted font-sans text-sm font-normal"> / cruscotto</span>
+          <a href={PRIVATE_AREA.path} class="underline-offset-4 hover:underline">{SITE.name}</a>
+          {section !== undefined && <span class="text-muted font-sans text-sm font-normal"> / {section}</span>}
         </p>
-        {
-          showLogout && (
-            <form method="POST" action="/api/report/logout">
-              <button
-                type="submit"
-                class="min-h-11 rounded-md border-2 border-fg px-fluid-3 py-fluid-1 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg"
-              >
-                Esci
-              </button>
-            </form>
-          )
-        }
+
+        <div class="flex flex-wrap items-center gap-fluid-2">
+          <slot name="nav" />
+          {
+            showLogout && (
+              <form method="POST" action="/api/report/logout">
+                <button
+                  type="submit"
+                  class="min-h-11 rounded-md border-2 border-fg px-fluid-3 py-fluid-1 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg"
+                >
+                  Esci
+                </button>
+              </form>
+            )
+          }
+        </div>
       </div>
     </header>
 
@@ -60,7 +71,7 @@ const { title, showLogout = false } = Astro.props;
     </main>
 
     <footer class="page py-fluid-5 text-sm text-muted">
-      <p>Pagina privata, non indicizzata. I dati arrivano da Google Analytics 4 e Google Search Console.</p>
+      <p>{note}</p>
     </footer>
   </body>
 </html>

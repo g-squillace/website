@@ -1,0 +1,588 @@
+---
+export const prerender = false;
+
+import PrivateLayout from '../../../../layouts/PrivateLayout.astro';
+import Alert from '../../../../components/gestionale/Alert.astro';
+import Dialog from '../../../../components/gestionale/Dialog.astro';
+import DialogController from '../../../../components/gestionale/DialogController.astro';
+import Field from '../../../../components/gestionale/Field.astro';
+import Nav from '../../../../components/gestionale/Nav.astro';
+import ReportDownloader from '../../../../components/gestionale/ReportDownloader.astro';
+import StatoBadge from '../../../../components/gestionale/StatoBadge.astro';
+import { PRIVATE_AREA } from '../../../../config';
+import { isAuthenticated, loginPath } from '../../../../lib/report/auth';
+import {
+  createOra,
+  createPeriodo,
+  createScadenza,
+  deleteOra,
+  deletePeriodo,
+  deleteScadenza,
+  fetchCliente,
+  fetchOre,
+  fetchPeriodi,
+  fetchProgetto,
+  fetchScadenze,
+  updatePeriodo,
+  updateScadenza,
+} from '../../../../lib/gestionale/api';
+import { errorMessage, missingSupabaseVars } from '../../../../lib/gestionale/supabase';
+import {
+  field,
+  formatData,
+  formatEuro,
+  formatOre,
+  numberField,
+  oggi,
+  optionalField,
+} from '../../../../lib/gestionale/format';
+import type { Cliente, Ora, Periodo, Progetto, Scadenza } from '../../../../lib/gestionale/types';
+
+if (!(await isAuthenticated(Astro.cookies))) {
+  return Astro.redirect(loginPath(Astro.url), 302);
+}
+
+const progettoId = Astro.params.id ?? '';
+const elenco = `${PRIVATE_AREA.path}/gestionale/progetti`;
+const self = `${elenco}/${progettoId}`;
+
+const back = (message: string | null): Response =>
+  Astro.redirect(message === null ? self : `${self}?errore=${encodeURIComponent(message)}`, 303);
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const intent = field(form, 'intent');
+  const id = field(form, 'id');
+  try {
+    if (intent === 'scadenza.create' || (intent === 'scadenza.update' && id.length > 0)) {
+      const input = {
+        descrizione: optionalField(form, 'descrizione'),
+        importo: numberField(form, 'importo') ?? 0,
+        dataScadenza: optionalField(form, 'data_scadenza'),
+      };
+      if (intent === 'scadenza.create') await createScadenza(progettoId, input);
+      else await updateScadenza(id, input);
+    } else if (intent === 'scadenza.delete' && id.length > 0) {
+      await deleteScadenza(id);
+    } else if (intent === 'periodo.create' || (intent === 'periodo.update' && id.length > 0)) {
+      const monteOre = numberField(form, 'monte_ore');
+      if (monteOre === null || monteOre <= 0) {
+        return back('Il monte ore deve essere maggiore di zero.');
+      }
+      const input = {
+        monteOre,
+        canone: numberField(form, 'canone') ?? 0,
+        dataInizio: optionalField(form, 'data_inizio'),
+      };
+      if (intent === 'periodo.create') await createPeriodo(progettoId, input);
+      else await updatePeriodo(id, input);
+    } else if (intent === 'periodo.delete' && id.length > 0) {
+      await deletePeriodo(id);
+    } else if (intent === 'ora.create' && id.length > 0) {
+      const ore = numberField(form, 'ore');
+      if (ore === null || ore <= 0) return back('Inserisci un numero di ore maggiore di zero.');
+      await createOra(id, {
+        data: optionalField(form, 'data'),
+        ore,
+        nota: optionalField(form, 'nota'),
+      });
+    } else if (intent === 'ora.delete' && id.length > 0) {
+      await deleteOra(id);
+    } else {
+      return back('Richiesta non riconosciuta.');
+    }
+    return back(null);
+  } catch (error) {
+    return back(errorMessage(error, 'Operazione non riuscita.'));
+  }
+}
+
+const missing = missingSupabaseVars();
+
+let progetto: Progetto | null = null;
+let cliente: Cliente | null = null;
+let scadenze: Scadenza[] = [];
+let periodi: Periodo[] = [];
+let ore: Ora[] = [];
+let loadError: string | null = null;
+
+if (missing.length === 0) {
+  try {
+    progetto = await fetchProgetto(progettoId);
+    if (progetto !== null) {
+      const [clienteData, scadenzeData, periodiData] = await Promise.all([
+        progetto.clienteId === null ? Promise.resolve(null) : fetchCliente(progetto.clienteId),
+        fetchScadenze(progettoId),
+        fetchPeriodi(progettoId),
+      ]);
+      cliente = clienteData;
+      scadenze = scadenzeData;
+      periodi = periodiData;
+      ore = await fetchOre(periodi.map((periodo) => periodo.id));
+    }
+  } catch (error) {
+    loadError = errorMessage(error, 'Non riesco a leggere il progetto.');
+  }
+}
+
+if (missing.length === 0 && progetto === null && loadError === null) {
+  return new Response('Progetto non trovato', { status: 404 });
+}
+
+const orePerPeriodo = new Map<string, Ora[]>();
+for (const riga of ore) {
+  const elenco = orePerPeriodo.get(riga.periodoId) ?? [];
+  elenco.push(riga);
+  orePerPeriodo.set(riga.periodoId, elenco);
+}
+
+const periodiView = periodi.map((periodo) => {
+  const righe = orePerPeriodo.get(periodo.id) ?? [];
+  const consumate = righe.reduce((sum, riga) => sum + riga.ore, 0);
+  const residue = periodo.monteOre - consumate;
+  const percent = periodo.monteOre > 0 ? Math.min(100, (consumate / periodo.monteOre) * 100) : 0;
+  return {
+    periodo,
+    righe,
+    consumate,
+    residue,
+    percent,
+    inEsaurimento: residue <= 0 || percent >= 90,
+    reportData: {
+      progettoNome: progetto?.nome ?? '',
+      tipoLavoro: progetto?.tipoLavoro ?? null,
+      clienteNome: cliente?.nome ?? null,
+      clienteContatto: cliente?.email ?? cliente?.telefono ?? null,
+      monteOre: periodo.monteOre,
+      dataInizio: periodo.dataInizio,
+      ore: righe.map((riga) => ({ data: riga.data, ore: riga.ore, nota: riga.nota })),
+    },
+  };
+});
+
+const totaleScadenze = scadenze.reduce((sum, scadenza) => sum + scadenza.importo, 0);
+const actionError = Astro.url.searchParams.get('errore');
+
+const primaryButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-blue px-fluid-4 py-fluid-2 text-sm font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none';
+const quietButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg';
+const dangerButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-orange bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-orange hover:text-black';
+---
+
+<PrivateLayout title={progetto?.nome ?? 'Progetto'} section="gestionale" showLogout>
+  <Nav slot="nav" current="progetti" />
+
+  <div class="page flex flex-col gap-fluid-6 py-fluid-6">
+    <a href={elenco} class="w-fit text-sm font-semibold text-blue underline underline-offset-4">
+      ← Torna ai progetti
+    </a>
+
+    {actionError !== null && <Alert message={actionError} />}
+    {loadError !== null && <Alert message={loadError} />}
+
+    {
+      missing.length > 0 && (
+        <div class="rounded-md border-2 border-fg bg-bg px-fluid-4 py-fluid-3">
+          <p class="font-semibold">Il gestionale non è ancora collegato a Supabase.</p>
+          <ul class="mt-fluid-2 list-disc pl-fluid-4 text-sm">
+            {missing.map((name) => (
+              <li>
+                <code class="font-mono">{name}</code>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      progetto !== null && (
+        <>
+          <section class="rounded-lg border-2 border-fg bg-bg p-fluid-5">
+            <div class="flex flex-wrap items-center justify-between gap-fluid-3">
+              <h1 class="font-display text-4xl">{progetto.nome}</h1>
+              <StatoBadge stato={progetto.stato} />
+            </div>
+            <dl class="mt-fluid-4 grid grid-cols-1 gap-fluid-4 text-sm sm:grid-cols-3">
+              <div>
+                <dt class="text-muted">Cliente</dt>
+                <dd class="mt-fluid-1 font-semibold">{cliente?.nome ?? '—'}</dd>
+              </div>
+              <div>
+                <dt class="text-muted">Tipo di lavoro</dt>
+                <dd class="mt-fluid-1 font-semibold">{progetto.tipoLavoro ?? '—'}</dd>
+              </div>
+              <div>
+                <dt class="text-muted">Preventivo</dt>
+                <dd class="mt-fluid-1 font-semibold">{formatEuro(progetto.preventivo)}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="flex flex-col gap-fluid-4">
+            <div class="flex flex-wrap items-center justify-between gap-fluid-3">
+              <h2 class="font-display text-3xl">Scadenze annuali</h2>
+              <button type="button" data-dialog-open="scadenza-nuova" class={primaryButton}>
+                Nuova scadenza
+              </button>
+            </div>
+
+            {scadenze.length === 0 ? (
+              <p class="text-muted">Nessuna scadenza registrata.</p>
+            ) : (
+              <div class="overflow-x-auto rounded-lg border-2 border-fg bg-bg">
+                <table class="w-full border-collapse text-left text-sm">
+                  <caption class="sr-only">Scadenze annuali del progetto</caption>
+                  <thead class="border-b-2 border-fg">
+                    <tr>
+                      <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Descrizione</th>
+                      <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Importo</th>
+                      <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Scadenza</th>
+                      <th scope="col" class="px-fluid-3 py-fluid-3 text-right font-semibold">
+                        Azioni
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scadenze.map((scadenza) => (
+                      <tr class="border-t border-border">
+                        <th scope="row" class="px-fluid-3 py-fluid-3 text-left font-semibold">
+                          {scadenza.descrizione ?? '—'}
+                        </th>
+                        <td class="px-fluid-3 py-fluid-3 text-muted">
+                          {formatEuro(scadenza.importo)}
+                        </td>
+                        <td class="px-fluid-3 py-fluid-3 text-muted">
+                          {formatData(scadenza.dataScadenza)}
+                        </td>
+                        <td class="px-fluid-3 py-fluid-3">
+                          <div class="flex flex-wrap justify-end gap-fluid-2">
+                            <button
+                              type="button"
+                              data-dialog-open={`scadenza-${scadenza.id}`}
+                              class={quietButton}
+                            >
+                              Modifica
+                            </button>
+                            <form method="POST" data-confirm="Eliminare questa scadenza?">
+                              <input type="hidden" name="intent" value="scadenza.delete" />
+                              <input type="hidden" name="id" value={scadenza.id} />
+                              <button type="submit" class={dangerButton}>
+                                Elimina
+                              </button>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot class="border-t-2 border-fg">
+                    <tr>
+                      <th scope="row" class="px-fluid-3 py-fluid-3 text-left font-semibold">
+                        Totale
+                      </th>
+                      <td class="px-fluid-3 py-fluid-3 font-semibold">
+                        {formatEuro(totaleScadenze)}
+                      </td>
+                      <td colspan="2" />
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section class="flex flex-col gap-fluid-4">
+            <div class="flex flex-wrap items-center justify-between gap-fluid-3">
+              <h2 class="font-display text-3xl">Periodi di assistenza</h2>
+              <button type="button" data-dialog-open="periodo-nuovo" class={primaryButton}>
+                Nuovo periodo
+              </button>
+            </div>
+
+            {periodiView.length === 0 ? (
+              <p class="text-muted">
+                Nessun periodo di assistenza. Creane uno per iniziare a registrare le ore.
+              </p>
+            ) : (
+              <ul class="flex list-none flex-col gap-fluid-5 p-0">
+                {periodiView.map((vista) => (
+                  <li class="rounded-lg border-2 border-fg bg-bg p-fluid-5">
+                    <div class="flex flex-wrap items-start justify-between gap-fluid-3">
+                      <div>
+                        <h3 class="text-lg font-semibold">
+                          Periodo dal {formatData(vista.periodo.dataInizio)}
+                        </h3>
+                        <p class="mt-fluid-1 text-sm text-muted">
+                          Canone {formatEuro(vista.periodo.canone)}
+                        </p>
+                      </div>
+                      <div class="flex flex-wrap gap-fluid-2">
+                        <button
+                          type="button"
+                          data-report-periodo={vista.periodo.id}
+                          class={quietButton}
+                        >
+                          Scarica report PDF
+                        </button>
+                        <button
+                          type="button"
+                          data-dialog-open={`periodo-${vista.periodo.id}`}
+                          class={quietButton}
+                        >
+                          Modifica
+                        </button>
+                        <form
+                          method="POST"
+                          data-confirm="Eliminare questo periodo? Verranno eliminate anche le ore registrate."
+                        >
+                          <input type="hidden" name="intent" value="periodo.delete" />
+                          <input type="hidden" name="id" value={vista.periodo.id} />
+                          <button type="submit" class={dangerButton}>
+                            Elimina
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+
+                    <p
+                      id={`report-stato-${vista.periodo.id}`}
+                      role="status"
+                      class="mt-fluid-2 text-sm text-muted"
+                    />
+
+                    <script
+                      type="application/json"
+                      id={`report-dati-${vista.periodo.id}`}
+                      set:html={JSON.stringify(vista.reportData)}
+                    />
+
+                    <div class="mt-fluid-4 flex flex-col gap-fluid-2">
+                      <div class="flex flex-wrap items-center justify-between gap-fluid-2 text-sm">
+                        <span class="text-muted">
+                          {formatOre(vista.consumate)} usate su {formatOre(vista.periodo.monteOre)}
+                        </span>
+                        <span class={vista.inEsaurimento ? 'font-semibold text-orange' : 'font-semibold'}>
+                          {vista.residue < 0
+                            ? `${formatOre(Math.abs(vista.residue))} oltre il monte ore`
+                            : `${formatOre(vista.residue)} residue`}
+                        </span>
+                      </div>
+                      <div
+                        class="h-3 w-full overflow-hidden rounded-full border-2 border-fg bg-surface"
+                        aria-hidden="true"
+                      >
+                        <div
+                          class={`h-full ${vista.inEsaurimento ? 'bg-orange' : 'bg-blue'}`}
+                          style={`width: ${vista.percent}%`}
+                        />
+                      </div>
+                    </div>
+
+                    <form
+                      method="POST"
+                      class="mt-fluid-4 flex flex-wrap items-end gap-fluid-3 border-t-2 border-border pt-fluid-4"
+                    >
+                      <input type="hidden" name="intent" value="ora.create" />
+                      <input type="hidden" name="id" value={vista.periodo.id} />
+                      <div class="w-40">
+                        <Field
+                          id={`ora-data-${vista.periodo.id}`}
+                          name="data"
+                          label="Data"
+                          type="date"
+                          value={oggi()}
+                        />
+                      </div>
+                      <div class="w-28">
+                        <Field
+                          id={`ora-ore-${vista.periodo.id}`}
+                          name="ore"
+                          label="Ore"
+                          type="number"
+                          min="0"
+                          step="0.25"
+                          required
+                        />
+                      </div>
+                      <div class="min-w-48 flex-1">
+                        <Field id={`ora-nota-${vista.periodo.id}`} name="nota" label="Nota" />
+                      </div>
+                      <button type="submit" class={primaryButton}>
+                        Aggiungi ore
+                      </button>
+                    </form>
+
+                    {vista.righe.length > 0 && (
+                      <ul class="mt-fluid-4 flex list-none flex-col p-0">
+                        {vista.righe.map((riga) => (
+                          <li class="flex flex-wrap items-center justify-between gap-fluid-3 border-t border-border py-fluid-2 text-sm">
+                            <span class="flex flex-wrap items-center gap-fluid-3">
+                              <span class="w-24 text-muted">{formatData(riga.data)}</span>
+                              <span class="w-20 font-semibold">{formatOre(riga.ore)}</span>
+                              <span class="text-muted">{riga.nota ?? ''}</span>
+                            </span>
+                            <form method="POST" data-confirm="Eliminare questa registrazione?">
+                              <input type="hidden" name="intent" value="ora.delete" />
+                              <input type="hidden" name="id" value={riga.id} />
+                              <button
+                                type="submit"
+                                class={dangerButton}
+                                aria-label={`Elimina le ${formatOre(riga.ore)} del ${formatData(riga.data)}`}
+                              >
+                                Elimina
+                              </button>
+                            </form>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      )
+    }
+  </div>
+
+  <Dialog id="scadenza-nuova" title="Nuova scadenza">
+    <form method="POST" class="flex flex-col gap-fluid-4">
+      <input type="hidden" name="intent" value="scadenza.create" />
+      <Field id="nuova-scadenza-descrizione" name="descrizione" label="Descrizione" />
+      <Field
+        id="nuova-scadenza-importo"
+        name="importo"
+        label="Importo (€)"
+        type="number"
+        min="0"
+        step="0.01"
+      />
+      <Field id="nuova-scadenza-data" name="data_scadenza" label="Data di scadenza" type="date" />
+      <div class="flex justify-end gap-fluid-2">
+        <button type="button" data-dialog-close class={quietButton}>Annulla</button>
+        <button type="submit" class={primaryButton}>Salva</button>
+      </div>
+    </form>
+  </Dialog>
+
+  {
+    scadenze.map((scadenza) => (
+      <Dialog id={`scadenza-${scadenza.id}`} title="Modifica scadenza">
+        <form method="POST" class="flex flex-col gap-fluid-4">
+          <input type="hidden" name="intent" value="scadenza.update" />
+          <input type="hidden" name="id" value={scadenza.id} />
+          <Field
+            id={`scadenza-descrizione-${scadenza.id}`}
+            name="descrizione"
+            label="Descrizione"
+            value={scadenza.descrizione}
+          />
+          <Field
+            id={`scadenza-importo-${scadenza.id}`}
+            name="importo"
+            label="Importo (€)"
+            type="number"
+            min="0"
+            step="0.01"
+            value={scadenza.importo}
+          />
+          <Field
+            id={`scadenza-data-${scadenza.id}`}
+            name="data_scadenza"
+            label="Data di scadenza"
+            type="date"
+            value={scadenza.dataScadenza}
+          />
+          <div class="flex justify-end gap-fluid-2">
+            <button type="button" data-dialog-close class={quietButton}>
+              Annulla
+            </button>
+            <button type="submit" class={primaryButton}>
+              Salva
+            </button>
+          </div>
+        </form>
+      </Dialog>
+    ))
+  }
+
+  <Dialog id="periodo-nuovo" title="Nuovo periodo di assistenza">
+    <form method="POST" class="flex flex-col gap-fluid-4">
+      <input type="hidden" name="intent" value="periodo.create" />
+      <Field
+        id="nuovo-periodo-monte"
+        name="monte_ore"
+        label="Monte ore"
+        type="number"
+        min="0"
+        step="0.5"
+        required
+      />
+      <Field
+        id="nuovo-periodo-canone"
+        name="canone"
+        label="Canone (€)"
+        type="number"
+        min="0"
+        step="0.01"
+      />
+      <Field id="nuovo-periodo-data" name="data_inizio" label="Data di inizio" type="date" />
+      <div class="flex justify-end gap-fluid-2">
+        <button type="button" data-dialog-close class={quietButton}>Annulla</button>
+        <button type="submit" class={primaryButton}>Salva</button>
+      </div>
+    </form>
+  </Dialog>
+
+  {
+    periodi.map((periodo) => (
+      <Dialog id={`periodo-${periodo.id}`} title="Modifica periodo">
+        <form method="POST" class="flex flex-col gap-fluid-4">
+          <input type="hidden" name="intent" value="periodo.update" />
+          <input type="hidden" name="id" value={periodo.id} />
+          <Field
+            id={`periodo-monte-${periodo.id}`}
+            name="monte_ore"
+            label="Monte ore"
+            type="number"
+            min="0"
+            step="0.5"
+            value={periodo.monteOre}
+            required
+          />
+          <Field
+            id={`periodo-canone-${periodo.id}`}
+            name="canone"
+            label="Canone (€)"
+            type="number"
+            min="0"
+            step="0.01"
+            value={periodo.canone}
+          />
+          <Field
+            id={`periodo-data-${periodo.id}`}
+            name="data_inizio"
+            label="Data di inizio"
+            type="date"
+            value={periodo.dataInizio}
+          />
+          <div class="flex justify-end gap-fluid-2">
+            <button type="button" data-dialog-close class={quietButton}>
+              Annulla
+            </button>
+            <button type="submit" class={primaryButton}>
+              Salva
+            </button>
+          </div>
+        </form>
+      </Dialog>
+    ))
+  }
+
+  <DialogController />
+  <ReportDownloader />
+</PrivateLayout>

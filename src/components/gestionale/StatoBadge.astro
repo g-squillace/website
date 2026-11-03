@@ -1,0 +1,23 @@
+---
+import { statoLabel, type ProgettoStato } from '../../lib/gestionale/types';
+
+interface Props {
+  stato: ProgettoStato;
+}
+
+const { stato } = Astro.props;
+
+const styles: Record<ProgettoStato, string> = {
+  lead: 'bg-surface text-fg border-border',
+  in_corso: 'bg-beige text-fg border-fg',
+  completato: 'bg-yellow text-fg border-fg',
+  in_assistenza: 'bg-pink text-fg border-fg',
+  archiviato: 'bg-bg text-muted border-border',
+};
+---
+
+<span
+  class={`inline-flex items-center rounded-full border-2 px-fluid-2 py-[0.15rem] text-xs font-semibold ${styles[stato]}`}
+>
+  {statoLabel(stato)}
+</span>

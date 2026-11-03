@@ -1,6 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 
-const PRIVATE_PREFIXES = ['/report', '/api/report'];
+const PRIVATE_PREFIXES = ['/report', '/api/report', '/area-riservata'];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const response = await next();

@@ -6,7 +6,7 @@ lavori gestiti su [DatoCMS](https://www.datocms.com) (model `post`).
 ## Stack
 
 - **Astro 5** con TypeScript strict, output statico (SSG) e adapter Netlify
-  per le poche rotte server-side (`/report`)
+  per le rotte server-side (`/area-riservata`, `/report`)
 - **Content Collections** con custom loader che fetcha da DatoCMS al build
 - **DatoCMS** — Content Delivery API via `@datocms/cda-client`, structured
   text renderizzato server-side
@@ -30,12 +30,18 @@ npm run dev
 
 Apri http://localhost:4321/.
 
-## Cruscotto settimanale
+## Area riservata
 
-Pagina privata su `/report`, protetta da login, con i risultati del sito
-settimana per settimana (GA4 + Search Console, opportunità SEO e spunti di
-upselling). Istruzioni e setup delle credenziali Google in
-[docs/cruscotto-settimanale.md](docs/cruscotto-settimanale.md).
+Dietro un solo login (`/area-riservata`, bottone con la cassetta degli attrezzi
+nell'header) ci sono due strumenti:
+
+- **Gestionale** — clienti, progetti, periodi di assistenza, ore e scadenze,
+  server-rendered su Supabase. Vedi
+  [docs/area-riservata.md](docs/area-riservata.md).
+- **Cruscotto settimanale** — `/report`, i risultati del sito settimana per
+  settimana (GA4 + Search Console, opportunità SEO, prestazioni Lighthouse e
+  spunti di upselling). Vedi
+  [docs/cruscotto-settimanale.md](docs/cruscotto-settimanale.md).
 
 ## Build per produzione
 

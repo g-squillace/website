@@ -1,0 +1,101 @@
+---
+export const prerender = false;
+
+import PrivateLayout from '../../layouts/PrivateLayout.astro';
+import { PRIVATE_AREA } from '../../config';
+import { isAuthenticated, loginPath } from '../../lib/report/auth';
+
+if (!(await isAuthenticated(Astro.cookies))) {
+  return Astro.redirect(loginPath(Astro.url), 302);
+}
+
+const cards: ReadonlyArray<{
+  href: string;
+  title: string;
+  description: string;
+  background: string;
+  icon: 'gestionale' | 'cruscotto';
+}> = [
+  {
+    href: PRIVATE_AREA.gestionalePath,
+    title: 'Gestionale',
+    description: 'Clienti, progetti, periodi di assistenza, ore e scadenze.',
+    background: 'bg-yellow',
+    icon: 'gestionale',
+  },
+  {
+    href: PRIVATE_AREA.reportPath,
+    title: 'Cruscotto',
+    description: 'Come va il sito, settimana per settimana: visite, ricerche, prestazioni.',
+    background: 'bg-beige',
+    icon: 'cruscotto',
+  },
+];
+---
+
+<PrivateLayout title="Area riservata" section="area riservata" showLogout>
+  <div class="page py-fluid-6">
+    <h1 class="font-display text-4xl">Area riservata</h1>
+    <p class="mt-fluid-3 max-w-prose text-muted">
+      Gli strumenti che uso per lavorare, tutti dietro la stessa porta.
+    </p>
+
+    <ul class="mt-fluid-6 grid list-none grid-cols-1 gap-fluid-5 p-0 sm:grid-cols-2">
+      {
+        cards.map((card) => (
+          <li>
+            <a
+              href={card.href}
+              class={`group flex h-full min-h-64 flex-col justify-between rounded-lg border-2 border-fg ${card.background} p-fluid-5 text-fg transition-cta hover:-translate-y-1 hover:shadow-[0.75rem_0.75rem_0_var(--color-blue)] motion-reduce:transform-none`}
+            >
+              <span
+                class="inline-flex h-14 w-14 items-center justify-center rounded-md border-2 border-fg bg-bg transition-soft group-hover:-rotate-6 motion-reduce:transform-none"
+                aria-hidden="true"
+              >
+                {card.icon === 'gestionale' ? (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-7 w-7"
+                  >
+                    <path d="M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6" />
+                    <rect x="2.5" y="6" width="19" height="14" rx="2" />
+                    <path d="M2.5 11.5h19" />
+                    <path d="M10 11.5V14h4v-2.5" />
+                  </svg>
+                ) : (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-7 w-7"
+                  >
+                    <path d="M3 18a9 9 0 1 1 18 0" />
+                    <path d="M12 18l4.5-5.5" />
+                    <circle cx="12" cy="18" r="1.4" fill="currentColor" stroke="none" />
+                  </svg>
+                )}
+              </span>
+
+              <span class="mt-fluid-4 block">
+                <span class="block font-display text-3xl group-hover:underline group-hover:underline-offset-8">
+                  {card.title}
+                </span>
+                <span class="mt-fluid-2 block max-w-prose text-base font-medium">
+                  {card.description}
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</PrivateLayout>

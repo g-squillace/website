@@ -1,0 +1,237 @@
+---
+export const prerender = false;
+
+import PrivateLayout from '../../../layouts/PrivateLayout.astro';
+import Alert from '../../../components/gestionale/Alert.astro';
+import Dialog from '../../../components/gestionale/Dialog.astro';
+import DialogController from '../../../components/gestionale/DialogController.astro';
+import Field from '../../../components/gestionale/Field.astro';
+import Nav from '../../../components/gestionale/Nav.astro';
+import { PRIVATE_AREA } from '../../../config';
+import { isAuthenticated, loginPath } from '../../../lib/report/auth';
+import {
+  createCliente,
+  deleteCliente,
+  fetchClienti,
+  updateCliente,
+} from '../../../lib/gestionale/api';
+import { errorMessage, missingSupabaseVars } from '../../../lib/gestionale/supabase';
+import { field, optionalField } from '../../../lib/gestionale/format';
+import type { Cliente, ClienteInput } from '../../../lib/gestionale/types';
+
+if (!(await isAuthenticated(Astro.cookies))) {
+  return Astro.redirect(loginPath(Astro.url), 302);
+}
+
+const self = `${PRIVATE_AREA.path}/gestionale/clienti`;
+
+const back = (message: string | null): Response =>
+  Astro.redirect(message === null ? self : `${self}?errore=${encodeURIComponent(message)}`, 303);
+
+const readInput = (form: FormData): ClienteInput => ({
+  nome: field(form, 'nome'),
+  email: optionalField(form, 'email'),
+  telefono: optionalField(form, 'telefono'),
+});
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const intent = field(form, 'intent');
+  const id = field(form, 'id');
+  try {
+    if (intent === 'create') {
+      const input = readInput(form);
+      if (input.nome.length === 0) return back('Il nome del cliente è obbligatorio.');
+      await createCliente(input);
+    } else if (intent === 'update' && id.length > 0) {
+      const input = readInput(form);
+      if (input.nome.length === 0) return back('Il nome del cliente è obbligatorio.');
+      await updateCliente(id, input);
+    } else if (intent === 'delete' && id.length > 0) {
+      await deleteCliente(id);
+    } else {
+      return back('Richiesta non riconosciuta.');
+    }
+    return back(null);
+  } catch (error) {
+    return back(errorMessage(error, 'Operazione non riuscita.'));
+  }
+}
+
+const missing = missingSupabaseVars();
+
+let clienti: Cliente[] = [];
+let loadError: string | null = null;
+
+if (missing.length === 0) {
+  try {
+    clienti = await fetchClienti();
+  } catch (error) {
+    loadError = errorMessage(error, 'Non riesco a leggere i clienti.');
+  }
+}
+
+const actionError = Astro.url.searchParams.get('errore');
+
+const primaryButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-blue px-fluid-4 py-fluid-2 text-sm font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none';
+const quietButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg';
+const dangerButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-orange bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-orange hover:text-black';
+---
+
+<PrivateLayout title="Clienti" section="gestionale" showLogout>
+  <Nav slot="nav" current="clienti" />
+
+  <div class="page flex flex-col gap-fluid-5 py-fluid-6">
+    <div class="flex flex-wrap items-center justify-between gap-fluid-3">
+      <h1 class="font-display text-4xl">Clienti</h1>
+      <button type="button" data-dialog-open="cliente-nuovo" class={primaryButton}>
+        Nuovo cliente
+      </button>
+    </div>
+
+    {actionError !== null && <Alert message={actionError} />}
+    {loadError !== null && <Alert message={loadError} />}
+
+    {
+      missing.length > 0 && (
+        <div class="rounded-md border-2 border-fg bg-bg px-fluid-4 py-fluid-3">
+          <p class="font-semibold">Il gestionale non è ancora collegato a Supabase.</p>
+          <p class="mt-fluid-2 text-sm text-muted">
+            Mancano queste variabili d'ambiente su questo ambiente:
+          </p>
+          <ul class="mt-fluid-2 list-disc pl-fluid-4 text-sm">
+            {missing.map((name) => (
+              <li>
+                <code class="font-mono">{name}</code>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      missing.length === 0 && clienti.length === 0 && loadError === null && (
+        <p class="text-muted">Nessun cliente. Creane uno con «Nuovo cliente».</p>
+      )
+    }
+
+    {
+      clienti.length > 0 && (
+        <div class="overflow-x-auto rounded-lg border-2 border-fg bg-bg">
+          <table class="w-full border-collapse text-left text-sm">
+            <caption class="sr-only">Elenco dei clienti</caption>
+            <thead class="border-b-2 border-fg">
+              <tr>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Nome</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Email</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Telefono</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 text-right font-semibold">Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clienti.map((cliente) => (
+                <tr class="border-t border-border">
+                  <th scope="row" class="px-fluid-3 py-fluid-3 text-left font-semibold">
+                    {cliente.nome}
+                  </th>
+                  <td class="px-fluid-3 py-fluid-3 text-muted">
+                    {cliente.email === null ? (
+                      '—'
+                    ) : (
+                      <a href={`mailto:${cliente.email}`} class="underline underline-offset-4">
+                        {cliente.email}
+                      </a>
+                    )}
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3 text-muted">
+                    {cliente.telefono === null ? (
+                      '—'
+                    ) : (
+                      <a href={`tel:${cliente.telefono}`} class="underline underline-offset-4">
+                        {cliente.telefono}
+                      </a>
+                    )}
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3">
+                    <div class="flex flex-wrap justify-end gap-fluid-2">
+                      <button
+                        type="button"
+                        data-dialog-open={`cliente-${cliente.id}`}
+                        class={quietButton}
+                      >
+                        Modifica
+                      </button>
+                      <form
+                        method="POST"
+                        data-confirm={`Eliminare il cliente "${cliente.nome}"? Verranno eliminati anche i suoi progetti.`}
+                      >
+                        <input type="hidden" name="intent" value="delete" />
+                        <input type="hidden" name="id" value={cliente.id} />
+                        <button type="submit" class={dangerButton}>
+                          Elimina
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </div>
+
+  <Dialog id="cliente-nuovo" title="Nuovo cliente">
+    <form method="POST" class="flex flex-col gap-fluid-4">
+      <input type="hidden" name="intent" value="create" />
+      <Field id="nuovo-nome" name="nome" label="Nome" required />
+      <Field id="nuovo-email" name="email" label="Email" type="email" />
+      <Field id="nuovo-telefono" name="telefono" label="Telefono" type="tel" />
+      <div class="flex justify-end gap-fluid-2">
+        <button type="button" data-dialog-close class={quietButton}>Annulla</button>
+        <button type="submit" class={primaryButton}>Salva</button>
+      </div>
+    </form>
+  </Dialog>
+
+  {
+    clienti.map((cliente) => (
+      <Dialog id={`cliente-${cliente.id}`} title={`Modifica ${cliente.nome}`}>
+        <form method="POST" class="flex flex-col gap-fluid-4">
+          <input type="hidden" name="intent" value="update" />
+          <input type="hidden" name="id" value={cliente.id} />
+          <Field id={`nome-${cliente.id}`} name="nome" label="Nome" value={cliente.nome} required />
+          <Field
+            id={`email-${cliente.id}`}
+            name="email"
+            label="Email"
+            type="email"
+            value={cliente.email}
+          />
+          <Field
+            id={`telefono-${cliente.id}`}
+            name="telefono"
+            label="Telefono"
+            type="tel"
+            value={cliente.telefono}
+          />
+          <div class="flex justify-end gap-fluid-2">
+            <button type="button" data-dialog-close class={quietButton}>
+              Annulla
+            </button>
+            <button type="submit" class={primaryButton}>
+              Salva
+            </button>
+          </div>
+        </form>
+      </Dialog>
+    ))
+  }
+
+  <DialogController />
+</PrivateLayout>

@@ -10,7 +10,14 @@ export default defineConfig({
   trailingSlash: 'ignore',
   output: 'static',
   adapter: netlify(),
-  integrations: [sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/report') })],
+  integrations: [
+    sitemap({
+      filter: (page) => {
+        const { pathname } = new URL(page);
+        return !pathname.startsWith('/report') && !pathname.startsWith('/area-riservata');
+      },
+    }),
+  ],
   build: {
     inlineStylesheets: 'always',
   },

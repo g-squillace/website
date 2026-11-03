@@ -1,0 +1,33 @@
+<script>
+  for (const trigger of document.querySelectorAll<HTMLButtonElement>('[data-report-periodo]')) {
+    trigger.addEventListener('click', async () => {
+      const periodoId = trigger.dataset.reportPeriodo ?? '';
+      const holder = document.getElementById(`report-dati-${periodoId}`);
+      const status = document.getElementById(`report-stato-${periodoId}`);
+      if (holder === null) return;
+
+      const original = trigger.textContent;
+      trigger.disabled = true;
+      trigger.textContent = 'Genero il PDF…';
+      if (status !== null) status.textContent = 'Sto generando il PDF.';
+
+      try {
+        const { downloadReportOrePdf, parseReportOreData } = await import(
+          '../../lib/gestionale/reportOre'
+        );
+        const data = parseReportOreData(JSON.parse(holder.textContent ?? 'null'));
+        if (data === null) throw new Error('Dati del periodo non leggibili.');
+        downloadReportOrePdf(data);
+        if (status !== null) status.textContent = 'PDF scaricato.';
+      } catch (error) {
+        if (status !== null) {
+          status.textContent =
+            error instanceof Error ? error.message : 'Non sono riuscito a generare il PDF.';
+        }
+      } finally {
+        trigger.disabled = false;
+        trigger.textContent = original;
+      }
+    });
+  }
+</script>

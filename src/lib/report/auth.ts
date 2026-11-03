@@ -1,4 +1,5 @@
 import type { AstroCookies } from 'astro';
+import { PRIVATE_AREA } from '../../config';
 import { readEnv } from './env';
 
 export const SESSION_COOKIE = 'gs_report_session';
@@ -124,4 +125,15 @@ export function clearSessionCookie(cookies: AstroCookies): void {
 export async function isAuthenticated(cookies: AstroCookies): Promise<boolean> {
   const session = await readSession(cookies.get(SESSION_COOKIE)?.value);
   return session !== null;
+}
+
+export function safeRedirect(value: string | null): string | null {
+  if (value === null || !value.startsWith('/') || value.startsWith('//')) return null;
+  return value;
+}
+
+export function loginPath(url: URL): string {
+  const target = `${url.pathname}${url.search}`;
+  if (target === PRIVATE_AREA.path) return PRIVATE_AREA.loginPath;
+  return `${PRIVATE_AREA.loginPath}?vai=${encodeURIComponent(target)}`;
 }

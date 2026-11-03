@@ -1,0 +1,36 @@
+---
+type FieldType = 'text' | 'email' | 'tel' | 'number' | 'date';
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  type?: FieldType;
+  value?: string | number | null;
+  required?: boolean;
+  step?: string;
+  min?: string;
+  hint?: string;
+}
+
+const { id, name, label, type = 'text', value, required, step, min, hint } = Astro.props;
+---
+
+<div class="flex flex-col gap-fluid-1">
+  <label for={id} class="text-sm font-semibold">
+    {label}
+    {required && <span class="text-muted font-normal"> (obbligatorio)</span>}
+  </label>
+  <input
+    id={id}
+    name={name}
+    type={type}
+    value={value ?? ''}
+    required={required}
+    step={step}
+    min={min}
+    aria-describedby={hint === undefined ? undefined : `${id}-hint`}
+    class="min-h-11 w-full rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2"
+  />
+  {hint !== undefined && <p id={`${id}-hint`} class="text-xs text-muted">{hint}</p>}
+</div>
