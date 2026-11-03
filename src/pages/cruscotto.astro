@@ -23,8 +23,8 @@ const steps: Step[] = [
     text: 'Il cruscotto segnala molto. Io ti scrivo quando trovo una cosa che vale davvero il tuo tempo, con cosa farei e quante ore ci vogliono. Se la settimana non dice niente, non ti scrivo.',
   },
   {
-    title: 'Gli interventi scalano dal pacchetto ore',
-    text: 'Le ore le concordiamo all\'inizio, una volta. Da lì in poi ogni intervento che approvi scala da quel monte ore, e sai sempre quanto ne resta. Niente preventivi da rincorrere per ogni piccola modifica.',
+    title: 'Decidi tu cosa vale la pena fare',
+    text: 'Per ogni cosa che ti propongo dico che effetto avrebbe e quanto tempo richiede. Se ti convince si fa, se non ti convince resta lì e il cruscotto continua a segnalartela finché la situazione non cambia.',
   },
 ];
 
@@ -58,8 +58,8 @@ const signals: Signal[] = [
 
 const faqs = [
   {
-    q: 'Quanto costa?',
-    a: 'Installazione e configurazione sono gratuite, e restano gratuite: non c\'è un canone per il cruscotto. Si paga solo il lavoro che decidi di fare, scalandolo da un pacchetto di ore concordato all\'inizio. Quante ore servano dipende da quanto è grande il sito e da quanto vuoi muoverti: te lo dico dopo averlo guardato, prima di cominciare.',
+    q: 'E poi come si prosegue?',
+    a: 'Installazione e configurazione sono gratuite, e restano gratuite: non c\'è nessun canone per il cruscotto e non sei legato a niente. Se dal report esce del lavoro che vale la pena fare te lo dico, con cosa cambierebbe e quanto tempo richiede, e decidi tu se farlo. Non parte niente da solo.',
   },
   {
     q: 'Come faccio a capire se il mio sito sta funzionando?',
@@ -99,7 +99,7 @@ const faqs = [
   },
   {
     q: 'Posso smettere quando voglio?',
-    a: 'Sì. Non c\'è un abbonamento da disdire: le ore sono un pacchetto, finite quelle decidi se farne un altro. Se non vuoi più il cruscotto, revochi gli accessi Google e la pagina smette di aggiornarsi.',
+    a: 'Sì, in qualunque momento e senza preavviso: non c\'è nessun abbonamento da disdire. Se non vuoi più il cruscotto revochi gli accessi Google dal tuo pannello, e la pagina smette di aggiornarsi.',
   },
 ];
 
@@ -110,7 +110,7 @@ const schema = [
     name: 'Cruscotto settimanale e manutenzione del sito',
     serviceType: 'Monitoraggio SEO e manutenzione sito web',
     description:
-      'Un cruscotto settimanale privato che legge Google Analytics e Search Console e dice in italiano cosa conviene sistemare sul sito. Installazione gratuita, interventi scalati da un pacchetto di ore concordato.',
+      'Un cruscotto settimanale privato che legge Google Analytics e Search Console e dice in italiano cosa conviene sistemare sul sito. Installazione e configurazione gratuite.',
     provider: { '@id': `${SITE.url}/#person` },
     areaServed: { '@type': 'Country', name: 'Italia' },
     url: pageUrl,
@@ -119,8 +119,7 @@ const schema = [
       name: 'Installazione e configurazione del cruscotto',
       price: '0',
       priceCurrency: 'EUR',
-      description:
-        'Collegamento agli account Google, configurazione e messa online del cruscotto privato, senza costi.',
+      description: 'Collegamento agli account Google, configurazione e messa online del cruscotto privato.',
     },
   },
   {
@@ -193,7 +192,7 @@ const stats = [
 
 <BaseLayout
   title="Il tuo sito non porta clienti? Il report che ti dice perché"
-  description="Ogni lunedì un report che legge Google Analytics e Search Console e spiega in italiano perché il sito non porta contatti e cosa conviene sistemare. Installazione gratuita, si paga solo il lavoro che decidi di fare."
+  description="Ogni lunedì un report che legge Google Analytics e Search Console e spiega in italiano perché il sito non porta contatti e cosa conviene sistemare. Installazione e configurazione gratuite."
   image="/og-cruscotto.jpg"
   imageAlt="Il cruscotto settimanale: visite, clic da Google, contatti e le ricerche su cui il sito è a un passo dalla prima pagina"
   schema={schema}
@@ -213,7 +212,7 @@ const stats = [
         un passo dal risultato, cosa conviene sistemare.
       </p>
       <p class="text-lg text-yellow font-semibold m-0 mb-fluid-5 max-w-prose">
-        Installarlo non costa niente. Si paga solo il lavoro che decidi di fare.
+        Installarlo non costa niente, e non c'è nessun abbonamento da attivare.
       </p>
       <a
         href="/contatti?tipo=cruscotto"
@@ -326,7 +325,7 @@ const stats = [
       </header>
 
       <figure class="m-0">
-        <div class="mx-auto max-w-4xl">
+        <div>
           <div class="rounded-lg border-2 border-fg bg-fg p-fluid-2 shadow-[0.45rem_0.45rem_0_var(--color-blue)]">
             <div class="flex items-center gap-fluid-3 px-fluid-1 pb-fluid-2">
               <span class="flex shrink-0 gap-1.5" aria-hidden="true">
@@ -344,7 +343,7 @@ const stats = [
               tabindex="0"
               role="region"
               aria-label="Anteprima del cruscotto: scorri per vedere tutte le sezioni"
-              class="h-[28rem] overflow-y-auto overscroll-contain rounded-sm bg-surface p-fluid-4 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-yellow"
+              class="h-[26rem] sm:h-[32rem] lg:h-[38rem] overflow-y-auto overscroll-contain rounded-sm bg-surface p-fluid-4 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-yellow"
             >
               <div class="flex flex-wrap items-end justify-between gap-fluid-3">
                 <div>
@@ -479,8 +478,8 @@ const stats = [
             </div>
           </div>
 
-          <div class="mx-auto h-4 w-1/4 border-x-2 border-b-2 border-fg bg-fg" aria-hidden="true"></div>
-          <div class="mx-auto h-2 w-2/5 rounded-full bg-fg" aria-hidden="true"></div>
+          <div class="mx-auto h-5 w-1/6 border-x-2 border-b-2 border-fg bg-fg" aria-hidden="true"></div>
+          <div class="mx-auto h-2.5 w-1/3 rounded-full bg-fg" aria-hidden="true"></div>
         </div>
 
         <figcaption class="mx-auto mt-fluid-4 max-w-prose text-sm text-muted">
@@ -531,11 +530,11 @@ const stats = [
           Come funziona
         </p>
         <h2 class="font-display text-3xl text-white mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
-          Gratis da attivare, a ore quando serve davvero
+          Gratis da attivare, poi decidi tu
         </h2>
         <p class="text-base text-white m-0">
-          Nessun canone mensile, nessun contratto da disdire. Paghi il lavoro,
-          non lo strumento che lo trova.
+          Nessun canone mensile, nessun contratto da disdire. Il cruscotto resta
+          acceso e si fa vivo solo quando c'è qualcosa che vale il tuo tempo.
         </p>
       </header>
 
@@ -579,9 +578,9 @@ const stats = [
         </p>
         <p class="text-lg leading-[1.55] m-0">
           Poi c'è la parte che nessun programma fa al posto tuo: decidere quali
-          due cose, delle dodici che il cruscotto segnala, meritano il tuo
-          budget questo mese. Quella la faccio io, ed è il motivo per cui
-          esiste il pacchetto ore.
+          due cose, delle dodici che il cruscotto segnala, meritano davvero il
+          tuo tempo questo mese. Quella la faccio io, e nessun programma la fa
+          al posto mio.
         </p>
       </div>
     </div>
@@ -628,7 +627,7 @@ const stats = [
           <p class="text-lg text-fg m-0">
             Mandami l'indirizzo. Guardo cosa c'è già nei tuoi account Google e
             ti dico se vale la pena attivarlo — anche se la risposta è no.
-            L'installazione è gratuita, quindi l'unica cosa che rischi è
+            Installarlo non costa niente, quindi l'unica cosa che rischi è
             scoprire cosa cercano i tuoi clienti.
           </p>
         </div>
