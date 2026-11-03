@@ -25,3 +25,15 @@ export function requireEnv(name: string): string {
   if (value === null) throw new Error(`Variabile d'ambiente mancante: ${name}`);
   return value;
 }
+
+export type EnvPresence = 'assente' | 'vuota' | 'process.env' | 'import.meta.env';
+
+export function describeEnv(name: string): EnvPresence {
+  const [fromProcess, fromImportMeta] = sources();
+  const inProcess = fromProcess[name];
+  const inImportMeta = fromImportMeta[name];
+  if (typeof inProcess === 'string' && inProcess.trim() !== '') return 'process.env';
+  if (typeof inImportMeta === 'string' && inImportMeta.trim() !== '') return 'import.meta.env';
+  if (typeof inProcess === 'string' || typeof inImportMeta === 'string') return 'vuota';
+  return 'assente';
+}

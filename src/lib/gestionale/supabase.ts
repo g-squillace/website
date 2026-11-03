@@ -1,5 +1,5 @@
 import { SUPABASE } from '../../config';
-import { readEnv } from '../report/env';
+import { describeEnv, readEnv, type EnvPresence } from '../report/env';
 
 export class SupabaseError extends Error {}
 
@@ -11,10 +11,13 @@ interface Session {
 
 let cachedSession: Session | null = null;
 
-export function missingSupabaseVars(): string[] {
-  return ['SUPABASE_ANON_KEY', 'SUPABASE_EMAIL', 'SUPABASE_PASSWORD'].filter(
-    (name) => readEnv(name) === null,
-  );
+const REQUIRED_VARS = ['SUPABASE_ANON_KEY', 'SUPABASE_EMAIL', 'SUPABASE_PASSWORD'] as const;
+
+export function missingSupabaseVars(): Array<{ name: string; presence: EnvPresence }> {
+  return REQUIRED_VARS.filter((name) => readEnv(name) === null).map((name) => ({
+    name,
+    presence: describeEnv(name),
+  }));
 }
 
 export function supabaseConfigured(): boolean {

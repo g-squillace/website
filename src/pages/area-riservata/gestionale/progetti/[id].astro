@@ -187,12 +187,17 @@ const dangerButton =
         <div class="rounded-md border-2 border-fg bg-bg px-fluid-4 py-fluid-3">
           <p class="font-semibold">Il gestionale non è ancora collegato a Supabase.</p>
           <ul class="mt-fluid-2 list-disc pl-fluid-4 text-sm">
-            {missing.map((name) => (
+            {missing.map((variabile) => (
               <li>
-                <code class="font-mono">{name}</code>
+                <code class="font-mono">{variabile.name}</code>
+                <span class="text-muted"> — {variabile.presence}</span>
               </li>
             ))}
           </ul>
+          <p class="mt-fluid-2 text-xs text-muted">
+            «assente» vuol dire che Netlify non la passa alla funzione: su questo progetto
+            succede quando non è impostata con <code class="font-mono">--secret</code>.
+          </p>
         </div>
       )
     }
