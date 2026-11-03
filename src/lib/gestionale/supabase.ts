@@ -41,16 +41,17 @@ function describeFailure(payload: unknown, fallback: string): string {
   const body = asRecord(payload);
   if (body === null) return fallback;
   const parts: string[] = [];
-  for (const key of ['message', 'error_description', 'error', 'details', 'hint']) {
+  for (const key of ['msg', 'message', 'error_description', 'error', 'details', 'hint']) {
     const value = body[key];
     if (typeof value === 'string' && value.length > 0 && !parts.includes(value)) {
       parts.push(value);
     }
   }
-  if (parts.length === 0) return fallback;
-  const code = body.code;
+  const code = body.error_code ?? body.code;
+  const label = typeof code === 'string' || typeof code === 'number' ? String(code) : null;
+  if (parts.length === 0) return label === null ? fallback : `${fallback} (${label})`;
   const text = parts.join(' — ');
-  return typeof code === 'string' ? `${text} (${code})` : text;
+  return label === null ? text : `${text} (${label})`;
 }
 
 function readSessionPayload(payload: unknown): Session | null {
