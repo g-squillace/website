@@ -62,6 +62,18 @@ const faqs = [
     a: 'Installazione e configurazione sono gratuite, e restano gratuite: non c\'è un canone per il cruscotto. Si paga solo il lavoro che decidi di fare, scalandolo da un pacchetto di ore concordato all\'inizio. Quante ore servano dipende da quanto è grande il sito e da quanto vuoi muoverti: te lo dico dopo averlo guardato, prima di cominciare.',
   },
   {
+    q: 'Come faccio a capire se il mio sito sta funzionando?',
+    a: 'Guarda tre numeri, in quest\'ordine: quante persone ti hanno contattato, quanti clic sono arrivati da Google, e per quali ricerche sei comparso senza che nessuno cliccasse. I primi due stanno in Google Analytics, il terzo in Search Console ed è quello che dice davvero cosa non va. Il cruscotto li mette nella stessa pagina ogni lunedì, così non devi aprire due strumenti diversi e incrociare i dati a mano.',
+  },
+  {
+    q: 'Che differenza c\'è tra Google Analytics e Google Search Console?',
+    a: 'Analytics guarda chi è già arrivato sul sito: quante persone, da dove, quali pagine aprono. Search Console guarda chi non è arrivato: tutte le ricerche su Google in cui il tuo sito è comparso, in che posizione e quante volte qualcuno ha cliccato. Il primo ti dice com\'è andata, il secondo ti dice cosa fare per andare meglio. Sono gratuiti entrambi e se hai un sito quasi sicuramente ce li hai già.',
+  },
+  {
+    q: 'Il sito riceve visite ma nessuno mi contatta: perché?',
+    a: 'Quasi sempre è una di tre cose: arrivano persone che cercavano un\'altra cosa, la pagina su cui atterrano non dice abbastanza in fretta cosa fai, oppure il modulo di contatto è troppo in basso o chiede troppi campi. Il cruscotto distingue i tre casi, perché per ogni visita mostra con quale ricerca è arrivata e su quale pagina è atterrata.',
+  },
+  {
     q: 'Perché l\'installazione è gratis?',
     a: 'Perché a me costa poco: il cruscotto è già scritto, collegarlo al tuo sito è questione di ore. E perché è il modo più onesto che conosco per farti vedere se c\'è del lavoro utile da fare, invece di chiedertelo sulla fiducia. Se il cruscotto non trova niente di interessante, hai comunque guadagnato una pagina che ti dice come va il sito.',
   },
@@ -134,8 +146,10 @@ const stats = [
 ---
 
 <BaseLayout
-  title="Cruscotto settimanale: cosa sistemare sul sito, ogni lunedì"
-  description="Un cruscotto privato che legge Google Analytics e Search Console e ti dice in italiano dove stai perdendo clienti. Installazione gratuita, si paga solo il lavoro che decidi di fare."
+  title="Il tuo sito non porta clienti? Il report che ti dice perché"
+  description="Ogni lunedì un report che legge Google Analytics e Search Console e spiega in italiano perché il sito non porta contatti e cosa conviene sistemare. Installazione gratuita, si paga solo il lavoro che decidi di fare."
+  image="/og-cruscotto.jpg"
+  imageAlt="Il cruscotto settimanale: visite, clic da Google, contatti e le ricerche su cui il sito è a un passo dalla prima pagina"
   schema={schema}
 >
   <section class="bg-blue pt-fluid-6 pb-fluid-7">
@@ -196,6 +210,57 @@ const stats = [
           più di qualunque grafico di sessioni.</strong>
         </p>
       </div>
+    </div>
+  </section>
+
+  <section class="bg-surface py-fluid-7">
+    <div class="page">
+      <header class="mb-fluid-6 max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Due strumenti, uno solo decisivo
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Che differenza c'è tra Google Analytics e Search Console
+        </h2>
+        <p class="text-base text-muted m-0">
+          Se hai un sito ce li hai già tutti e due, probabilmente senza saperlo.
+          Sono gratuiti, servono a due cose diverse, e quella che porta clienti
+          è la seconda.
+        </p>
+      </header>
+
+      <div class="grid gap-fluid-5 md:grid-cols-2">
+        <div class="rounded-lg border-2 border-fg bg-bg p-fluid-5">
+          <h3 class="font-display text-2xl text-blue m-0 mb-fluid-3">Google Analytics</h3>
+          <p class="text-base leading-[1.55] m-0 mb-fluid-3">
+            Guarda le persone <strong>già arrivate</strong> sul sito: quante
+            sono, da dove vengono, quali pagine aprono, quanto si fermano.
+          </p>
+          <p class="text-base leading-[1.55] m-0">
+            Ti dice com'è andata. Non ti dice cosa fare perché vada meglio: se
+            non arriva nessuno, Analytics ti mostra un grafico piatto e tace.
+          </p>
+        </div>
+        <div class="rounded-lg border-2 border-fg bg-yellow p-fluid-5">
+          <h3 class="font-display text-2xl text-blue m-0 mb-fluid-3">Search Console</h3>
+          <p class="text-base leading-[1.55] m-0 mb-fluid-3">
+            Guarda le persone <strong>che non sono arrivate</strong>: tutte le
+            ricerche in cui il tuo sito è comparso su Google, quante volte, in
+            che posizione, e quante di quelle persone hanno cliccato.
+          </p>
+          <p class="text-base leading-[1.55] m-0">
+            È l'unico posto in cui leggi le domande dei tuoi clienti con le
+            loro parole, prima che scelgano qualcun altro.
+          </p>
+        </div>
+      </div>
+
+      <p class="mt-fluid-5 max-w-prose text-lg leading-[1.55]">
+        Il cruscotto legge tutti e due, ma pesa molto di più il secondo. Sapere
+        che hai avuto quaranta visite è un'informazione. Sapere che
+        <strong>sessanta persone hanno cercato una cosa che tu fai e ti hanno
+        visto in nona posizione</strong> è un lavoro da fare lunedì mattina.
+      </p>
     </div>
   </section>
 
