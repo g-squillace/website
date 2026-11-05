@@ -50,3 +50,5 @@ export const CONTACT = {
 } as const;
 
 export const SOCIAL: ReadonlyArray<{ href: string; label: string }> = [];
+
+export const PROFILES: ReadonlyArray<string> = ['https://github.com/g-squillace'];

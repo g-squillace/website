@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../config';
 
 const pageUrl = new URL('/cruscotto', SITE.url).toString();
+const PAGE_UPDATED = '2026-11-05';
 
 interface Step {
   title: string;
@@ -125,10 +126,19 @@ const schema = [
   {
     '@type': 'FAQPage',
     '@id': `${pageUrl}#faq`,
+    url: pageUrl,
+    inLanguage: SITE.locale,
+    author: { '@id': `${SITE.url}/#person` },
+    publisher: { '@id': `${SITE.url}/#person` },
+    dateModified: PAGE_UPDATED,
     mainEntity: faqs.map((f) => ({
       '@type': 'Question',
       name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: f.a,
+        author: { '@id': `${SITE.url}/#person` },
+      },
     })),
   },
 ];
@@ -613,6 +623,43 @@ const stats = [
         partendo dalle domande che la gente fa a Google. Si fa una cosa sola, e
         funziona su entrambi i fronti.
       </p>
+
+      <div class="mt-fluid-5 grid gap-fluid-5 lg:grid-cols-[1.4fr_1fr] lg:items-start">
+        <div class="rounded-lg border-2 border-fg bg-bg p-fluid-5">
+          <h3 class="font-display text-2xl text-blue m-0 mb-fluid-3">In pratica sono tre cose</h3>
+          <ul role="list" class="list-none p-0 m-0 flex flex-col gap-fluid-3">
+            <li class="pl-6 relative text-base leading-[1.55] before:content-['→'] before:absolute before:left-0 before:font-bold before:text-blue">
+              <strong>Una domanda per pagina</strong>, con la risposta completa nel
+              primo paragrafo. Gli assistenti pescano un pezzo di testo alla volta: se
+              quel pezzo non si regge da solo, non viene citato.
+            </li>
+            <li class="pl-6 relative text-base leading-[1.55] before:content-['→'] before:absolute before:left-0 before:font-bold before:text-blue">
+              <strong>Domande e risposte scritte come le direbbe un cliente</strong>, non
+              come le scriverebbe un'agenzia. Chi scrive a ChatGPT usa le stesse parole
+              che userebbe al telefono.
+            </li>
+            <li class="pl-6 relative text-base leading-[1.55] before:content-['→'] before:absolute before:left-0 before:font-bold before:text-blue">
+              <strong>I dati strutturati</strong> che dicono a un assistente chi sei, di
+              cosa ti occupi e chi firma le risposte. Senza, sei una pagina anonima che
+              afferma qualcosa; con, sei una fonte con un nome.
+            </li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg border-2 border-fg bg-orange p-fluid-5">
+          <h3 class="font-display text-2xl text-black m-0 mb-fluid-3">E una che non serve</h3>
+          <p class="text-base leading-[1.55] text-black m-0 mb-fluid-3">
+            Il file <code class="font-mono text-sm">llms.txt</code>, che qualcuno prova a
+            venderti come indispensabile.
+          </p>
+          <p class="text-base leading-[1.55] text-black m-0">
+            Su oltre cinquecento milioni di visite di crawler AI analizzate nel 2026, le
+            richieste a quel file sono state <strong>poco più di quattrocento</strong>, e
+            Google dichiara apertamente di non usarlo. Se te lo propongono come servizio,
+            stanno vendendo aria.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 
