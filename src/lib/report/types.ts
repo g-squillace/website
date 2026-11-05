@@ -72,6 +72,7 @@ export interface TrafficSection {
   averageSessionSeconds: MetricPair;
   channels: NamedRow[];
   devices: NamedRow[];
+  aiReferrals: NamedRow[];
   topPages: PageRow[];
 }
 

@@ -347,6 +347,22 @@ const brandedRows = [
         <BarList title="Dispositivi" rows={traffic.devices} unit="sessioni" />
         <BarList title="Pagine più viste" rows={topPageRows} unit="viste" />
       </div>
+
+      <h3 class="mt-fluid-3 font-display text-xl">Chi arriva dai motori AI</h3>
+      <p class="max-w-prose text-sm text-muted">
+        Persone che hanno aperto il sito da ChatGPT, Perplexity, Gemini, Claude o Copilot.
+        Sono ancora pochi numeri ovunque, ma è traffico che un anno fa non esisteva: vale
+        la pena vedere se cresce. Le volte in cui un assistente ti cita senza che nessuno
+        clicchi non sono misurabili da nessuno, quindi qui non le trovi.
+      </p>
+      <div class="grid gap-fluid-3 md:grid-cols-2">
+        <BarList
+          title="Motori AI"
+          rows={traffic.aiReferrals}
+          unit="sessioni"
+          emptyMessage="Nessuna visita dai motori AI questa settimana."
+        />
+      </div>
       <dl class="grid gap-fluid-3 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-md border-2 border-border bg-bg p-fluid-3">
           <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Nuove persone</dt>

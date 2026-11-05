@@ -7,6 +7,37 @@ const DATA_API = 'https://analyticsdata.googleapis.com/v1beta';
 
 export const LEAD_EVENTS = ['generate_lead', 'contact_email_click', 'email_click', 'contact'];
 
+const AI_ENGINES: Array<{ label: string; hosts: string[] }> = [
+  { label: 'ChatGPT', hosts: ['chatgpt.com', 'chat.openai.com', 'openai.com'] },
+  { label: 'Perplexity', hosts: ['perplexity.ai'] },
+  { label: 'Gemini', hosts: ['gemini.google.com', 'bard.google.com'] },
+  { label: 'Claude', hosts: ['claude.ai'] },
+  { label: 'Copilot', hosts: ['copilot.microsoft.com', 'bing.com/chat'] },
+];
+
+function aiEngineLabel(source: string): string | null {
+  const normalised = source.toLowerCase().trim();
+  for (const engine of AI_ENGINES) {
+    if (engine.hosts.some((host) => normalised === host || normalised.endsWith(`.${host}`) || normalised.includes(host))) {
+      return engine.label;
+    }
+  }
+  return null;
+}
+
+function toAiReferrals(rows: ReportRow[]): NamedRow[] {
+  const perEngine = new Map<string, number>();
+  for (const row of rows) {
+    const label = aiEngineLabel(row.dimensions[0] ?? '');
+    if (label === null) continue;
+    perEngine.set(label, (perEngine.get(label) ?? 0) + (row.metrics[0] ?? 0));
+  }
+  const total = [...perEngine.values()].reduce((sum, value) => sum + value, 0);
+  return [...perEngine.entries()]
+    .map(([label, value]) => ({ label, value, share: total > 0 ? value / total : 0 }))
+    .sort((left, right) => right.value - left.value);
+}
+
 interface ReportRow {
   dimensions: string[];
   metrics: number[];
@@ -28,6 +59,7 @@ export interface AnalyticsWeek {
   devices: NamedRow[];
   pages: PageRow[];
   events: NamedRow[];
+  aiReferrals: NamedRow[];
 }
 
 export function propertyId(): string | null {
@@ -143,6 +175,7 @@ export async function fetchAnalytics(
     googlePost(url, {
       requests: [
         { dateRanges: currentRange, dimensions: [{ name: 'deviceCategory' }], metrics: [{ name: 'sessions' }], limit: 6 },
+        { dateRanges: currentRange, dimensions: [{ name: 'sessionSource' }], metrics: [{ name: 'sessions' }], orderBys: [{ metric: { metricName: 'sessions' }, desc: true }], limit: 50 },
         { dateRanges: [{ startDate: previous.start, endDate: previous.end }], metrics: TOTALS_METRICS },
         { dateRanges: [{ startDate: previous.start, endDate: previous.end }], dimensions: [{ name: 'eventName' }], metrics: [{ name: 'eventCount' }], limit: 60 },
       ],
@@ -174,8 +207,9 @@ export async function fetchAnalytics(
       devices: toNamedRows(readRows(secondaryReports[0]), 4),
       pages,
       events: toNamedRows(readRows(primaryReports[4]), 60),
+      aiReferrals: toAiReferrals(readRows(secondaryReports[1])),
     },
-    previous: totalsFromRows(readRows(secondaryReports[1])),
-    previousEvents: toNamedRows(readRows(secondaryReports[2]), 60),
+    previous: totalsFromRows(readRows(secondaryReports[2])),
+    previousEvents: toNamedRows(readRows(secondaryReports[3]), 60),
   };
 }

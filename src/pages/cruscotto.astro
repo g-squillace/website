@@ -23,8 +23,8 @@ const steps: Step[] = [
     text: 'Il cruscotto segnala molto. Io ti scrivo quando trovo una cosa che vale davvero il tuo tempo, con cosa farei e quante ore ci vogliono. Se la settimana non dice niente, non ti scrivo.',
   },
   {
-    title: 'Decidi tu cosa vale la pena fare',
-    text: 'Per ogni cosa che ti propongo dico che effetto avrebbe e quanto tempo richiede. Se ti convince si fa, se non ti convince resta lì e il cruscotto continua a segnalartela finché la situazione non cambia.',
+    title: 'Le ore le vedi scalare dal cruscotto',
+    text: 'Gli interventi che approvi attingono a un pacchetto di ore concordato prima di cominciare. Quante ne restano lo leggi nel cruscotto stesso, accanto agli altri numeri: non devi chiedermelo e non devi fidarti sulla parola.',
   },
 ];
 
@@ -58,8 +58,8 @@ const signals: Signal[] = [
 
 const faqs = [
   {
-    q: 'E poi come si prosegue?',
-    a: 'Installazione e configurazione sono gratuite, e restano gratuite: non c\'è nessun canone per il cruscotto e non sei legato a niente. Se dal report esce del lavoro che vale la pena fare te lo dico, con cosa cambierebbe e quanto tempo richiede, e decidi tu se farlo. Non parte niente da solo.',
+    q: 'Come funziona la parte a pagamento?',
+    a: 'Installazione e configurazione sono gratuite, e restano gratuite: non c\'è nessun canone per il cruscotto. Si paga solo il lavoro che decidi di fare, attingendo a un pacchetto di ore concordato prima di cominciare. Quante ore servano dipende da quanto è grande il sito e da quanto vuoi muoverti, e ne parliamo dopo che l\'ho guardato: non parte niente prima che tu abbia detto di sì.',
   },
   {
     q: 'Come faccio a capire se il mio sito sta funzionando?',
@@ -99,7 +99,7 @@ const faqs = [
   },
   {
     q: 'Posso smettere quando voglio?',
-    a: 'Sì, in qualunque momento e senza preavviso: non c\'è nessun abbonamento da disdire. Se non vuoi più il cruscotto revochi gli accessi Google dal tuo pannello, e la pagina smette di aggiornarsi.',
+    a: 'Sì, in qualunque momento e senza preavviso: non c\'è nessun abbonamento da disdire. Le ore sono un pacchetto chiuso, finite quelle decidi liberamente se farne un altro o fermarti lì. Se non vuoi più nemmeno il cruscotto, revochi gli accessi Google dal tuo pannello e la pagina smette di aggiornarsi.',
   },
 ];
 
@@ -110,7 +110,7 @@ const schema = [
     name: 'Cruscotto settimanale e manutenzione del sito',
     serviceType: 'Monitoraggio SEO e manutenzione sito web',
     description:
-      'Un cruscotto settimanale privato che legge Google Analytics e Search Console e dice in italiano cosa conviene sistemare sul sito. Installazione e configurazione gratuite.',
+      'Un cruscotto settimanale privato che legge Google Analytics e Search Console, conta le visite dai motori AI e dice in italiano cosa conviene sistemare sul sito. Installazione e configurazione gratuite, interventi a ore.',
     provider: { '@id': `${SITE.url}/#person` },
     areaServed: { '@type': 'Country', name: 'Italia' },
     url: pageUrl,
@@ -135,6 +135,16 @@ const schema = [
 
 const ctaClass =
   'group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full -rotate-[1.5deg] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem]';
+
+const motoriAi = [
+  { label: 'ChatGPT', sessioni: 9 },
+  { label: 'Perplexity', sessioni: 4 },
+  { label: 'Gemini', sessioni: 2 },
+];
+
+const maxMotori = Math.max(...motoriAi.map((m) => m.sessioni));
+
+const pacchetto = { usate: 12, totali: 20 };
 
 const giorni = [
   { giorno: 'lun', sessioni: 38 },
@@ -192,7 +202,7 @@ const stats = [
 
 <BaseLayout
   title="Il tuo sito non porta clienti? Il report che ti dice perché"
-  description="Ogni lunedì un report che legge Google Analytics e Search Console e spiega in italiano perché il sito non porta contatti e cosa conviene sistemare. Installazione e configurazione gratuite."
+  description="Ogni lunedì un report che legge Google Analytics e Search Console e spiega in italiano perché il sito non porta contatti e cosa conviene sistemare, comprese le visite che arrivano da ChatGPT e Perplexity. Installazione gratuita."
   image="/og-cruscotto.jpg"
   imageAlt="Il cruscotto settimanale: visite, clic da Google, contatti e le ricerche su cui il sito è a un passo dalla prima pagina"
   schema={schema}
@@ -212,7 +222,7 @@ const stats = [
         un passo dal risultato, cosa conviene sistemare.
       </p>
       <p class="text-lg text-yellow font-semibold m-0 mb-fluid-5 max-w-prose">
-        Installarlo non costa niente, e non c'è nessun abbonamento da attivare.
+        Installarlo non costa niente. Si paga solo il lavoro che decidi di fare.
       </p>
       <a
         href="/contatti?tipo=cruscotto"
@@ -372,6 +382,20 @@ const stats = [
                 }
               </ul>
 
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Pacchetto assistenza</h4>
+              <div class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
+                <p class="m-0 text-sm text-fg">
+                  <strong class="tabular-nums">{pacchetto.totali - pacchetto.usate} ore</strong> ancora
+                  disponibili su {pacchetto.totali} concordate.
+                </p>
+                <div class="mt-fluid-3 h-3 w-full overflow-hidden rounded-full border-2 border-fg bg-bg" aria-hidden="true">
+                  <div class="h-full bg-blue" style={`width: ${(pacchetto.usate / pacchetto.totali) * 100}%`}></div>
+                </div>
+                <p class="m-0 mt-fluid-2 text-xs text-muted">
+                  Ultimo intervento: pagina «rifacimento bagno prezzi», 3 ore.
+                </p>
+              </div>
+
               <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Giorno per giorno</h4>
               <div class="rounded-lg border-2 border-fg bg-bg p-fluid-4">
                 <p class="m-0 mb-fluid-3 text-sm text-muted">412 sessioni in tutta la settimana</p>
@@ -419,6 +443,23 @@ const stats = [
                   </tbody>
                 </table>
               </div>
+
+              <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Chi arriva dai motori AI</h4>
+              <ul role="list" class="flex list-none flex-col gap-fluid-2 p-0">
+                {
+                  motoriAi.map((m) => (
+                    <li class="flex items-center gap-fluid-3 rounded-lg border-2 border-border bg-bg px-fluid-4 py-fluid-3">
+                      <span class="w-24 shrink-0 text-sm font-semibold text-fg">{m.label}</span>
+                      <span
+                        class="h-3 rounded-full bg-orange"
+                        style={`width: ${(m.sessioni / maxMotori) * 55}%`}
+                        aria-hidden="true"
+                      />
+                      <span class="text-sm text-muted tabular-nums">{m.sessioni} visite</span>
+                    </li>
+                  ))
+                }
+              </ul>
 
               <h4 class="mt-fluid-5 mb-fluid-3 font-display text-lg text-fg">Dove sei a un passo</h4>
               <ul role="list" class="flex list-none flex-col gap-fluid-3 p-0">
@@ -523,6 +564,58 @@ const stats = [
     </div>
   </section>
 
+  <section class="bg-pink py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-blue mb-fluid-3">
+          Quando a cercare non è una persona
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Sempre più clienti lo chiedono a ChatGPT, non a Google
+        </h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          «Chi mi rifà il bagno a Firenze?» oggi finisce spesso dentro ChatGPT,
+          Perplexity o Gemini invece che nella barra di Google. Se l'assistente
+          nomina te, quella persona arriva sul sito già convinta. Se nomina un
+          altro, non lo sai nemmeno.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Il cruscotto <strong>conta quante persone arrivano dai motori AI</strong>,
+          tenute separate dal resto del traffico. Sono numeri ancora piccoli, per
+          tutti: il punto non è quanti sono questa settimana, è se crescono di mese
+          in mese. Chi se ne accorge per primo ha un vantaggio che dura poco.
+        </p>
+      </div>
+
+      <div class="mt-fluid-6 grid gap-fluid-5 md:grid-cols-2">
+        <div class="rounded-lg border-2 border-fg bg-bg p-fluid-5">
+          <h3 class="font-display text-2xl text-blue m-0 mb-fluid-3">Quello che ti dico</h3>
+          <p class="text-base leading-[1.55] m-0">
+            Quante visite sono arrivate da ChatGPT, Perplexity, Gemini, Claude e
+            Copilot, settimana per settimana, con lo stesso metro di sempre. È un
+            dato vero, preso da Google Analytics, non una stima.
+          </p>
+        </div>
+        <div class="rounded-lg border-2 border-fg bg-yellow p-fluid-5">
+          <h3 class="font-display text-2xl text-blue m-0 mb-fluid-3">Quello che non ti dico</h3>
+          <p class="text-base leading-[1.55] m-0">
+            Quante volte un assistente ti ha nominato <strong>senza</strong> che
+            nessuno cliccasse. Quel dato oggi non esiste: nessuno può misurarlo, e
+            chi te lo vende con un numero preciso se lo sta inventando.
+          </p>
+        </div>
+      </div>
+
+      <p class="mt-fluid-6 max-w-prose text-lg leading-[1.55]">
+        La buona notizia è che <strong>non serve un lavoro a parte</strong>. Gli
+        assistenti citano le pagine che rispondono a una domanda precisa con parole
+        chiare — esattamente le pagine che il cruscotto ti dice già di scrivere,
+        partendo dalle domande che la gente fa a Google. Si fa una cosa sola, e
+        funziona su entrambi i fronti.
+      </p>
+    </div>
+  </section>
+
   <section class="bg-blue py-fluid-7">
     <div class="page">
       <header class="mb-fluid-6 max-w-prose">
@@ -530,11 +623,11 @@ const stats = [
           Come funziona
         </p>
         <h2 class="font-display text-3xl text-white mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
-          Gratis da attivare, poi decidi tu
+          Gratis da attivare, a ore quando serve davvero
         </h2>
         <p class="text-base text-white m-0">
-          Nessun canone mensile, nessun contratto da disdire. Il cruscotto resta
-          acceso e si fa vivo solo quando c'è qualcosa che vale il tuo tempo.
+          Nessun canone mensile, nessun contratto da disdire. Paghi il lavoro,
+          non lo strumento che lo trova.
         </p>
       </header>
 
@@ -579,8 +672,8 @@ const stats = [
         <p class="text-lg leading-[1.55] m-0">
           Poi c'è la parte che nessun programma fa al posto tuo: decidere quali
           due cose, delle dodici che il cruscotto segnala, meritano davvero il
-          tuo tempo questo mese. Quella la faccio io, e nessun programma la fa
-          al posto mio.
+          tuo tempo questo mese. Quella la faccio io, ed è il motivo per cui
+          esiste il pacchetto ore.
         </p>
       </div>
     </div>

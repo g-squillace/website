@@ -83,6 +83,11 @@ export function demoAnalytics(
         { label: 'Referral', value: Math.round(sessions * 0.12), share: 0.12 },
         { label: 'Organic Social', value: Math.round(sessions * 0.08), share: 0.08 },
       ],
+      aiReferrals: [
+        { label: 'ChatGPT', value: Math.max(1, Math.round(sessions * 0.021)), share: 0.58 },
+        { label: 'Perplexity', value: Math.max(1, Math.round(sessions * 0.009)), share: 0.25 },
+        { label: 'Gemini', value: Math.max(1, Math.round(sessions * 0.006)), share: 0.17 },
+      ],
       devices: [
         { label: 'mobile', value: Math.round(sessions * 0.61), share: 0.61 },
         { label: 'desktop', value: Math.round(sessions * 0.35), share: 0.35 },

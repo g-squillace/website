@@ -133,6 +133,7 @@ export async function buildWeeklyReport(
       },
       channels: analytics.current.channels,
       devices: analytics.current.devices,
+      aiReferrals: analytics.current.aiReferrals,
       topPages: analytics.current.pages,
     },
     search: {
