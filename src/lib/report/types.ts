@@ -88,6 +88,22 @@ export interface SearchSection {
   freshUntil: string | null;
 }
 
+export interface SupportEntryRow {
+  date: string;
+  hours: number;
+  description: string;
+  inWeek: boolean;
+}
+
+export interface SupportSection {
+  totalHours: number;
+  usedHours: number;
+  remainingHours: number;
+  usedThisWeek: number;
+  startedOn: string;
+  entries: SupportEntryRow[];
+}
+
 export interface LeadsSection {
   total: MetricPair;
   byEvent: NamedRow[];
@@ -108,6 +124,7 @@ export interface WeeklyReport {
   leads: LeadsSection;
   traffic: TrafficSection;
   search: SearchSection;
+  support: SupportSection;
   daily: DailyPoint[];
   opportunities: Opportunity[];
   portfolioOpportunities: Opportunity[];
@@ -116,4 +133,5 @@ export interface WeeklyReport {
   headline: string;
   analyticsSource: SourceState;
   searchSource: SourceState;
+  supportSource: SourceState;
 }

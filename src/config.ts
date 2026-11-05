@@ -52,3 +52,17 @@ export const CONTACT = {
 export const SOCIAL: ReadonlyArray<{ href: string; label: string }> = [];
 
 export const PROFILES: ReadonlyArray<string> = ['https://github.com/g-squillace'];
+
+export interface SupportEntry {
+  date: string;
+  hours: number;
+  description: string;
+}
+
+export interface SupportPackage {
+  totalHours: number;
+  startedOn: string;
+  entries: ReadonlyArray<SupportEntry>;
+}
+
+export const SUPPORT: SupportPackage | null = null;

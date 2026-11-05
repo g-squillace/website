@@ -55,3 +55,7 @@ export function delta(current: number, previous: number, lowerIsBetter = false):
     label: `${rounded > 0 ? '+' : ''}${formatPercent(rounded, 0)}`,
   };
 }
+
+export function formatHours(value: number): string {
+  return new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 1 }).format(value);
+}

@@ -11,6 +11,7 @@ import {
   strikingDistance,
   upsellSignals,
 } from './insights';
+import { buildSupport } from './support';
 import { completeWeek, weekDays, weekdayLabel } from './week';
 import type { DailyPoint, NamedRow, SourceState, WeeklyReport } from './types';
 
@@ -107,6 +108,7 @@ export async function buildWeeklyReport(
   const isService = (query: string) => !isPortfolio(query);
   const opportunities = strikingDistance(queries, isService);
   const portfolioOpportunities = strikingDistance(queries, isPortfolio);
+  const support = buildSupport(week);
   const brandedClicks = queries.filter((row) => isBranded(row.query)).reduce((sum, row) => sum + row.clicks, 0);
 
   return {
@@ -151,6 +153,7 @@ export async function buildWeeklyReport(
       nonBrandedClicks: Math.max(0, search.current.totals.clicks - brandedClicks),
       freshUntil: search.current.freshUntil,
     },
+    support: support.section,
     daily,
     opportunities,
     portfolioOpportunities,
@@ -165,5 +168,6 @@ export async function buildWeeklyReport(
     ),
     analyticsSource,
     searchSource,
+    supportSource: support.source,
   };
 }
