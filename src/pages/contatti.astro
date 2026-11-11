@@ -77,6 +77,7 @@ import { CONTACT } from '../config';
                 <option value="Landing page">Landing page</option>
                 <option value="Automazione / intelligenza artificiale">Automazione con intelligenza artificiale</option>
                 <option value="Manutenzione / evoluzione">Manutenzione / evoluzione di un sito esistente</option>
+                <option value="Staticizzazione di un sito WordPress">Staticizzazione di un sito WordPress</option>
                 <option value="Non lo so ancora">Non lo so ancora</option>
               </select>
             </div>
@@ -185,6 +186,7 @@ import { CONTACT } from '../config';
     const PRESET_KIND: Record<string, string> = {
       ai: 'Automazione / intelligenza artificiale',
       cruscotto: 'Manutenzione / evoluzione',
+      statico: 'Staticizzazione di un sito WordPress',
     };
     const presetKind = PRESET_KIND[new URLSearchParams(location.search).get('tipo') ?? ''];
     const kindSelect = document.getElementById('kind');

@@ -1,0 +1,547 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+
+const pageUrl = new URL('/wordpress-statico', SITE.url).toString();
+const PAGE_UPDATED = '2026-11-11';
+const PREZZO = 200;
+
+interface Passo {
+  title: string;
+  text: string;
+}
+
+const passi: Passo[] = [
+  {
+    title: 'Guardo il sito e ti dico subito se si può fare',
+    text: "Mi basta l'indirizzo. In mezza giornata ti dico quante pagine ha, cosa c'è di dinamico, se qualcosa non sopravvive alla conversione e cosa ci metto al posto suo. Se non ha senso farlo, te lo dico e finisce lì: questo primo passaggio non si paga.",
+  },
+  {
+    title: 'Genero la versione statica',
+    text: 'Il sito viene percorso pagina per pagina e salvato come HTML, CSS, JavaScript e immagini. Grafica identica, stessi testi, stessi indirizzi. Nessuno si accorge di niente, perché non cambia niente di quello che si vede.',
+  },
+  {
+    title: 'Rimetto in piedi quello che aveva bisogno del server',
+    text: 'I moduli di contatto passano a un servizio che riceve le email senza che ci sia un server tuo da mantenere. Sitemap, robots.txt e redirect li ricostruisco uno per uno, così Google non perde nessun indirizzo che oggi ha in archivio.',
+  },
+  {
+    title: 'Pubblico e stacco WordPress',
+    text: "Il sito nuovo va online su hosting statico, con HTTPS incluso. Il vecchio WordPress resta spento da parte come copia, non raggiungibile da internet. Se qualcosa non va, si torna indietro in cinque minuti: finché non siamo sicuri, non si cancella niente.",
+  },
+];
+
+interface Guadagno {
+  title: string;
+  text: string;
+  card: string;
+  rot: string;
+}
+
+const guadagni: Guadagno[] = [
+  {
+    title: 'Sparisce la superficie di attacco',
+    text: "Niente PHP in esecuzione, niente database, niente pannello di amministrazione raggiungibile da internet, niente plugin da aggiornare. Un file HTML non si può bucare: non esegue nulla, si limita ad arrivare al browser.",
+    card: 'bg-orange text-black',
+    rot: '-rotate-1',
+  },
+  {
+    title: 'Il sito diventa immediato',
+    text: 'Oggi ogni visita avvia PHP, interroga il database e monta la pagina. Dopo, la pagina esiste già ed è servita dal nodo più vicino a chi la chiede. È la differenza fra cucinare al momento e avere il piatto pronto in vetrina.',
+    card: 'bg-pink text-blue',
+    rot: 'rotate-1',
+  },
+  {
+    title: 'La manutenzione obbligatoria finisce',
+    text: "Non ci sono più aggiornamenti urgenti, backup del database, incompatibilità fra plugin dopo un update, hosting che richiede PHP recente. Il sito resta quello che era il giorno in cui l'abbiamo pubblicato, finché non decidi tu di cambiarlo.",
+    card: 'bg-yellow text-blue',
+    rot: '-rotate-[0.5deg]',
+  },
+];
+
+const incluso: string[] = [
+  'Analisi preliminare e verifica di fattibilità',
+  'Conversione di tutto il sito, fino a 50 pagine',
+  'Stessi indirizzi di oggi, nessun contenuto perso',
+  'Moduli di contatto funzionanti senza server',
+  'Sitemap, robots.txt e redirect ricostruiti',
+  'Pubblicazione online con HTTPS e certificato',
+  'Copia completa del WordPress di partenza, conservata',
+];
+
+const escluso: string[] = [
+  'Negozi online con carrello e pagamenti',
+  'Aree riservate e login degli utenti',
+  'Prenotazioni, calendari e disponibilità in tempo reale',
+  'Rifacimento della grafica o dei testi',
+];
+
+interface Faq {
+  q: string;
+  a: string;
+}
+
+const faqs: Faq[] = [
+  {
+    q: 'Il sito cambia aspetto?',
+    a: "No. La versione statica è la stessa identica grafica, generata dalle stesse pagine che WordPress produce oggi. Chi arriva sul sito non vede nessuna differenza, se non che si apre prima.",
+  },
+  {
+    q: 'E se poi devo modificare un testo?',
+    a: "Me lo scrivi e lo modifico io: una correzione di testo è questione di minuti. Gli interventi attingono a un pacchetto di ore concordato prima, senza abbonamenti e senza canone. Se invece prevedi di aggiornare il sito ogni settimana, allora un CMS ha senso e te lo dico prima di cominciare.",
+  },
+  {
+    q: 'Perdo il posizionamento su Google?',
+    a: "Al contrario, il rischio è quello di guadagnarci. Gli indirizzi restano gli stessi, i contenuti pure, e la velocità di caricamento è uno dei segnali che Google misura. Il lavoro di conversione comprende sitemap, robots.txt e redirect proprio perché nessun indirizzo già indicizzato deve finire su una pagina che non esiste.",
+  },
+  {
+    q: 'Quanto ci vuole?',
+    a: 'Per un sito vetrina normale, pochi giorni. Il sito attuale resta online e funzionante per tutto il tempo: si passa alla versione nuova solo alla fine, quando è stata controllata pagina per pagina.',
+  },
+  {
+    q: 'Ho WooCommerce, vale lo stesso?',
+    a: "No, e preferisco dirtelo prima. Un negozio ha bisogno di qualcosa che giri: carrello, pagamenti, disponibilità, account dei clienti. Si può portare su un'architettura moderna e molto più sicura, ma è un progetto diverso e non costa 200 €. Scrivimi lo stesso: la prima mezz'ora serve a capire se conviene.",
+  },
+  {
+    q: 'Posso tornare indietro?',
+    a: "Sì. Il WordPress di partenza viene conservato in copia completa, database compreso. Se un domani il sito ricomincia a cambiare spesso, si riparte da lì o si passa a un CMS moderno, senza aver perso niente per strada.",
+  },
+];
+
+const schema = [
+  {
+    '@type': 'Service',
+    '@id': `${pageUrl}#service`,
+    name: 'Conversione di un sito WordPress in sito statico',
+    serviceType: 'Messa in sicurezza e staticizzazione di siti WordPress',
+    description:
+      'Conversione di un sito WordPress in HTML statico: stessa grafica, stessi indirizzi, senza PHP, database, plugin da aggiornare e pannello di amministrazione esposto su internet.',
+    provider: { '@id': `${SITE.url}/#person` },
+    areaServed: { '@type': 'Country', name: 'Italia' },
+    url: pageUrl,
+    offers: {
+      '@type': 'Offer',
+      name: 'Staticizzazione di un sito vetrina WordPress',
+      price: String(PREZZO),
+      priceCurrency: 'EUR',
+      description:
+        'Prezzo una tantum per un sito vetrina fino a 50 pagine: analisi, conversione, moduli di contatto, sitemap e redirect, pubblicazione online.',
+    },
+  },
+  {
+    '@type': 'FAQPage',
+    '@id': `${pageUrl}#faq`,
+    url: pageUrl,
+    inLanguage: SITE.locale,
+    author: { '@id': `${SITE.url}/#person` },
+    publisher: { '@id': `${SITE.url}/#person` },
+    dateModified: PAGE_UPDATED,
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: f.a,
+        author: { '@id': `${SITE.url}/#person` },
+      },
+    })),
+  },
+];
+
+const ctaClass =
+  'group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full -rotate-[1.5deg] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem]';
+
+const spuntaClass = 'mt-[0.3em] w-5 h-5 shrink-0';
+---
+
+<BaseLayout
+  title="Il tuo sito WordPress è sicuro? Staticizzarlo costa 200 €"
+  description="WordPress esegue codice a ogni visita, anche se aggiorni il sito una volta all'anno. Lo converto in un sito statico: stessa grafica, stessi indirizzi, senza PHP, database e plugin da aggiornare. 200 € una volta sola."
+  image="/og-wordpress-statico.jpg"
+  imageAlt="Da WordPress a sito statico: 200 € una volta sola, stessa grafica, stessi indirizzi, zero plugin"
+  schema={schema}
+>
+  <section class="bg-blue pt-fluid-6 pb-fluid-7">
+    <div class="page">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-pink mb-fluid-4">
+        Da WordPress a sito statico
+      </p>
+      <h1 class="text-4xl sm:text-5xl text-yellow mb-fluid-4 leading-[0.95] max-w-[20ch] animate-fade-up motion-reduce:animate-none">
+        Il sito lo aggiorni una volta all'anno. Il rischio <em class="italic text-pink">lo corri ogni giorno</em>.
+      </h1>
+      <p class="text-lg text-white m-0 mb-fluid-4 max-w-prose">
+        WordPress non è un sito: è un programma in PHP che riparte a ogni visita,
+        legge un database e carica i plugin che gli hai installato sopra. Se il
+        tuo è una vetrina che cambia due volte l'anno, quel motore non ti serve.
+        Ti serve solo l'HTML che produce.
+      </p>
+      <p class="text-lg text-yellow font-semibold m-0 mb-fluid-5 max-w-prose">
+        Io lo estraggo, lo metto online identico a com'è e spengo tutto il
+        resto. {PREZZO} €, una volta sola.
+      </p>
+      <a
+        href="/contatti?tipo=statico"
+        class:list={[ctaClass, 'bg-yellow text-blue shadow-[0.5rem_0.5rem_0_var(--color-orange)] hover:bg-pink hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]']}
+      >
+        <span>Fammi vedere il mio sito</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+             class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+          <path d="M5 12h14" />
+          <path d="M13 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Cos'è successo il 21 ottobre
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-4 leading-[1.05] tracking-[-0.02em]">
+          Una falla che aggiornare WordPress non chiude
+        </h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Il 21 ottobre 2026 il progetto PHP ha pubblicato una release di
+          emergenza. Due vulnerabilità critiche, <strong>CVE-2026-109618</strong>
+          e <strong>CVE-2026-109619</strong>, entrambe valutate 9,2 su 10:
+          permettono di eseguire codice sul server <strong>senza avere nessuna
+          password</strong>. L'avviso ufficiale contiene una frase che non si
+          legge spesso: «non esistono mitigazioni complete, aggiornare è
+          l'unica scelta sicura».
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Il punto che riguarda te è questo: non c'entrano WordPress, il tema o i
+          plugin. La falla è nel linguaggio che sta sotto. Aggiornare WordPress
+          non la chiude. Un plugin di sicurezza nemmeno, perché l'attacco arriva
+          prima che WordPress si accenda. La chiude solo il server, passando a
+          PHP 8.5.12, 8.4.27, 8.3.36 o 8.2.35.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          E quella versione non la decidi tu: la decide il tuo hosting. Se stai
+          su un piano condiviso da pochi euro al mese, l'unica cosa che puoi
+          fare è scrivere all'assistenza e sperare. Tieni anche conto che
+          <strong>PHP 8.2 smette di ricevere correzioni di sicurezza il 31
+          dicembre 2026</strong>, e che PHP 8.1 e precedenti non ne ricevono
+          già più. Una settimana dopo, il 28 ottobre, è uscita anche WordPress
+          7.1.4, a sua volta una release di sicurezza.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 font-semibold text-blue">
+          Un sito statico non ha PHP in esecuzione. Questa intera categoria di
+          problemi, per lui, non esiste.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-surface py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose mb-fluid-6">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Non è stato un episodio
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-4 leading-[1.05] tracking-[-0.02em]">
+          Il problema non è WordPress. Sono i dodici plugin sopra WordPress
+        </h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Nel 2025 sono state pubblicate <strong>11.334 nuove vulnerabilità</strong>
+          nell'ecosistema WordPress, il 42% in più dell'anno prima. Il 91% stava
+          nei plugin, il 9% nei temi. Nel cuore di WordPress ne sono state
+          trovate sei in tutto l'anno, tutte di bassa gravità.
+        </p>
+        <p class="text-lg leading-[1.55] m-0">
+          Letta così, la notizia è che WordPress è scritto bene. Il rischio non
+          è lui: è il modulo contatti, il carosello, il plugin per la cookie
+          policy, quello installato nel 2021 per una cosa sola e mai più
+          toccato. Nel 46% dei casi, il giorno in cui la falla diventa pubblica
+          la correzione non è ancora pronta.
+        </p>
+      </div>
+
+      <ul role="list" class="list-none m-0 p-0 grid grid-cols-1 sm:grid-cols-2 gap-fluid-5">
+        <li class="rounded-lg border-2 border-fg bg-bg p-fluid-5 rotate-[0.6deg]">
+          <h3 class="font-sans text-xl font-bold text-blue mb-fluid-3">Ogni plugin è un autore diverso</h3>
+          <p class="text-base leading-[1.6] m-0">
+            Un sito vetrina medio ne ha fra dieci e venti. Dietro ciascuno c'è
+            qualcuno che forse lo mantiene ancora, forse l'ha abbandonato,
+            forse l'ha venduto a un'altra azienda. Tu non lo sai, e la sicurezza
+            del tuo sito è quella del più trascurato fra loro.
+          </p>
+        </li>
+        <li class="rounded-lg border-2 border-fg bg-bg p-fluid-5 -rotate-[0.6deg]">
+          <h3 class="font-sans text-xl font-bold text-blue mb-fluid-3">Con WooCommerce la superficie raddoppia</h3>
+          <p class="text-base leading-[1.6] m-0">
+            Carrello, pagamenti, spedizioni, account dei clienti, gateway: ogni
+            pezzo è un plugin in più, e stavolta davanti ai dati di chi compra.
+            Un negozio non si staticizza e basta, il carrello ha bisogno di
+            qualcosa che giri. Si porta su un'architettura più solida, ma è un
+            altro progetto: dirti di sì a {PREZZO} € sarebbe una bugia.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Il conto che nessuno fa
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-4 leading-[1.05] tracking-[-0.02em]">
+          Un pannello che non apri mai è solo una porta in più
+        </h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Il CMS serve a una cosa: farti modificare il sito da solo, spesso.
+          Se l'ultima volta che sei entrato in <code class="font-mono text-base bg-surface px-[0.4em] py-[0.1em] rounded-sm">wp-admin</code>
+          è stata più di sei mesi fa, quel servizio non lo stai usando. Ma il
+          pannello è sempre lì, raggiungibile da chiunque, e i tentativi di
+          accesso automatici arrivano comunque, tutti i giorni, su qualsiasi
+          sito WordPress del mondo.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          E paghi un hosting capace di far girare PHP e un database per servire
+          pagine che sono sempre le stesse. L'hosting statico, per un sito
+          vetrina, costa zero o pochi euro l'anno: il dominio resta l'unica
+          voce di spesa sicura.
+        </p>
+        <p class="text-lg leading-[1.55] m-0">
+          Non è un risparmio che cambia la vita, e non te lo vendo per tale. Il
+          punto vero è un altro: smetti di avere una scadenza addosso. Niente
+          più aggiornamenti urgenti il venerdì sera, niente plugin che litigano
+          dopo un update, niente telefonate dall'hosting che chiude il supporto
+          a una versione di PHP.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-beige py-fluid-7">
+    <div class="page">
+      <header class="max-w-prose mb-fluid-6">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Come funziona
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Quattro passaggi, e il sito è lo stesso di prima
+        </h2>
+        <p class="text-base text-muted m-0">
+          Nessuna finestra di disservizio: il sito attuale resta online e
+          funzionante fino all'ultimo minuto.
+        </p>
+      </header>
+
+      <ol role="list" class="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-2 gap-fluid-5">
+        {passi.map((passo, i) => (
+          <li class="rounded-lg border-2 border-fg bg-bg p-fluid-5 shadow-[0.35rem_0.35rem_0_var(--color-blue)]">
+            <p class="font-display text-2xl text-orange m-0 mb-fluid-2 leading-none">{String(i + 1).padStart(2, '0')}</p>
+            <h3 class="font-sans text-xl font-bold text-blue mb-fluid-3">{passo.title}</h3>
+            <p class="text-base leading-[1.6] m-0">{passo.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <header class="max-w-prose mb-fluid-6">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Il giorno dopo
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">
+          Cosa cambia davvero
+        </h2>
+      </header>
+
+      <ul role="list" class="list-none m-0 p-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-fluid-5">
+        {guadagni.map((g) => (
+          <li class:list={[
+            'p-fluid-5 rounded-lg shadow-[0.45rem_0.45rem_0_var(--color-blue)] transition-cta hover:rotate-0 hover:-translate-x-[0.25rem] hover:-translate-y-[0.5rem] hover:shadow-[0.85rem_1rem_0_var(--color-blue)]',
+            g.card,
+            g.rot,
+          ]}>
+            <h3 class="font-sans text-xl font-bold mb-fluid-3">{g.title}</h3>
+            <p class="text-base leading-[1.6] m-0">{g.text}</p>
+          </li>
+        ))}
+      </ul>
+
+      <p class="text-base text-muted max-w-prose mt-fluid-6 m-0">
+        Sulla velocità non ti prometto un punteggio: dipende anche da quante
+        immagini pesanti ci sono dentro, e quelle si sistemano a parte. Ti
+        prometto che sparisce il tempo di attesa iniziale, quello in cui il
+        server deve ancora decidere cosa risponderti.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-orange py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+        <div>
+          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-black mb-fluid-3">
+            Quanto costa
+          </p>
+          <p class="font-display text-5xl text-fg leading-none m-0 mb-fluid-3">{PREZZO} €</p>
+          <p class="text-lg text-black m-0 mb-fluid-4 max-w-[34ch]">
+            Una volta sola, per un sito vetrina fino a 50 pagine. Non è un
+            canone, non si rinnova, non c'è niente da disdire.
+          </p>
+          <a
+            href="/contatti?tipo=statico"
+            class:list={[ctaClass, 'bg-blue text-yellow shadow-[0.5rem_0.5rem_0_var(--color-fg)] hover:bg-fg hover:text-yellow hover:shadow-[0.95rem_1.1rem_0_var(--color-fg)] active:shadow-[0.15rem_0.15rem_0_var(--color-fg)]']}
+          >
+            <span>Partiamo dal mio sito</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+              <path d="M5 12h14" />
+              <path d="M13 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 gap-fluid-5 sm:grid-cols-2">
+          <div class="rounded-lg border-2 border-fg bg-bg p-fluid-5">
+            <h3 class="font-sans text-lg font-bold text-blue mb-fluid-3">Compreso nel prezzo</h3>
+            <ul role="list" class="list-none m-0 p-0 flex flex-col gap-fluid-2">
+              {incluso.map((voce) => (
+                <li class="flex gap-fluid-2 text-base leading-[1.5]">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class:list={[spuntaClass, 'text-blue']}>
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                  <span>{voce}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="rounded-lg border-2 border-fg bg-bg p-fluid-5">
+            <h3 class="font-sans text-lg font-bold text-blue mb-fluid-3">Fuori, e te lo dico prima</h3>
+            <ul role="list" class="list-none m-0 p-0 flex flex-col gap-fluid-2">
+              {escluso.map((voce) => (
+                <li class="flex gap-fluid-2 text-base leading-[1.5]">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class:list={[spuntaClass, 'text-highlight']}>
+                    <path d="M18 6L6 18" />
+                    <path d="M6 6l12 12" />
+                  </svg>
+                  <span>{voce}</span>
+                </li>
+              ))}
+            </ul>
+            <p class="text-sm text-muted mt-fluid-3 m-0">
+              Se il sito ha una di queste cose, scrivimi lo stesso: si fa,
+              costa diversamente, e la prima mezz'ora per capirlo non si paga.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          E poi
+        </p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-4 leading-[1.05] tracking-[-0.02em]">
+          Da lì, il sito ricomincia a muoversi
+        </h2>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Togliere WordPress non vuol dire congelare il sito. Vuol dire smettere
+          di manutenere un motore che non usi, e usare quel tempo per le cose
+          che contano: cambiare i testi che non convincono, aggiungere la pagina
+          che manca, rifare una sezione, sistemare le immagini troppo pesanti.
+        </p>
+        <p class="text-lg leading-[1.55] m-0 mb-fluid-3">
+          Le modifiche le fai scrivendomi, e attingono a un pacchetto di ore
+          concordato prima di cominciare. Nessun canone mensile, nessun
+          abbonamento: finite le ore decidi liberamente se farne un altro o
+          fermarti lì.
+        </p>
+        <p class="text-lg leading-[1.55] m-0">
+          Se vuoi anche capire cosa chiede Google al tuo sito e cosa conviene
+          sistemare per primo, c'è il <a href="/cruscotto" class="text-blue font-semibold underline underline-offset-4 hover:text-highlight">cruscotto settimanale</a>:
+          si installa gratis e ogni lunedì ti lascia una pagina con i numeri e
+          le ricerche in cui compari troppo in basso.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-surface py-fluid-7">
+    <div class="page">
+      <header class="max-w-prose mb-fluid-6">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Domande
+        </p>
+        <h2 class="font-display text-3xl text-blue m-0 leading-[1.05] tracking-[-0.02em]">
+          Quelle che mi fanno sempre
+        </h2>
+      </header>
+
+      <div class="flex flex-col gap-fluid-3 max-w-prose">
+        {faqs.map((f) => (
+          <details class="group rounded-lg border-2 border-fg bg-bg px-fluid-4 py-fluid-3">
+            <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden font-sans text-lg font-bold text-blue flex items-center justify-between gap-fluid-3">
+              <span>{f.q}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                   class="w-5 h-5 shrink-0 transition-transform duration-300 ease-soft group-open:rotate-45 motion-reduce:transition-none">
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+              </svg>
+            </summary>
+            <p class="text-base leading-[1.6] mt-fluid-3 m-0">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-fluid-6">
+    <div class="page">
+      <div class="max-w-prose">
+        <h2 class="font-sans text-lg font-bold text-blue mb-fluid-3">Da dove vengono i numeri</h2>
+        <ul role="list" class="list-none m-0 p-0 flex flex-col gap-fluid-2 text-sm text-muted">
+          <li>
+            Vulnerabilità PHP del 21 ottobre 2026 e fine supporto delle versioni —
+            <a href="https://www.php.net/archive/2026.php" rel="nofollow noopener" class="text-blue underline underline-offset-4">archivio annunci del progetto PHP</a>
+          </li>
+          <li>
+            11.334 vulnerabilità nel 2025, 91% nei plugin, 46% senza correzione alla pubblicazione —
+            <a href="https://patchstack.com/whitepaper/state-of-wordpress-security-in-2026/" rel="nofollow noopener" class="text-blue underline underline-offset-4">Patchstack, State of WordPress Security in 2026</a>
+          </li>
+          <li>
+            WordPress 7.1.4 del 28 ottobre 2026, release di sicurezza —
+            <a href="https://wordpress.org/news/" rel="nofollow noopener" class="text-blue underline underline-offset-4">annunci ufficiali di WordPress</a>
+          </li>
+        </ul>
+        <p class="text-sm text-muted mt-fluid-3 m-0">Pagina aggiornata l'11 novembre 2026.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-yellow py-fluid-7">
+    <div class="page text-center">
+      <h2 class="font-display text-3xl text-blue mb-fluid-4 leading-[1.05] tracking-[-0.02em] mx-auto max-w-[22ch]">
+        Mandami l'indirizzo del sito
+      </h2>
+      <p class="text-lg text-fg mx-auto max-w-prose mb-fluid-5">
+        Lo guardo, conto le pagine, controllo cosa c'è di dinamico e ti dico se
+        si può fare e quanto ci vuole. Se non conviene, te lo dico. Questa parte
+        non si paga e non impegna a niente.
+      </p>
+      <a
+        href="/contatti?tipo=statico"
+        class:list={[ctaClass, 'bg-blue text-yellow shadow-[0.5rem_0.5rem_0_var(--color-orange)] hover:bg-fg hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]']}
+      >
+        <span>Scrivimi</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+             class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+          <path d="M5 12h14" />
+          <path d="M13 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

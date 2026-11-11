@@ -292,27 +292,52 @@ const marqueeItems = [
     </div>
   </section>
 
-  <!-- =============================================================
-       AI E AUTOMAZIONI — teaser verso /intelligenza-artificiale
-       ============================================================= -->
   <section class="bg-yellow py-fluid-7">
     <div class="page">
-      <div class="grid grid-cols-1 gap-fluid-4 items-end md:grid-cols-[2fr_1fr]">
+      <div class="mx-auto max-w-prose text-center">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-blue mb-fluid-3">AI e automazioni</p>
+        <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Con l'intelligenza artificiale si fa di più, in meno tempo</h2>
+        <p class="text-lg text-fg m-0 mb-fluid-5">
+          Oggi un'automazione su misura costa molto meno di quanto pensi, e
+          semplifica il lavoro e anche la vita di tutti i giorni.
+        </p>
+        <ul role="list" class="list-none m-0 p-0 mb-fluid-5 flex flex-wrap justify-center gap-fluid-2">
+          {['Email da smistare', 'Fatture da leggere', 'Report da compilare', 'Preventivi da preparare'].map((voce) => (
+            <li class="rounded-full bg-blue px-[0.9em] py-[0.4em] font-sans text-sm font-semibold text-yellow">{voce}</li>
+          ))}
+        </ul>
+        <a
+          href="/intelligenza-artificiale"
+          class="group inline-flex items-center gap-[0.6em] rounded-md border-2 border-blue bg-blue px-[1.4em] py-[0.75em] font-sans text-base font-bold text-yellow no-underline shadow-[0.35rem_0.35rem_0_var(--color-orange)] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.25rem] hover:shadow-[0.6rem_0.7rem_0_var(--color-orange)] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]"
+        >
+          <span>Scopri cosa automatizzare</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
+              <path d="M5 12h14" />
+              <path d="M13 5l7 7-7 7" />
+            </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-beige py-fluid-7">
+    <div class="page">
+      <div class="grid grid-cols-1 gap-fluid-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div class="max-w-prose">
-          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-blue mb-fluid-3">AI e automazioni</p>
-          <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Con l'intelligenza artificiale si fa di più, in meno tempo</h2>
-          <p class="text-lg text-fg m-0">
-            Email da smistare, documenti da trascrivere, report da compilare:
-            oggi un'automazione su misura costa molto meno di quanto pensi,
-            e semplifica il lavoro e anche la vita di tutti i giorni.
+          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Il sito, ogni lunedì</p>
+          <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Il tuo sito non porta clienti? Google sa già perché</h2>
+          <p class="text-lg text-fg m-0 mb-fluid-4">
+            Le ricerche in cui compari senza che nessuno ti clicchi sono già
+            dentro i tuoi account Google, e quasi nessuno le guarda mai. Le
+            leggo io e ti lascio una pagina sola, in italiano, con cosa
+            conviene sistemare. Installarlo non costa niente.
           </p>
-        </div>
-        <div class="flex md:justify-end">
           <a
-            href="/intelligenza-artificiale"
-            class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-blue text-yellow no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-orange)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]"
+            href="/cruscotto"
+            class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] bg-blue text-yellow shadow-[0.5rem_0.5rem_0_var(--color-orange)] hover:bg-fg hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]"
           >
-            <span>Scopri cosa automatizzare</span>
+            <span>Guarda il cruscotto</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
                  class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
               <path d="M5 12h14" />
@@ -320,29 +345,51 @@ const marqueeItems = [
             </svg>
           </a>
         </div>
+        <div class="rounded-lg border-2 border-fg bg-bg p-fluid-4 rotate-[1deg] shadow-[0.45rem_0.45rem_0_var(--color-blue)]">
+          <p class="m-0 mb-fluid-3 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted">Esempio &middot; lunedì scorso</p>
+          <ul role="list" class="list-none m-0 p-0 flex flex-col gap-fluid-2">
+            {[
+              { label: 'Visite', value: '412', nota: '+18%', giu: false },
+              { label: 'Clic da Google', value: '231', nota: '+9%', giu: false },
+              { label: 'Contatti ricevuti', value: '3', nota: '+2', giu: false },
+              { label: 'Ricerche troppo in basso', value: '7', nota: 'da recuperare', giu: true },
+            ].map((riga) => (
+              <li class="flex items-baseline justify-between gap-fluid-3 border-b-2 border-border pb-fluid-2 last:border-b-0 last:pb-0">
+                <span class="font-sans text-sm text-fg">{riga.label}</span>
+                <span class="flex items-baseline gap-fluid-2">
+                  <span class="font-display text-xl text-blue leading-none">{riga.value}</span>
+                  <span class:list={['font-sans text-xs font-semibold', riga.giu ? 'text-highlight' : 'text-blue']}>{riga.nota}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="bg-beige py-fluid-7">
+  <section class="bg-blue py-fluid-7">
     <div class="page">
-      <div class="grid grid-cols-1 gap-fluid-4 items-end md:grid-cols-[2fr_1fr]">
+      <div class="grid grid-cols-1 gap-fluid-5 md:grid-cols-[auto_1fr] md:items-center md:gap-fluid-6">
+        <p class="m-0 justify-self-start inline-flex flex-col items-center gap-[0.1em] rounded-lg bg-yellow px-fluid-5 py-fluid-4 text-blue rotate-[-3deg] shadow-[0.5rem_0.5rem_0_var(--color-orange)]">
+          <span class="font-display text-4xl leading-none">200 &euro;</span>
+          <span class="font-sans text-xs font-semibold uppercase tracking-[0.12em]">una volta sola</span>
+        </p>
         <div class="max-w-prose">
-          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">Il sito, ogni lunedì</p>
-          <h2 class="font-display text-3xl text-blue mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Il tuo sito non porta clienti? Google sa già perché</h2>
-          <p class="text-lg text-fg m-0">
-            Le ricerche in cui compari senza che nessuno ti clicchi sono già
-            dentro i tuoi account Google, e quasi nessuno le guarda mai. Le
-            leggo io e ti lascio una pagina sola, in italiano, con cosa
-            conviene sistemare. Installarlo non costa niente.
+          <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-pink mb-fluid-3">Hai ancora WordPress?</p>
+          <h2 class="font-display text-3xl text-yellow mb-fluid-3 leading-[1.05] tracking-[-0.02em]">Il sito lo aggiorni una volta all'anno, il rischio lo corri ogni giorno</h2>
+          <p class="text-lg text-white m-0 mb-fluid-4">
+            A ottobre PHP ha corretto due falle critiche che aggiornare
+            WordPress non chiude: la versione del server non la decidi tu. Se
+            il tuo sito è una vetrina, quel motore non ti serve. Lo converto in
+            sito statico — stessa grafica, stessi indirizzi, niente più plugin
+            da aggiornare.
           </p>
-        </div>
-        <div class="flex md:justify-end">
           <a
-            href="/cruscotto"
-            class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] bg-blue text-yellow no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] shadow-[0.5rem_0.5rem_0_var(--color-orange)] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]"
+            href="/wordpress-statico"
+            class="group inline-flex items-center gap-[0.6em] px-[1.6em] py-[0.85em] no-underline font-display text-xl font-bold leading-none tracking-[-0.01em] rounded-full rotate-[-1.5deg] transition-cta hover:rotate-0 hover:-translate-x-[0.2rem] hover:-translate-y-[0.4rem] hover:scale-105 active:rotate-0 active:translate-x-[0.2rem] active:translate-y-[0.2rem] bg-yellow text-blue shadow-[0.5rem_0.5rem_0_var(--color-orange)] hover:bg-pink hover:shadow-[0.95rem_1.1rem_0_var(--color-orange)] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)]"
           >
-            <span>Guarda il cruscotto</span>
+            <span>Mettilo al sicuro</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
                  class="w-[1em] h-[1em] transition-transform duration-400 ease-spring group-hover:translate-x-[0.4rem] group-hover:-rotate-3">
               <path d="M5 12h14" />
