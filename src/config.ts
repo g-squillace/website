@@ -66,3 +66,31 @@ export interface SupportPackage {
 }
 
 export const SUPPORT: SupportPackage | null = null;
+
+export interface BookingWindow {
+  weekday: number;
+  from: string;
+  to: string;
+}
+
+export const BOOKING = {
+  calendarId: 'td1v6ug3j0ccn1cprg39uuu01g@group.calendar.google.com',
+  busyCalendarIds: ['guido.squillace@gmail.com'] as ReadonlyArray<string>,
+  timeZone: 'Europe/Rome',
+  slotMinutes: 30,
+  bufferMinutes: 15,
+  minNoticeHours: 24,
+  daysAhead: 21,
+  maxPerDay: 2,
+  windows: [
+    { weekday: 1, from: '09:00', to: '19:00' },
+    { weekday: 2, from: '09:00', to: '19:00' },
+    { weekday: 3, from: '09:00', to: '19:00' },
+    { weekday: 4, from: '09:00', to: '19:00' },
+    { weekday: 5, from: '09:00', to: '19:00' },
+  ] as ReadonlyArray<BookingWindow>,
+} as const;
+
+export const FORMS = {
+  endpoint: 'https://formspree.io/f/xldrqgle',
+} as const;

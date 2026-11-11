@@ -1,10 +1,15 @@
-import { readEnv } from './env';
+import { readEnv } from './env.ts';
 
 const TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
 
-const SCOPES = [
+export const REPORT_SCOPES = [
   'https://www.googleapis.com/auth/analytics.readonly',
   'https://www.googleapis.com/auth/webmasters.readonly',
+].join(' ');
+
+export const CALENDAR_SCOPES = [
+  'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/calendar.events',
 ].join(' ');
 
 interface ServiceAccount {
@@ -17,7 +22,7 @@ interface CachedToken {
   expiresAt: number;
 }
 
-let cachedToken: CachedToken | null = null;
+const cachedTokens = new Map<string, CachedToken>();
 
 function decodeCredentialsBlob(raw: string): string {
   const trimmed = raw.trim();
@@ -78,9 +83,10 @@ function isTokenResponse(value: unknown): value is { access_token: string; expir
   return typeof candidate.access_token === 'string';
 }
 
-export async function accessToken(): Promise<string> {
-  if (cachedToken !== null && cachedToken.expiresAt > Date.now() + 60_000) {
-    return cachedToken.value;
+export async function accessToken(scope: string = REPORT_SCOPES): Promise<string> {
+  const cached = cachedTokens.get(scope);
+  if (cached !== undefined && cached.expiresAt > Date.now() + 60_000) {
+    return cached.value;
   }
   const account = serviceAccount();
   if (account === null) throw new Error('Credenziali Google non configurate');
@@ -90,7 +96,7 @@ export async function accessToken(): Promise<string> {
   const claims = base64Url(
     JSON.stringify({
       iss: account.clientEmail,
-      scope: SCOPES,
+      scope,
       aud: TOKEN_ENDPOINT,
       iat: issuedAt,
       exp: issuedAt + 3600,
@@ -127,15 +133,29 @@ export async function accessToken(): Promise<string> {
   const payload: unknown = await response.json();
   if (!isTokenResponse(payload)) throw new Error('Risposta token Google non valida');
 
-  cachedToken = {
+  const issued: CachedToken = {
     value: payload.access_token,
     expiresAt: Date.now() + (typeof payload.expires_in === 'number' ? payload.expires_in : 3600) * 1000,
   };
-  return cachedToken.value;
+  cachedTokens.set(scope, issued);
+  return issued.value;
 }
 
-export async function googlePost(url: string, body: unknown): Promise<unknown> {
-  const token = await accessToken();
+export async function googleGet(url: string, scope: string = REPORT_SCOPES): Promise<unknown> {
+  const token = await accessToken(scope);
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!response.ok) {
+    throw new Error(`Google API ${response.status}: ${(await response.text()).slice(0, 400)}`);
+  }
+  return response.json();
+}
+
+export async function googlePost(
+  url: string,
+  body: unknown,
+  scope: string = REPORT_SCOPES,
+): Promise<unknown> {
+  const token = await accessToken(scope);
   const response = await fetch(url, {
     method: 'POST',
     headers: {

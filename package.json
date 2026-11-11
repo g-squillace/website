@@ -13,7 +13,8 @@
     "astro": "astro",
     "import:projects": "node --env-file=.env scripts/import-projects.mjs",
     "assets:generate": "node scripts/generate-static-assets.mjs",
-    "test": "node --experimental-strip-types --test scripts/*.test.mts"
+    "test": "node --experimental-strip-types --test scripts/*.test.mts",
+    "calendario": "node --experimental-strip-types scripts/calendario.mts"
   },
   "dependencies": {
     "@astrojs/netlify": "^6.6.5",

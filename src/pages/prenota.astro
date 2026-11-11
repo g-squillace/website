@@ -1,0 +1,320 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { BOOKING, SITE } from '../config';
+
+const pageUrl = new URL('/prenota', SITE.url).toString();
+
+const schema = [
+  {
+    '@type': 'Service',
+    '@id': `${pageUrl}#service`,
+    name: 'Call conoscitiva con Guido Squillace',
+    serviceType: 'Consulenza iniziale su sito web, e-commerce o automazioni',
+    description: `Una call di ${BOOKING.slotMinutes} minuti per capire se posso esserti utile, senza impegno e senza costo.`,
+    provider: { '@id': `${SITE.url}/#person` },
+    areaServed: { '@type': 'Country', name: 'Italia' },
+    url: pageUrl,
+    offers: {
+      '@type': 'Offer',
+      name: 'Call conoscitiva',
+      price: '0',
+      priceCurrency: 'EUR',
+    },
+  },
+];
+
+const campoClass =
+  'w-full rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 font-sans text-base text-fg min-h-11 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-blue';
+---
+
+<BaseLayout
+  title={`Prenota una call di ${BOOKING.slotMinutes} minuti`}
+  description={`Scegli un orario in cui sono libero e prenota una call di ${BOOKING.slotMinutes} minuti per parlare del tuo sito, del tuo e-commerce o di un'automazione. Gratis e senza impegno.`}
+  schema={schema}
+>
+  <section class="bg-pink pt-fluid-6 pb-fluid-7">
+    <div class="page">
+      <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-blue mb-fluid-4">
+        Parliamone a voce
+      </p>
+      <h1 class="text-4xl sm:text-5xl text-blue mb-fluid-4 leading-[0.95] max-w-[18ch] animate-fade-up motion-reduce:animate-none">
+        Scegli un orario. <em class="italic">Al resto penso io.</em>
+      </h1>
+      <p class="text-lg text-fg m-0 max-w-prose">
+        Qui sotto trovi solo gli orari in cui sono davvero libero: li legge dal
+        mio calendario. Scegline uno, scrivimi due righe su cosa ti serve e ti
+        confermo io per email, di solito in giornata. Dura
+        {BOOKING.slotMinutes} minuti, non costa niente e non impegna a niente.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-fluid-7">
+    <div class="page">
+      <form id="form-call" class="grid grid-cols-1 gap-fluid-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start" novalidate>
+        <fieldset class="m-0 min-w-0 border-0 p-0">
+          <legend class="font-display text-2xl text-blue mb-fluid-4">1. Quando ci sentiamo</legend>
+
+          <p id="stato-slot" role="status" class="text-base text-muted m-0 mb-fluid-4">
+            Sto leggendo il calendario…
+          </p>
+
+          <div id="elenco-giorni" class="flex flex-col gap-fluid-5"></div>
+
+          <p id="nessuno-slot" hidden class="rounded-md border-2 border-fg bg-surface p-fluid-4 text-base m-0">
+            Non ho orari liberi nelle prossime settimane.
+            <a href="/contatti" class="text-blue font-semibold underline underline-offset-4">Scrivimi dal modulo</a>
+            e troviamo un momento.
+          </p>
+        </fieldset>
+
+        <fieldset class="m-0 min-w-0 rounded-lg border-2 border-fg bg-surface p-fluid-5">
+          <legend class="font-display text-2xl text-blue mb-fluid-4 px-fluid-2">2. Chi sei</legend>
+
+          <div class="flex flex-col gap-fluid-4">
+            <div class="flex flex-col gap-fluid-2">
+              <label for="nome" class="font-semibold text-sm text-blue">Nome e cognome</label>
+              <input id="nome" name="nome" type="text" required autocomplete="name" class={campoClass} />
+            </div>
+            <div class="flex flex-col gap-fluid-2">
+              <label for="email" class="font-semibold text-sm text-blue">Email</label>
+              <input id="email" name="email" type="email" required autocomplete="email" class={campoClass} />
+              <p id="aiuto-email" class="text-sm text-muted m-0">Qui ti mando la conferma e l'invito al calendario.</p>
+            </div>
+            <div class="flex flex-col gap-fluid-2">
+              <label for="azienda" class="font-semibold text-sm text-blue">
+                Azienda <span class="font-normal text-muted">(facoltativa)</span>
+              </label>
+              <input id="azienda" name="azienda" type="text" autocomplete="organization" class={campoClass} />
+            </div>
+            <div class="flex flex-col gap-fluid-2">
+              <label for="motivo" class="font-semibold text-sm text-blue">Di cosa parliamo</label>
+              <textarea id="motivo" name="motivo" rows="5" required aria-describedby="aiuto-motivo" class={`${campoClass} min-h-32`}></textarea>
+              <p id="aiuto-motivo" class="text-sm text-muted m-0">
+                Anche poche righe: che sito hai oggi, cosa non ti torna, cosa vorresti.
+              </p>
+            </div>
+
+            <div aria-hidden="true" class="absolute -left-[9999px]">
+              <label for="sito">Non compilare</label>
+              <input id="sito" name="sito" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <p id="riepilogo" class="m-0 rounded-md bg-beige px-fluid-3 py-fluid-3 text-base font-semibold text-blue" hidden></p>
+
+            <button
+              type="submit"
+              data-invia
+              class="group inline-flex items-center justify-center gap-[0.6em] min-h-11 px-[1.6em] py-[0.85em] rounded-full bg-blue text-yellow font-display text-xl font-bold leading-none no-underline border-0 cursor-pointer shadow-[0.4rem_0.4rem_0_var(--color-orange)] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:shadow-[0.7rem_0.8rem_0_var(--color-orange)] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0"
+            >
+              <span data-etichetta>Manda la richiesta</span>
+            </button>
+
+            <p id="esito" role="alert" hidden class="m-0 rounded-md px-fluid-3 py-fluid-3 text-base font-medium"></p>
+          </div>
+        </fieldset>
+      </form>
+
+      <noscript>
+        <p class="mt-fluid-5 rounded-md border-2 border-fg bg-surface p-fluid-4 text-base max-w-prose">
+          Per scegliere l'orario serve JavaScript attivo.
+          <a href="/contatti" class="text-blue font-semibold underline underline-offset-4">Scrivimi dal modulo contatti</a>
+          e ci mettiamo d'accordo per email.
+        </p>
+      </noscript>
+    </div>
+  </section>
+
+  <section class="bg-surface py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose">
+        <h2 class="font-display text-2xl text-blue mb-fluid-3">Come funziona dopo</h2>
+        <p class="text-base leading-[1.6] m-0 mb-fluid-3">
+          La richiesta arriva subito nella mia posta e l'orario che hai scelto
+          si blocca, così nessun altro lo prende mentre aspetti. Io ti confermo
+          per email con l'invito al calendario e il link per collegarci, oppure
+          ti propongo un altro orario se nel frattempo mi è successo qualcosa.
+        </p>
+        <p class="text-base leading-[1.6] m-0">
+          Se ti serve prima, o se preferisci scrivere invece di parlare, il
+          <a href="/contatti" class="text-blue font-semibold underline underline-offset-4">modulo contatti</a>
+          resta il posto giusto.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  interface Slot {
+    start: string;
+    end: string;
+  }
+  interface Giorno {
+    date: string;
+    slots: Slot[];
+  }
+  interface RispostaSlot {
+    stato: string;
+    giorni?: Giorno[];
+    fuso?: string;
+  }
+
+  const form = document.getElementById('form-call');
+  const elenco = document.getElementById('elenco-giorni');
+  const stato = document.getElementById('stato-slot');
+  const vuoto = document.getElementById('nessuno-slot');
+  const riepilogo = document.getElementById('riepilogo');
+  const esito = document.getElementById('esito');
+
+  if (
+    form instanceof HTMLFormElement &&
+    elenco instanceof HTMLElement &&
+    stato instanceof HTMLElement &&
+    vuoto instanceof HTMLElement &&
+    riepilogo instanceof HTMLElement &&
+    esito instanceof HTMLElement
+  ) {
+    const invia = form.querySelector<HTMLButtonElement>('[data-invia]');
+    const etichetta = form.querySelector<HTMLSpanElement>('[data-etichetta]');
+    const fuso = 'Europe/Rome';
+
+    const giornoLungo = new Intl.DateTimeFormat('it-IT', {
+      timeZone: fuso,
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+    const ora = new Intl.DateTimeFormat('it-IT', { timeZone: fuso, hour: '2-digit', minute: '2-digit' });
+
+    const maiuscola = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+    const mostraEsito = (testo: string, tono: 'ok' | 'ko') => {
+      esito.className = `m-0 rounded-md px-fluid-3 py-fluid-3 text-base font-medium ${
+        tono === 'ok' ? 'bg-yellow text-blue' : 'bg-pink text-blue'
+      }`;
+      esito.textContent = testo;
+      esito.hidden = false;
+    };
+
+    const aggiornaRiepilogo = () => {
+      const scelto = form.querySelector<HTMLInputElement>('input[name="inizio"]:checked');
+      if (scelto === null) {
+        riepilogo.hidden = true;
+        return;
+      }
+      const inizio = new Date(scelto.value);
+      riepilogo.textContent = `Hai scelto ${giornoLungo.format(inizio)}, ore ${ora.format(inizio)}.`;
+      riepilogo.hidden = false;
+    };
+
+    const disegna = (giorni: Giorno[]) => {
+      elenco.replaceChildren();
+      for (const giorno of giorni) {
+        const primo = giorno.slots.at(0);
+        if (primo === undefined) continue;
+        const blocco = document.createElement('div');
+        const titolo = document.createElement('h2');
+        titolo.className = 'font-sans text-lg font-bold text-blue mb-fluid-3';
+        titolo.textContent = maiuscola(giornoLungo.format(new Date(primo.start)));
+
+        const griglia = document.createElement('div');
+        griglia.className = 'flex flex-wrap gap-fluid-2';
+
+        for (const slot of giorno.slots) {
+          const etichettaOra = ora.format(new Date(slot.start));
+          const label = document.createElement('label');
+          label.className = 'relative';
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'inizio';
+          input.value = slot.start;
+          input.className = 'peer sr-only';
+          const testo = document.createElement('span');
+          testo.className =
+            'flex min-h-11 min-w-[5.5rem] items-center justify-center rounded-md border-2 border-fg bg-bg px-fluid-3 font-sans text-base font-semibold text-fg cursor-pointer transition-[border-color,box-shadow] duration-150 hover:border-blue hover:shadow-[0.2rem_0.2rem_0_var(--color-blue)] peer-checked:bg-blue peer-checked:border-blue peer-checked:text-yellow peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue';
+          testo.textContent = etichettaOra;
+          label.append(input, testo);
+          griglia.append(label);
+        }
+
+        blocco.append(titolo, griglia);
+        elenco.append(blocco);
+      }
+    };
+
+    const carica = async () => {
+      try {
+        const risposta = await fetch('/api/appuntamenti/slots');
+        const dati: RispostaSlot = await risposta.json();
+        if (dati.stato !== 'ok' || !Array.isArray(dati.giorni) || dati.giorni.length === 0) {
+          stato.hidden = true;
+          vuoto.hidden = false;
+          return;
+        }
+        stato.hidden = true;
+        disegna(dati.giorni);
+      } catch {
+        stato.hidden = true;
+        vuoto.hidden = false;
+      }
+    };
+
+    form.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      const dati = new FormData(form);
+      const inizio = dati.get('inizio');
+      if (typeof inizio !== 'string' || inizio === '') {
+        mostraEsito('Scegli prima un orario qui a fianco.', 'ko');
+        elenco.querySelector('input')?.focus();
+        return;
+      }
+
+      if (invia === null || etichetta === null) return;
+      invia.disabled = true;
+      invia.setAttribute('aria-busy', 'true');
+      const originale = etichetta.textContent ?? 'Manda la richiesta';
+      etichetta.textContent = 'Invio in corso…';
+      esito.hidden = true;
+
+      try {
+        const risposta = await fetch('/api/appuntamenti/prenota', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: dati.get('nome'),
+            email: dati.get('email'),
+            azienda: dati.get('azienda'),
+            motivo: dati.get('motivo'),
+            inizio,
+            sito: dati.get('sito'),
+          }),
+        });
+        const corpo: { ok?: boolean; quando?: string; errore?: string; scaduto?: boolean } =
+          await risposta.json();
+
+        if (risposta.ok && corpo.ok === true) {
+          form.reset();
+          riepilogo.hidden = true;
+          mostraEsito(
+            `Richiesta ricevuta per ${corpo.quando ?? "l'orario scelto"}. Ti confermo per email, di solito in giornata.`,
+            'ok',
+          );
+          await carica();
+        } else {
+          mostraEsito(corpo.errore ?? 'Qualcosa non ha funzionato. Riprova fra poco.', 'ko');
+          if (corpo.scaduto === true) await carica();
+        }
+      } catch {
+        mostraEsito('Non sono riuscito a mandare la richiesta. Controlla la connessione e riprova.', 'ko');
+      } finally {
+        invia.disabled = false;
+        invia.removeAttribute('aria-busy');
+        etichetta.textContent = originale;
+      }
+    });
+
+    elenco.addEventListener('change', aggiornaRiepilogo);
+    void carica();
+  }
+</script>
