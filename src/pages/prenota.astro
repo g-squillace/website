@@ -25,6 +25,19 @@ const schema = [
 
 const campoClass =
   'w-full rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 font-sans text-base text-fg min-h-11 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-blue';
+
+const navClass =
+  'inline-flex h-11 w-11 items-center justify-center rounded-md border-2 border-fg bg-bg text-fg transition-soft hover:bg-blue hover:border-blue hover:text-yellow focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-blue disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-bg disabled:hover:border-fg disabled:hover:text-fg';
+
+const giorniSettimana = [
+  { breve: 'L', esteso: 'lunedì' },
+  { breve: 'M', esteso: 'martedì' },
+  { breve: 'M', esteso: 'mercoledì' },
+  { breve: 'G', esteso: 'giovedì' },
+  { breve: 'V', esteso: 'venerdì' },
+  { breve: 'S', esteso: 'sabato' },
+  { breve: 'D', esteso: 'domenica' },
+];
 ---
 
 <BaseLayout
@@ -51,75 +64,69 @@ const campoClass =
 
   <section class="py-fluid-7">
     <div class="page">
-      <form id="form-call" class="grid grid-cols-1 gap-fluid-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start" novalidate>
-        <fieldset class="m-0 min-w-0 border-0 p-0">
-          <legend class="font-display text-2xl text-blue mb-fluid-4">1. Quando ci sentiamo</legend>
+      <p id="stato-slot" role="status" tabindex="-1" class="text-base text-muted m-0">
+        Sto leggendo il calendario…
+      </p>
 
-          <p id="stato-slot" role="status" class="text-base text-muted m-0 mb-fluid-4">
-            Sto leggendo il calendario…
-          </p>
+      <p id="nessuno-slot" hidden class="rounded-md border-2 border-fg bg-surface p-fluid-4 text-base m-0 max-w-prose">
+        Non ho orari liberi nelle prossime settimane.
+        <a href="/contatti" class="text-blue font-semibold underline underline-offset-4">Scrivimi dal modulo</a>
+        e troviamo un momento.
+      </p>
 
-          <div id="elenco-giorni" class="flex flex-col gap-fluid-5"></div>
+      <div id="prenotazione" hidden class="scroll-mt-fluid-4 grid grid-cols-1 gap-fluid-6 lg:grid-cols-2 lg:items-stretch">
+        <div class="flex min-w-0 flex-col">
+          <h2 class="font-display text-2xl text-blue mb-fluid-4">1. Scegli il giorno</h2>
 
-          <p id="nessuno-slot" hidden class="rounded-md border-2 border-fg bg-surface p-fluid-4 text-base m-0">
-            Non ho orari liberi nelle prossime settimane.
-            <a href="/contatti" class="text-blue font-semibold underline underline-offset-4">Scrivimi dal modulo</a>
-            e troviamo un momento.
-          </p>
-        </fieldset>
-
-        <fieldset class="m-0 min-w-0 rounded-lg border-2 border-fg bg-surface p-fluid-5">
-          <legend class="font-display text-2xl text-blue mb-fluid-4 px-fluid-2">2. Chi sei</legend>
-
-          <div class="flex flex-col gap-fluid-4">
-            <div class="flex flex-col gap-fluid-2">
-              <label for="nome" class="font-semibold text-sm text-blue">Nome e cognome</label>
-              <input id="nome" name="nome" type="text" required autocomplete="name" class={campoClass} />
-            </div>
-            <div class="flex flex-col gap-fluid-2">
-              <label for="email" class="font-semibold text-sm text-blue">Email</label>
-              <input id="email" name="email" type="email" required autocomplete="email" class={campoClass} />
-              <p id="aiuto-email" class="text-sm text-muted m-0">Qui ti mando la conferma e l'invito al calendario.</p>
-            </div>
-            <div class="flex flex-col gap-fluid-2">
-              <label for="azienda" class="font-semibold text-sm text-blue">
-                Azienda <span class="font-normal text-muted">(facoltativa)</span>
-              </label>
-              <input id="azienda" name="azienda" type="text" autocomplete="organization" class={campoClass} />
-            </div>
-            <div class="flex flex-col gap-fluid-2">
-              <label for="motivo" class="font-semibold text-sm text-blue">Di cosa parliamo</label>
-              <textarea id="motivo" name="motivo" rows="5" required aria-describedby="aiuto-motivo" class={`${campoClass} min-h-32`}></textarea>
-              <p id="aiuto-motivo" class="text-sm text-muted m-0">
-                Anche poche righe: che sito hai oggi, cosa non ti torna, cosa vorresti.
-              </p>
+          <div class="grow rounded-lg border-2 border-fg bg-surface p-fluid-3 sm:p-fluid-4">
+            <div class="flex items-center justify-between gap-fluid-2 mb-fluid-3">
+              <button type="button" data-mese-prima class={navClass} aria-label="Mese precedente">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="h-4 w-4">
+                  <path d="M15 5l-7 7 7 7" />
+                </svg>
+              </button>
+              <p id="mese-corrente" aria-live="polite" class="m-0 font-sans text-lg font-bold text-blue text-center"></p>
+              <button type="button" data-mese-dopo class={navClass} aria-label="Mese successivo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="h-4 w-4">
+                  <path d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
 
-            <div aria-hidden="true" class="absolute -left-[9999px]">
-              <label for="sito">Non compilare</label>
-              <input id="sito" name="sito" type="text" tabindex="-1" autocomplete="off" />
-            </div>
-
-            <p id="riepilogo" class="m-0 rounded-md bg-beige px-fluid-3 py-fluid-3 text-base font-semibold text-blue" hidden></p>
-
-            <button
-              type="submit"
-              data-invia
-              class="group inline-flex items-center justify-center gap-[0.6em] min-h-11 px-[1.6em] py-[0.85em] rounded-full bg-blue text-yellow font-display text-xl font-bold leading-none no-underline border-0 cursor-pointer shadow-[0.4rem_0.4rem_0_var(--color-orange)] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:shadow-[0.7rem_0.8rem_0_var(--color-orange)] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0"
-            >
-              <span data-etichetta>Manda la richiesta</span>
-            </button>
-
-            <p id="esito" role="alert" hidden class="m-0 rounded-md px-fluid-3 py-fluid-3 text-base font-medium"></p>
+            <table role="grid" aria-labelledby="mese-corrente" class="w-full table-fixed border-separate border-spacing-1">
+              <thead>
+                <tr>
+                  {giorniSettimana.map((giorno) => (
+                    <th scope="col" class="pb-fluid-2 font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted">
+                      <abbr title={giorno.esteso} class="no-underline">{giorno.breve}</abbr>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody id="griglia-giorni"></tbody>
+            </table>
           </div>
-        </fieldset>
-      </form>
+
+          <p class="mt-fluid-3 text-sm text-muted m-0">
+            I giorni con il riquadro hanno orari liberi. Gli altri sono già pieni.
+          </p>
+        </div>
+
+        <div id="pannello-orari" class="flex min-w-0 flex-col">
+          <h2 class="font-display text-2xl text-blue mb-fluid-4">2. Scegli l’ora</h2>
+
+          <div class="grow rounded-lg border-2 border-fg bg-bg p-fluid-3 sm:p-fluid-4">
+            <h3 id="giorno-scelto" class="font-sans text-lg font-bold text-blue m-0 mb-fluid-3"></h3>
+            <div id="orari" aria-live="polite" class="grid grid-cols-2 gap-fluid-2 sm:grid-cols-3"></div>
+          </div>
+        </div>
+      </div>
 
       <noscript>
         <p class="mt-fluid-5 rounded-md border-2 border-fg bg-surface p-fluid-4 text-base max-w-prose">
-          Per scegliere l'orario serve JavaScript attivo.
+          Per scegliere l’orario serve JavaScript attivo.
           <a href="/contatti" class="text-blue font-semibold underline underline-offset-4">Scrivimi dal modulo contatti</a>
-          e ci mettiamo d'accordo per email.
+          e ci mettiamo d’accordo per email.
         </p>
       </noscript>
     </div>
@@ -130,9 +137,9 @@ const campoClass =
       <div class="max-w-prose">
         <h2 class="font-display text-2xl text-blue mb-fluid-3">Come funziona dopo</h2>
         <p class="text-base leading-[1.6] m-0 mb-fluid-3">
-          La richiesta arriva subito nella mia posta e l'orario che hai scelto
+          La richiesta arriva subito nella mia posta e l’orario che hai scelto
           si blocca, così nessun altro lo prende mentre aspetti. Io ti confermo
-          per email con l'invito al calendario e il link per collegarci, oppure
+          per email con l’invito al calendario e il link per collegarci, oppure
           ti propongo un altro orario se nel frattempo mi è successo qualcosa.
         </p>
         <p class="text-base leading-[1.6] m-0">
@@ -143,9 +150,90 @@ const campoClass =
       </div>
     </div>
   </section>
+
+  <dialog
+    id="popup-call"
+    aria-labelledby="popup-titolo"
+    class="m-auto w-[min(34rem,92vw)] max-h-[85svh] overflow-y-auto rounded-lg border-2 border-fg bg-bg p-0 text-fg backdrop:bg-fg/60 animate-pop-in motion-reduce:animate-none"
+  >
+    <div class="flex items-start justify-between gap-fluid-3 border-b-2 border-fg px-fluid-4 py-fluid-3">
+      <div>
+        <p class="m-0 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-blue">
+          Call di {BOOKING.slotMinutes} minuti
+        </p>
+        <h2 id="popup-titolo" class="m-0 font-sans text-lg font-bold text-fg"></h2>
+      </div>
+      <button
+        type="button"
+        data-chiudi
+        aria-label="Chiudi senza prenotare"
+        class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border-2 border-fg transition-soft hover:bg-fg hover:text-bg focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-blue"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" class="h-4 w-4">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
+
+    <form id="form-call" novalidate class="px-fluid-4 py-fluid-4">
+      <input type="hidden" name="inizio" data-inizio />
+
+      <div data-campi class="flex flex-col gap-fluid-4">
+        <div class="flex flex-col gap-fluid-2">
+          <label for="nome" class="font-semibold text-sm text-blue">Nome e cognome</label>
+          <input id="nome" name="nome" type="text" required autocomplete="name" class={campoClass} />
+        </div>
+        <div class="flex flex-col gap-fluid-2">
+          <label for="email" class="font-semibold text-sm text-blue">Email</label>
+          <input id="email" name="email" type="email" required autocomplete="email" aria-describedby="aiuto-email" class={campoClass} />
+          <p id="aiuto-email" class="text-sm text-muted m-0">Qui ti mando la conferma e l’invito al calendario.</p>
+        </div>
+        <div class="flex flex-col gap-fluid-2">
+          <label for="azienda" class="font-semibold text-sm text-blue">
+            Azienda <span class="font-normal text-muted">(facoltativa)</span>
+          </label>
+          <input id="azienda" name="azienda" type="text" autocomplete="organization" class={campoClass} />
+        </div>
+        <div class="flex flex-col gap-fluid-2">
+          <label for="motivo" class="font-semibold text-sm text-blue">Di cosa parliamo</label>
+          <textarea id="motivo" name="motivo" rows="4" required aria-describedby="aiuto-motivo" class={`${campoClass} min-h-32`}></textarea>
+          <p id="aiuto-motivo" class="text-sm text-muted m-0">
+            Anche poche righe: che sito hai oggi, cosa non ti torna, cosa vorresti.
+          </p>
+        </div>
+
+        <div aria-hidden="true" class="absolute -left-[9999px]">
+          <label for="sito">Non compilare</label>
+          <input id="sito" name="sito" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <button
+          type="submit"
+          data-invia
+          class="group inline-flex items-center justify-center gap-[0.6em] min-h-11 px-[1.6em] py-[0.85em] rounded-full bg-blue text-yellow font-display text-xl font-bold leading-none no-underline border-0 cursor-pointer shadow-[0.4rem_0.4rem_0_var(--color-orange)] transition-cta hover:-translate-x-[0.15rem] hover:-translate-y-[0.3rem] hover:shadow-[0.7rem_0.8rem_0_var(--color-orange)] active:translate-x-[0.1rem] active:translate-y-[0.1rem] active:shadow-[0.15rem_0.15rem_0_var(--color-orange)] disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0"
+        >
+          <span data-etichetta>Manda la richiesta</span>
+        </button>
+      </div>
+
+      <p id="esito" role="alert" hidden class="m-0 rounded-md px-fluid-3 py-fluid-3 text-base font-medium"></p>
+
+      <button
+        type="button"
+        data-chiudi
+        data-fine
+        hidden
+        class="mt-fluid-4 inline-flex items-center justify-center min-h-11 px-[1.4em] py-[0.7em] rounded-full border-2 border-fg bg-bg font-sans text-base font-semibold text-fg cursor-pointer transition-soft hover:bg-fg hover:text-bg focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-blue"
+      >
+        Chiudi
+      </button>
+    </form>
+  </dialog>
 </BaseLayout>
 
 <script>
+  import { buildMonth, monthKeys } from '../lib/booking/month.ts';
+
   interface Slot {
     start: string;
     end: string;
@@ -157,120 +245,341 @@ const campoClass =
   interface RispostaSlot {
     stato: string;
     giorni?: Giorno[];
-    fuso?: string;
   }
 
-  const form = document.getElementById('form-call');
-  const elenco = document.getElementById('elenco-giorni');
-  const stato = document.getElementById('stato-slot');
-  const vuoto = document.getElementById('nessuno-slot');
-  const riepilogo = document.getElementById('riepilogo');
-  const esito = document.getElementById('esito');
+  const CELLA_BASE =
+    'flex h-11 w-full items-center justify-center rounded-md font-sans text-base transition-soft focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-blue';
+  const CELLA_LIBERA = 'border-2 border-fg bg-bg font-bold text-fg cursor-pointer hover:border-blue hover:bg-beige';
+  const CELLA_SCELTA = 'border-2 border-blue bg-blue font-bold text-yellow cursor-pointer';
+  const CELLA_PIENA = 'border-2 border-transparent text-muted cursor-not-allowed';
+  const ORARIO =
+    'flex min-h-11 w-full items-center justify-center rounded-md border-2 border-fg bg-bg px-fluid-3 font-sans text-base font-semibold text-fg cursor-pointer transition-soft hover:border-blue hover:bg-blue hover:text-yellow focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-blue';
 
-  if (
-    form instanceof HTMLFormElement &&
-    elenco instanceof HTMLElement &&
-    stato instanceof HTMLElement &&
-    vuoto instanceof HTMLElement &&
-    riepilogo instanceof HTMLElement &&
-    esito instanceof HTMLElement
-  ) {
+  function avvia(): void {
+    const stato = document.getElementById('stato-slot');
+    const vuoto = document.getElementById('nessuno-slot');
+    const prenotazione = document.getElementById('prenotazione');
+    const titoloMese = document.getElementById('mese-corrente');
+    const griglia = document.getElementById('griglia-giorni');
+    const titoloGiorno = document.getElementById('giorno-scelto');
+    const orari = document.getElementById('orari');
+    const popup = document.getElementById('popup-call');
+    const form = document.getElementById('form-call');
+    const esito = document.getElementById('esito');
+    const titoloPopup = document.getElementById('popup-titolo');
+    const pannelloOrari = document.getElementById('pannello-orari');
+    const prima = document.querySelector<HTMLButtonElement>('[data-mese-prima]');
+    const dopo = document.querySelector<HTMLButtonElement>('[data-mese-dopo]');
+
+    if (
+      !(stato instanceof HTMLElement) ||
+      !(vuoto instanceof HTMLElement) ||
+      !(prenotazione instanceof HTMLElement) ||
+      !(titoloMese instanceof HTMLElement) ||
+      !(griglia instanceof HTMLElement) ||
+      !(titoloGiorno instanceof HTMLElement) ||
+      !(orari instanceof HTMLElement) ||
+      !(popup instanceof HTMLDialogElement) ||
+      !(form instanceof HTMLFormElement) ||
+      !(esito instanceof HTMLElement) ||
+      !(titoloPopup instanceof HTMLElement) ||
+      !(pannelloOrari instanceof HTMLElement) ||
+      prima === null ||
+      dopo === null
+    ) {
+      return;
+    }
+
+    const campi = form.querySelector<HTMLElement>('[data-campi]');
+    const fine = form.querySelector<HTMLButtonElement>('[data-fine]');
     const invia = form.querySelector<HTMLButtonElement>('[data-invia]');
-    const etichetta = form.querySelector<HTMLSpanElement>('[data-etichetta]');
-    const fuso = 'Europe/Rome';
+    const etichetta = form.querySelector<HTMLElement>('[data-etichetta]');
+    const campoInizio = form.querySelector<HTMLInputElement>('[data-inizio]');
+    const campoNome = form.querySelector<HTMLInputElement>('#nome');
 
+    if (
+      campi === null ||
+      fine === null ||
+      invia === null ||
+      etichetta === null ||
+      campoInizio === null ||
+      campoNome === null
+    ) {
+      return;
+    }
+
+    const fuso = 'Europe/Rome';
+    const meseAnno = new Intl.DateTimeFormat('it-IT', { timeZone: fuso, month: 'long', year: 'numeric' });
     const giornoLungo = new Intl.DateTimeFormat('it-IT', {
       timeZone: fuso,
       weekday: 'long',
       day: 'numeric',
       month: 'long',
     });
-    const ora = new Intl.DateTimeFormat('it-IT', { timeZone: fuso, hour: '2-digit', minute: '2-digit' });
+    const oraBreve = new Intl.DateTimeFormat('it-IT', { timeZone: fuso, hour: '2-digit', minute: '2-digit' });
 
-    const maiuscola = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+    const maiuscola = (valore: string): string => valore.charAt(0).toUpperCase() + valore.slice(1);
+    const mezzogiorno = (giorno: string): Date => new Date(`${giorno}T12:00:00Z`);
+    const nomeGiorno = (giorno: string): string => maiuscola(giornoLungo.format(mezzogiorno(giorno)));
 
-    const mostraEsito = (testo: string, tono: 'ok' | 'ko') => {
-      esito.className = `m-0 rounded-md px-fluid-3 py-fluid-3 text-base font-medium ${
+    let giorni: Giorno[] = [];
+    let mesi: string[] = [];
+    let meseVisibile = 0;
+    let giornoScelto: string | null = null;
+    let prenotato = false;
+
+    titoloGiorno.tabIndex = -1;
+
+    const slotsDi = (giorno: string): Slot[] => giorni.find((voce) => voce.date === giorno)?.slots ?? [];
+
+    const muoviFocus = (bottone: HTMLButtonElement, senzaScorrimento = false): void => {
+      for (const altro of griglia.querySelectorAll<HTMLButtonElement>('button[data-giorno]')) {
+        altro.tabIndex = altro === bottone ? 0 : -1;
+      }
+      bottone.focus({ preventScroll: senzaScorrimento });
+    };
+
+    const disegnaMese = (): void => {
+      const chiave = mesi[meseVisibile];
+      if (chiave === undefined) return;
+
+      titoloMese.textContent = maiuscola(meseAnno.format(mezzogiorno(`${chiave}-01`)));
+      prima.disabled = meseVisibile === 0;
+      dopo.disabled = meseVisibile >= mesi.length - 1;
+
+      const vista = buildMonth(chiave, giorni.map((voce) => voce.date));
+      const righe = vista.weeks.map((settimana) => {
+        const riga = document.createElement('tr');
+        for (const cella of settimana) {
+          const casella = document.createElement('td');
+          casella.className = 'p-0';
+          if (cella.date === null) {
+            riga.append(casella);
+            continue;
+          }
+
+          const bottone = document.createElement('button');
+          const quanti = slotsDi(cella.date).length;
+          const scelto = cella.date === giornoScelto;
+          bottone.type = 'button';
+          bottone.dataset.giorno = cella.date;
+          bottone.textContent = String(Number.parseInt(cella.date.slice(8), 10));
+          bottone.className = `${CELLA_BASE} ${scelto ? CELLA_SCELTA : cella.available ? CELLA_LIBERA : CELLA_PIENA}`;
+          bottone.tabIndex = scelto ? 0 : -1;
+          bottone.setAttribute(
+            'aria-label',
+            quanti === 0
+              ? `${nomeGiorno(cella.date)}: nessun orario libero`
+              : `${nomeGiorno(cella.date)}: ${quanti === 1 ? '1 orario libero' : `${quanti} orari liberi`}`,
+          );
+          if (!cella.available) bottone.setAttribute('aria-disabled', 'true');
+          if (scelto) bottone.setAttribute('aria-current', 'date');
+          casella.append(bottone);
+          riga.append(casella);
+        }
+        return riga;
+      });
+
+      griglia.replaceChildren(...righe);
+
+      const bottoni = [...griglia.querySelectorAll<HTMLButtonElement>('button[data-giorno]')];
+      if (!bottoni.some((bottone) => bottone.tabIndex === 0)) {
+        const libero = bottoni.find((bottone) => bottone.getAttribute('aria-disabled') === null);
+        const ripiego = libero ?? bottoni.at(0);
+        if (ripiego !== undefined) ripiego.tabIndex = 0;
+      }
+    };
+
+    const disegnaOrari = (): void => {
+      if (giornoScelto === null) {
+        titoloGiorno.textContent = 'Scegli prima un giorno';
+        orari.replaceChildren();
+        return;
+      }
+
+      titoloGiorno.textContent = nomeGiorno(giornoScelto);
+      const elenco = slotsDi(giornoScelto);
+      if (elenco.length === 0) {
+        const avviso = document.createElement('p');
+        avviso.className = 'col-span-full text-base text-muted m-0';
+        avviso.textContent = 'In questo giorno non ho più orari liberi.';
+        orari.replaceChildren(avviso);
+        return;
+      }
+
+      const bottoni = elenco.map((slot) => {
+        const inizio = new Date(slot.start);
+        const bottone = document.createElement('button');
+        bottone.type = 'button';
+        bottone.dataset.inizio = slot.start;
+        bottone.className = ORARIO;
+        bottone.textContent = oraBreve.format(inizio);
+        bottone.setAttribute(
+          'aria-label',
+          `Prenota ${nomeGiorno(slot.start.slice(0, 10))} alle ${oraBreve.format(inizio)}`,
+        );
+        return bottone;
+      });
+      orari.replaceChildren(...bottoni);
+    };
+
+    const scegliGiorno = (giorno: string, conFocus: boolean): void => {
+      giornoScelto = giorno;
+      disegnaMese();
+      disegnaOrari();
+      if (!conFocus) return;
+      const riquadro = pannelloOrari.getBoundingClientRect();
+      const daScorrere = riquadro.top < 0 || riquadro.bottom > window.innerHeight;
+      if (daScorrere) {
+        const fermo = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        prenotazione.scrollIntoView({ block: 'start', behavior: fermo ? 'auto' : 'smooth' });
+      }
+      const bottone = griglia.querySelector<HTMLButtonElement>(`button[data-giorno="${giorno}"]`);
+      if (bottone !== null) muoviFocus(bottone, daScorrere);
+    };
+
+    const cambiaMese = (passo: number, verso: 'inizio' | 'fine' | null): void => {
+      const prossimo = meseVisibile + passo;
+      if (prossimo < 0 || prossimo >= mesi.length) return;
+      meseVisibile = prossimo;
+      disegnaMese();
+      if (verso === null) return;
+      const bottoni = [...griglia.querySelectorAll<HTMLButtonElement>('button[data-giorno]')];
+      const destinazione = verso === 'inizio' ? bottoni.at(0) : bottoni.at(-1);
+      if (destinazione !== undefined) muoviFocus(destinazione);
+    };
+
+    const apriPopup = (inizio: string): void => {
+      const quando = new Date(inizio);
+      campoInizio.value = inizio;
+      titoloPopup.textContent = `${nomeGiorno(inizio.slice(0, 10))}, ore ${oraBreve.format(quando)}`;
+      prenotato = false;
+      esito.hidden = true;
+      campi.hidden = false;
+      fine.hidden = true;
+      document.documentElement.classList.add('overflow-hidden');
+      popup.showModal();
+      campoNome.focus();
+    };
+
+    const mostraEsito = (testo: string, tono: 'ok' | 'ko'): void => {
+      esito.className = `m-0 mt-fluid-4 rounded-md px-fluid-3 py-fluid-3 text-base font-medium ${
         tono === 'ok' ? 'bg-yellow text-blue' : 'bg-pink text-blue'
       }`;
       esito.textContent = testo;
       esito.hidden = false;
     };
 
-    const aggiornaRiepilogo = () => {
-      const scelto = form.querySelector<HTMLInputElement>('input[name="inizio"]:checked');
-      if (scelto === null) {
-        riepilogo.hidden = true;
-        return;
-      }
-      const inizio = new Date(scelto.value);
-      riepilogo.textContent = `Hai scelto ${giornoLungo.format(inizio)}, ore ${ora.format(inizio)}.`;
-      riepilogo.hidden = false;
-    };
-
-    const disegna = (giorni: Giorno[]) => {
-      elenco.replaceChildren();
-      for (const giorno of giorni) {
-        const primo = giorno.slots.at(0);
-        if (primo === undefined) continue;
-        const blocco = document.createElement('div');
-        const titolo = document.createElement('h2');
-        titolo.className = 'font-sans text-lg font-bold text-blue mb-fluid-3';
-        titolo.textContent = maiuscola(giornoLungo.format(new Date(primo.start)));
-
-        const griglia = document.createElement('div');
-        griglia.className = 'flex flex-wrap gap-fluid-2';
-
-        for (const slot of giorno.slots) {
-          const etichettaOra = ora.format(new Date(slot.start));
-          const label = document.createElement('label');
-          label.className = 'relative';
-          const input = document.createElement('input');
-          input.type = 'radio';
-          input.name = 'inizio';
-          input.value = slot.start;
-          input.className = 'peer sr-only';
-          const testo = document.createElement('span');
-          testo.className =
-            'flex min-h-11 min-w-[5.5rem] items-center justify-center rounded-md border-2 border-fg bg-bg px-fluid-3 font-sans text-base font-semibold text-fg cursor-pointer transition-[border-color,box-shadow] duration-150 hover:border-blue hover:shadow-[0.2rem_0.2rem_0_var(--color-blue)] peer-checked:bg-blue peer-checked:border-blue peer-checked:text-yellow peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue';
-          testo.textContent = etichettaOra;
-          label.append(input, testo);
-          griglia.append(label);
-        }
-
-        blocco.append(titolo, griglia);
-        elenco.append(blocco);
-      }
-    };
-
-    const carica = async () => {
+    const carica = async (): Promise<void> => {
       try {
         const risposta = await fetch('/api/appuntamenti/slots');
         const dati: RispostaSlot = await risposta.json();
-        if (dati.stato !== 'ok' || !Array.isArray(dati.giorni) || dati.giorni.length === 0) {
+        const elenco = Array.isArray(dati.giorni) ? dati.giorni.filter((voce) => voce.slots.length > 0) : [];
+        if (dati.stato !== 'ok' || elenco.length === 0) {
           stato.hidden = true;
+          prenotazione.hidden = true;
           vuoto.hidden = false;
           return;
         }
+
+        giorni = elenco;
+        mesi = monthKeys(giorni.map((voce) => voce.date));
+        const confermato = giornoScelto !== null && giorni.some((voce) => voce.date === giornoScelto);
+        giornoScelto = confermato ? giornoScelto : (giorni.at(0)?.date ?? null);
+        meseVisibile = Math.max(0, mesi.indexOf((giornoScelto ?? '').slice(0, 7)));
+
         stato.hidden = true;
-        disegna(dati.giorni);
+        vuoto.hidden = true;
+        prenotazione.hidden = false;
+        disegnaMese();
+        disegnaOrari();
       } catch {
         stato.hidden = true;
+        prenotazione.hidden = true;
         vuoto.hidden = false;
       }
     };
+
+    griglia.addEventListener('click', (evento) => {
+      const bersaglio = evento.target;
+      if (!(bersaglio instanceof HTMLElement)) return;
+      const bottone = bersaglio.closest<HTMLButtonElement>('button[data-giorno]');
+      if (bottone === null || bottone.getAttribute('aria-disabled') === 'true') return;
+      const giorno = bottone.dataset.giorno;
+      if (giorno !== undefined) scegliGiorno(giorno, true);
+    });
+
+    griglia.addEventListener('keydown', (evento) => {
+      const attivo = document.activeElement;
+      if (!(attivo instanceof HTMLButtonElement) || attivo.dataset.giorno === undefined) return;
+      const bottoni = [...griglia.querySelectorAll<HTMLButtonElement>('button[data-giorno]')];
+      const indice = bottoni.indexOf(attivo);
+      const salti: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 7, ArrowUp: -7 };
+      const salto = salti[evento.key];
+
+      if (salto !== undefined) {
+        evento.preventDefault();
+        const destinazione = bottoni[indice + salto];
+        if (destinazione !== undefined) muoviFocus(destinazione);
+        else cambiaMese(salto > 0 ? 1 : -1, salto > 0 ? 'inizio' : 'fine');
+        return;
+      }
+
+      if (evento.key === 'Home' || evento.key === 'End') {
+        evento.preventDefault();
+        const destinazione = evento.key === 'Home' ? bottoni.at(0) : bottoni.at(-1);
+        if (destinazione !== undefined) muoviFocus(destinazione);
+        return;
+      }
+
+      if (evento.key === 'PageUp' || evento.key === 'PageDown') {
+        evento.preventDefault();
+        cambiaMese(evento.key === 'PageUp' ? -1 : 1, 'inizio');
+      }
+    });
+
+    orari.addEventListener('click', (evento) => {
+      const bersaglio = evento.target;
+      if (!(bersaglio instanceof HTMLElement)) return;
+      const bottone = bersaglio.closest<HTMLButtonElement>('button[data-inizio]');
+      const inizio = bottone?.dataset.inizio;
+      if (inizio !== undefined) apriPopup(inizio);
+    });
+
+    prima.addEventListener('click', () => {
+      cambiaMese(-1, null);
+      if (prima.disabled) dopo.focus();
+    });
+    dopo.addEventListener('click', () => {
+      cambiaMese(1, null);
+      if (dopo.disabled) prima.focus();
+    });
+
+    popup.addEventListener('click', (evento) => {
+      const bersaglio = evento.target;
+      if (bersaglio === popup) {
+        popup.close();
+        return;
+      }
+      if (bersaglio instanceof HTMLElement && bersaglio.closest('[data-chiudi]') !== null) popup.close();
+    });
+
+    popup.addEventListener('close', () => {
+      document.documentElement.classList.remove('overflow-hidden');
+      if (!prenotato) return;
+      form.reset();
+      void carica().then(() => titoloGiorno.focus());
+    });
 
     form.addEventListener('submit', async (evento) => {
       evento.preventDefault();
       const dati = new FormData(form);
       const inizio = dati.get('inizio');
       if (typeof inizio !== 'string' || inizio === '') {
-        mostraEsito('Scegli prima un orario qui a fianco.', 'ko');
-        elenco.querySelector('input')?.focus();
+        mostraEsito('Scegli prima un orario.', 'ko');
         return;
       }
 
-      if (invia === null || etichetta === null) return;
       invia.disabled = true;
       invia.setAttribute('aria-busy', 'true');
       const originale = etichetta.textContent ?? 'Manda la richiesta';
@@ -294,16 +603,20 @@ const campoClass =
           await risposta.json();
 
         if (risposta.ok && corpo.ok === true) {
-          form.reset();
-          riepilogo.hidden = true;
+          prenotato = true;
+          campi.hidden = true;
+          fine.hidden = false;
           mostraEsito(
             `Richiesta ricevuta per ${corpo.quando ?? "l'orario scelto"}. Ti confermo per email, di solito in giornata.`,
             'ok',
           );
-          await carica();
+          fine.focus();
         } else {
           mostraEsito(corpo.errore ?? 'Qualcosa non ha funzionato. Riprova fra poco.', 'ko');
-          if (corpo.scaduto === true) await carica();
+          if (corpo.scaduto === true) {
+            prenotato = true;
+            popup.close();
+          }
         }
       } catch {
         mostraEsito('Non sono riuscito a mandare la richiesta. Controlla la connessione e riprova.', 'ko');
@@ -314,7 +627,8 @@ const campoClass =
       }
     });
 
-    elenco.addEventListener('change', aggiornaRiepilogo);
     void carica();
   }
+
+  avvia();
 </script>
