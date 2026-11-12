@@ -26,7 +26,7 @@ function base64UrlDecode(value: string): Uint8Array {
   return Uint8Array.from(binary, (character) => character.charCodeAt(0));
 }
 
-function constantTimeEquals(left: string, right: string): boolean {
+export function constantTimeEquals(left: string, right: string): boolean {
   const leftBytes = encoder.encode(left);
   const rightBytes = encoder.encode(right);
   const length = Math.max(leftBytes.length, rightBytes.length);
