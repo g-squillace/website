@@ -87,9 +87,10 @@ user_id`, come le altre tabelle.
 
 [sql/prospect-semina.sql](sql/prospect-semina.sql) carica i 18 contatti già
 analizzati nella zona di Siena. **Prima di eseguirlo** sostituisci
-`INDIRIZZO-DEL-TUO-ACCOUNT-SUPABASE` con il valore di `SUPABASE_EMAIL`: la
-query lo usa per risolvere `user_id`, perché nel SQL editor `auth.uid()` è
-nullo. È idempotente (`on conflict (user_id, dominio) do nothing`).
+`INCOLLA-QUI-LO-UID` con l'UID dell'utente, che sta nella dashboard Supabase in
+Authentication → Users. Serve perché nel SQL editor `auth.uid()` è nullo: le
+query lì girano come `postgres`, non come utente autenticato. È idempotente
+(`on conflict (user_id, dominio) do nothing`).
 
 ## Ore di assistenza verso i cruscotti dei clienti
 

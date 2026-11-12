@@ -28,5 +28,5 @@ from (values
   azienda, dominio, citta, email, url_modulo, stato, punteggio, tornata,
   https, wordpress, php, anni_fermo, peso_mb, peso_dopo_mb, ttfb_ms, caricamento_s
 )
-cross join (select id from auth.users where email = 'INDIRIZZO-DEL-TUO-ACCOUNT-SUPABASE' limit 1) as utente
+cross join (select 'INCOLLA-QUI-LO-UID'::uuid as id) as utente
 on conflict (user_id, dominio) do nothing;
