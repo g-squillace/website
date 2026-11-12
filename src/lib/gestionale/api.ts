@@ -10,6 +10,7 @@ import {
 } from './supabase';
 import {
   toProgettoStato,
+  toProspectStato,
   type Cliente,
   type ClienteInput,
   type Ora,
@@ -18,6 +19,9 @@ import {
   type PeriodoInput,
   type Progetto,
   type ProgettoInput,
+  type Prospect,
+  type ProspectInput,
+  type ProspectStato,
   type Scadenza,
   type ScadenzaInput,
 } from './types';
@@ -263,4 +267,158 @@ export async function updateScadenza(id: string, input: ScadenzaInput): Promise<
 
 export async function deleteScadenza(id: string): Promise<void> {
   await query('scadenze', { method: 'DELETE', query: { id: `eq.${id}` } });
+}
+
+function toProspect(row: Record<string, unknown>): Prospect | null {
+  const id = text(row.id);
+  const azienda = text(row.azienda);
+  const dominio = text(row.dominio);
+  if (id === null || azienda === null || dominio === null) return null;
+  return {
+    id,
+    azienda,
+    dominio,
+    citta: text(row.citta),
+    email: text(row.email),
+    urlModulo: text(row.url_modulo),
+    stato: toProspectStato(row.stato),
+    punteggio: amount(row.punteggio),
+    tornata: optionalAmount(row.tornata),
+    contattatoIl: text(row.contattato_il),
+    followUpIl: text(row.follow_up_il),
+    rispostoIl: text(row.risposto_il),
+    nota: text(row.nota),
+    https: flag(row.https),
+    wordpress: text(row.wordpress),
+    php: text(row.php),
+    anniFermo: optionalAmount(row.anni_fermo),
+    pesoMb: optionalAmount(row.peso_mb),
+    pesoDopoMb: optionalAmount(row.peso_dopo_mb),
+    ttfbMs: optionalAmount(row.ttfb_ms),
+    caricamentoS: optionalAmount(row.caricamento_s),
+  };
+}
+
+function prospectBody(input: ProspectInput): Record<string, unknown> {
+  return {
+    azienda: input.azienda,
+    dominio: input.dominio,
+    citta: input.citta,
+    email: input.email,
+    url_modulo: input.urlModulo,
+    punteggio: input.punteggio,
+    https: input.https,
+    wordpress: input.wordpress,
+    php: input.php,
+    anni_fermo: input.anniFermo,
+    peso_mb: input.pesoMb,
+    peso_dopo_mb: input.pesoDopoMb,
+    ttfb_ms: input.ttfbMs,
+    caricamento_s: input.caricamentoS,
+  };
+}
+
+export async function fetchProspect(): Promise<Prospect[]> {
+  return collect(
+    await query('prospect', { query: { select: '*', order: 'punteggio.desc,azienda.asc' } }),
+    toProspect,
+  );
+}
+
+export async function createProspect(input: ProspectInput): Promise<void> {
+  await query('prospect', {
+    method: 'POST',
+    body: { ...prospectBody(input), stato: 'segnalato', user_id: await currentUserId() },
+  });
+}
+
+export async function updateProspect(id: string, input: ProspectInput): Promise<void> {
+  await query('prospect', {
+    method: 'PATCH',
+    query: { id: `eq.${id}` },
+    body: { ...prospectBody(input), updated_at: now() },
+  });
+}
+
+export async function deleteProspect(id: string): Promise<void> {
+  await query('prospect', { method: 'DELETE', query: { id: `eq.${id}` } });
+}
+
+async function patchProspect(id: string, body: Record<string, unknown>): Promise<void> {
+  await query('prospect', {
+    method: 'PATCH',
+    query: { id: `eq.${id}` },
+    body: { ...body, updated_at: now() },
+  });
+}
+
+export async function accettaProspect(id: string, tornata: number): Promise<void> {
+  await patchProspect(id, { stato: 'da_contattare', tornata });
+}
+
+export async function scartaProspect(id: string, nota: string | null): Promise<void> {
+  await patchProspect(id, { stato: 'chiuso', nota });
+}
+
+export async function segnaContattato(id: string, data: string): Promise<void> {
+  await patchProspect(id, { stato: 'contattato', contattato_il: data });
+}
+
+export async function segnaFollowUp(id: string, data: string): Promise<void> {
+  await patchProspect(id, { stato: 'follow_up', follow_up_il: data });
+}
+
+export async function segnaRisposta(id: string, data: string, nota: string | null): Promise<void> {
+  await patchProspect(id, { stato: 'risposto', risposto_il: data, nota });
+}
+
+export async function segnaStallo(id: string): Promise<void> {
+  await patchProspect(id, { stato: 'stallo' });
+}
+
+export async function cambiaStatoProspect(id: string, stato: ProspectStato): Promise<void> {
+  await patchProspect(id, { stato });
+}
+
+export async function aggiornaNota(id: string, nota: string | null): Promise<void> {
+  await patchProspect(id, { nota });
+}
+
+async function ultimaTornata(): Promise<number | null> {
+  const payload = await query('prospect', {
+    query: { select: 'tornata', tornata: 'not.is.null', order: 'tornata.desc', limit: '1' },
+  });
+  const row = firstRow(payload);
+  return row === null ? null : optionalAmount(row.tornata);
+}
+
+export async function tornataDaUsare(apriNuova: boolean): Promise<number> {
+  const ultima = await ultimaTornata();
+  if (ultima === null) return 1;
+  if (apriNuova) return ultima + 1;
+  return ultima;
+}
+
+export async function creaLavoroDaProspect(prospect: Prospect): Promise<void> {
+  const userId = await currentUserId();
+  const clientePayload = await query('clienti', {
+    method: 'POST',
+    expectRows: true,
+    body: { nome: prospect.azienda, email: prospect.email, telefono: null, user_id: userId },
+  });
+  const clienteRow = firstRow(clientePayload);
+  const clienteId = clienteRow === null ? null : text(clienteRow.id);
+  await query('progetti', {
+    method: 'POST',
+    body: {
+      cliente_id: clienteId,
+      nome: `Conversione statica ${prospect.dominio}`,
+      tipo_lavoro: 'Conversione WordPress in pagine statiche',
+      preventivo: 200,
+      stato: 'lead',
+      assistenza_attiva: false,
+      user_id: userId,
+    },
+  });
+  await patchProspect(prospect.id, { stato: 'chiuso' });
 }

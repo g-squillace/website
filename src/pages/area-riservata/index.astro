@@ -14,7 +14,7 @@ const cards: ReadonlyArray<{
   title: string;
   description: string;
   background: string;
-  icon: 'gestionale' | 'cruscotto';
+  icon: 'gestionale' | 'cruscotto' | 'prospect';
 }> = [
   {
     href: PRIVATE_AREA.gestionalePath,
@@ -22,6 +22,13 @@ const cards: ReadonlyArray<{
     description: 'Clienti, progetti, periodi di assistenza, ore e scadenze.',
     background: 'bg-yellow',
     icon: 'gestionale',
+  },
+  {
+    href: PRIVATE_AREA.prospectPath,
+    title: 'Prospect',
+    description: 'Chi contattare, a che punto è ogni contatto, cosa ha risposto.',
+    background: 'bg-pink',
+    icon: 'prospect',
   },
   {
     href: PRIVATE_AREA.reportPath,
@@ -52,7 +59,7 @@ const cards: ReadonlyArray<{
                 class="inline-flex h-14 w-14 items-center justify-center rounded-md border-2 border-fg bg-bg transition-soft group-hover:-rotate-6 motion-reduce:transform-none"
                 aria-hidden="true"
               >
-                {card.icon === 'gestionale' ? (
+                {card.icon === 'gestionale' && (
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -67,7 +74,25 @@ const cards: ReadonlyArray<{
                     <path d="M2.5 11.5h19" />
                     <path d="M10 11.5V14h4v-2.5" />
                   </svg>
-                ) : (
+                )}
+                {card.icon === 'prospect' && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-7 w-7"
+                  >
+                    <path d="M4 5h16" />
+                    <path d="M4 12h10" />
+                    <path d="M4 19h6" />
+                    <circle cx="18" cy="17" r="3.5" />
+                    <path d="M20.6 19.6L22.5 21.5" />
+                  </svg>
+                )}
+                {card.icon === 'cruscotto' && (
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"

@@ -1,7 +1,8 @@
 # Area riservata
 
 Una sola porta d'ingresso per gli strumenti privati del sito: `/area-riservata`.
-Da lì si arriva al **gestionale** (clienti, progetti, ore, scadenze) e al
+Da lì si arriva al **gestionale** (clienti, progetti, ore, scadenze), ai
+**prospect** (chi contattare e a che punto è ogni contatto) e al
 **cruscotto settimanale** (`/report`, documentato in
 [cruscotto-settimanale.md](cruscotto-settimanale.md)).
 
@@ -31,6 +32,7 @@ Rotte (tutte `prerender = false`):
 /area-riservata/gestionale/progetti        elenco progetti
 /area-riservata/gestionale/progetti/[id]   scadenze, periodi di assistenza, ore
 /area-riservata/gestionale/clienti         anagrafica clienti
+/area-riservata/gestionale/prospect        contatti da lavorare
 ```
 
 Le pagine leggono e scrivono su Supabase **lato server**. Ogni modifica è una
@@ -47,6 +49,47 @@ fuga delle variabili d'ambiente espone solo le righe di questo account.
 Il report PDF delle ore (`jspdf` + `jspdf-autotable`) è l'unica parte
 client-side: i dati del periodo stanno in un `<script type="application/json">`
 e la libreria viene importata dinamicamente al click, così non pesa sul caricamento.
+
+## Prospect
+
+`/area-riservata/gestionale/prospect` tiene la lista delle attività da
+contattare per il servizio di conversione WordPress → statico, lo stato di
+ognuna e cosa hanno risposto.
+
+**Stati**: `segnalato` → `da_contattare` → `contattato` → `follow_up` →
+`risposto` | `stallo` | `chiuso`. Il vincolo `check` sulla colonna `stato`
+rifiuta qualsiasi altro valore.
+
+**Tornate.** «Prendi i prossimi 5» sposta i cinque `segnalato` col punteggio
+più alto in `da_contattare` e assegna loro lo stesso numero di tornata.
+Accettare un singolo contatto lo aggiunge alla tornata aperta, non ne apre una
+nuova.
+
+**Follow-up.** Dodici giorni dopo la data in `contattato_il`, un contatto
+ancora in stato `contattato` compare nel riquadro «Follow-up da mandare».
+Il conteggio sta in `scadenzaFollowUp` in `src/lib/gestionale/types.ts`.
+
+**Bozze email.** `src/lib/gestionale/prospectEmail.ts` costruisce prima email e
+follow-up dai dati misurati della riga: sceglie i **tre** fatti più forti fra
+HTTPS mancante, PHP fuori supporto, WordPress vecchio, tempo di risposta,
+caricamento e peso, e li ordina per peso. Le tabelle `USCITA_WORDPRESS` e
+`FINE_SUPPORTO_PHP` vanno aggiornate quando escono versioni nuove, altrimenti
+le email citano anni sbagliati. Sono **bozze**: vanno rilette prima di mandarle.
+
+**Diventa lavoro** crea il cliente con nome ed email del prospect, un progetto
+in stato `lead` da 200 €, e chiude il prospect.
+
+### Tabella
+
+Lo schema sta in [sql/prospect.sql](sql/prospect.sql): va eseguito una volta
+nel SQL editor di Supabase. RLS attiva con quattro policy su `auth.uid() =
+user_id`, come le altre tabelle.
+
+[sql/prospect-semina.sql](sql/prospect-semina.sql) carica i 18 contatti già
+analizzati nella zona di Siena. **Prima di eseguirlo** sostituisci
+`INDIRIZZO-DEL-TUO-ACCOUNT-SUPABASE` con il valore di `SUPABASE_EMAIL`: la
+query lo usa per risolvere `user_id`, perché nel SQL editor `auth.uid()` è
+nullo. È idempotente (`on conflict (user_id, dominio) do nothing`).
 
 ## Ore di assistenza verso i cruscotti dei clienti
 

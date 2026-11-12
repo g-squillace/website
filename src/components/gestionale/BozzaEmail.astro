@@ -1,0 +1,45 @@
+---
+import type { BozzaEmail } from '../../lib/gestionale/prospectEmail';
+
+interface Props {
+  id: string;
+  titolo: string;
+  bozza: BozzaEmail;
+}
+
+const { id, titolo, bozza } = Astro.props;
+
+const copiaButton =
+  'inline-flex min-h-11 items-center justify-center self-start rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg';
+---
+
+<section class="flex flex-col gap-fluid-3">
+  <h3 class="font-sans text-sm font-bold uppercase tracking-[0.1em] text-muted">{titolo}</h3>
+
+  <div class="flex flex-col gap-fluid-1">
+    <label for={`${id}-oggetto`} class="text-sm font-semibold">Oggetto</label>
+    <textarea
+      id={`${id}-oggetto`}
+      rows="2"
+      class="w-full rounded-md border-2 border-fg bg-surface px-fluid-3 py-fluid-2 text-sm">{bozza.oggetto}</textarea>
+    <div class="flex flex-wrap items-center gap-fluid-2">
+      <button type="button" data-copia={`${id}-oggetto`} class={copiaButton}>Copia oggetto</button>
+      <span id={`${id}-oggetto-esito`} role="status" class="text-xs font-semibold text-muted"></span>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-fluid-1">
+    <label for={`${id}-corpo`} class="text-sm font-semibold">Testo</label>
+    <textarea
+      id={`${id}-corpo`}
+      rows="14"
+      class="w-full rounded-md border-2 border-fg bg-surface px-fluid-3 py-fluid-2 text-sm leading-relaxed">{bozza.corpo}</textarea>
+    <p class="text-xs text-muted">
+      È una bozza costruita dai dati misurati: rileggila e tagliala prima di mandarla.
+    </p>
+    <div class="flex flex-wrap items-center gap-fluid-2">
+      <button type="button" data-copia={`${id}-corpo`} class={copiaButton}>Copia testo</button>
+      <span id={`${id}-corpo-esito`} role="status" class="text-xs font-semibold text-muted"></span>
+    </div>
+  </div>
+</section>

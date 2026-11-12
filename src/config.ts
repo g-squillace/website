@@ -42,6 +42,7 @@ export const PRIVATE_AREA = {
   path: '/area-riservata',
   loginPath: '/area-riservata/accesso',
   gestionalePath: '/area-riservata/gestionale/progetti',
+  prospectPath: '/area-riservata/gestionale/prospect',
   reportPath: '/report',
 } as const;
 

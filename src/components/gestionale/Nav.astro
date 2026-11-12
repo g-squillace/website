@@ -2,14 +2,19 @@
 import { PRIVATE_AREA } from '../../config';
 
 interface Props {
-  current: 'progetti' | 'clienti';
+  current: 'progetti' | 'clienti' | 'prospect';
 }
 
 const { current } = Astro.props;
 
-const links: ReadonlyArray<{ href: string; label: string; key: 'progetti' | 'clienti' }> = [
+const links: ReadonlyArray<{
+  href: string;
+  label: string;
+  key: 'progetti' | 'clienti' | 'prospect';
+}> = [
   { href: `${PRIVATE_AREA.path}/gestionale/progetti`, label: 'Progetti', key: 'progetti' },
   { href: `${PRIVATE_AREA.path}/gestionale/clienti`, label: 'Clienti', key: 'clienti' },
+  { href: PRIVATE_AREA.prospectPath, label: 'Prospect', key: 'prospect' },
 ];
 
 const base =

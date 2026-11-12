@@ -1,0 +1,25 @@
+---
+import { prospectStatoLabel, type ProspectStato } from '../../lib/gestionale/types';
+
+interface Props {
+  stato: ProspectStato;
+}
+
+const { stato } = Astro.props;
+
+const styles: Record<ProspectStato, string> = {
+  segnalato: 'bg-bg text-muted border-border',
+  da_contattare: 'bg-beige text-fg border-fg',
+  contattato: 'bg-yellow text-fg border-fg',
+  follow_up: 'bg-pink text-fg border-fg',
+  risposto: 'bg-blue text-yellow border-fg',
+  stallo: 'bg-surface text-fg border-border',
+  chiuso: 'bg-bg text-muted border-border',
+};
+---
+
+<span
+  class={`inline-flex items-center whitespace-nowrap rounded-full border-2 px-fluid-2 py-[0.15rem] text-xs font-semibold ${styles[stato]}`}
+>
+  {prospectStatoLabel(stato)}
+</span>

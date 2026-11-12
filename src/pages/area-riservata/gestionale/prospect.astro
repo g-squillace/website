@@ -1,0 +1,534 @@
+---
+export const prerender = false;
+
+import PrivateLayout from '../../../layouts/PrivateLayout.astro';
+import Alert from '../../../components/gestionale/Alert.astro';
+import BozzaEmail from '../../../components/gestionale/BozzaEmail.astro';
+import CopiaController from '../../../components/gestionale/CopiaController.astro';
+import Dialog from '../../../components/gestionale/Dialog.astro';
+import DialogController from '../../../components/gestionale/DialogController.astro';
+import Field from '../../../components/gestionale/Field.astro';
+import Nav from '../../../components/gestionale/Nav.astro';
+import ProspectBadge from '../../../components/gestionale/ProspectBadge.astro';
+import { PRIVATE_AREA } from '../../../config';
+import { isAuthenticated, loginPath } from '../../../lib/report/auth';
+import {
+  accettaProspect,
+  aggiornaNota,
+  creaLavoroDaProspect,
+  createProspect,
+  deleteProspect,
+  fetchProspect,
+  tornataDaUsare,
+  scartaProspect,
+  segnaContattato,
+  segnaFollowUp,
+  segnaRisposta,
+  segnaStallo,
+  updateProspect,
+} from '../../../lib/gestionale/api';
+import { errorMessage, missingSupabaseVars } from '../../../lib/gestionale/supabase';
+import {
+  checkboxField,
+  field,
+  formatData,
+  numberField,
+  oggi,
+  optionalField,
+} from '../../../lib/gestionale/format';
+import { followUpEmail, primaEmail } from '../../../lib/gestionale/prospectEmail';
+import {
+  canaleProspect,
+  followUpDovuto,
+  scadenzaFollowUp,
+  STATI_PROSPECT,
+  type Prospect,
+  type ProspectInput,
+} from '../../../lib/gestionale/types';
+
+if (!(await isAuthenticated(Astro.cookies))) {
+  return Astro.redirect(loginPath(Astro.url), 302);
+}
+
+const self = `${PRIVATE_AREA.path}/gestionale/prospect`;
+const QUANTI_PER_TORNATA = 5;
+
+const back = (message: string | null): Response =>
+  Astro.redirect(message === null ? self : `${self}?errore=${encodeURIComponent(message)}`, 303);
+
+const readInput = (form: FormData): ProspectInput => ({
+  azienda: field(form, 'azienda'),
+  dominio: field(form, 'dominio'),
+  citta: optionalField(form, 'citta'),
+  email: optionalField(form, 'email'),
+  urlModulo: optionalField(form, 'urlModulo'),
+  punteggio: numberField(form, 'punteggio') ?? 0,
+  https: checkboxField(form, 'https'),
+  wordpress: optionalField(form, 'wordpress'),
+  php: optionalField(form, 'php'),
+  anniFermo: numberField(form, 'anniFermo'),
+  pesoMb: numberField(form, 'pesoMb'),
+  pesoDopoMb: numberField(form, 'pesoDopoMb'),
+  ttfbMs: numberField(form, 'ttfbMs'),
+  caricamentoS: numberField(form, 'caricamentoS'),
+});
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const intent = field(form, 'intent');
+  const id = field(form, 'id');
+  try {
+    if (intent === 'create' || intent === 'update') {
+      const input = readInput(form);
+      if (input.azienda.length === 0) return back("Il nome dell'attività è obbligatorio.");
+      if (input.dominio.length === 0) return back('Il dominio è obbligatorio.');
+      if (intent === 'create') await createProspect(input);
+      else if (id.length > 0) await updateProspect(id, input);
+      else return back('Richiesta non riconosciuta.');
+    } else if (intent === 'tornata') {
+      const coda = (await fetchProspect())
+        .filter((prospect) => prospect.stato === 'segnalato')
+        .slice(0, QUANTI_PER_TORNATA);
+      if (coda.length === 0) return back('Non ci sono contatti segnalati da mettere in coda.');
+      const numero = await tornataDaUsare(true);
+      for (const prospect of coda) await accettaProspect(prospect.id, numero);
+    } else if (id.length === 0) {
+      return back('Richiesta non riconosciuta.');
+    } else if (intent === 'accetta') {
+      await accettaProspect(id, await tornataDaUsare(false));
+    } else if (intent === 'scarta') {
+      await scartaProspect(id, optionalField(form, 'nota'));
+    } else if (intent === 'contattato') {
+      await segnaContattato(id, oggi());
+    } else if (intent === 'followup') {
+      await segnaFollowUp(id, oggi());
+    } else if (intent === 'risposta') {
+      await segnaRisposta(id, oggi(), optionalField(form, 'nota'));
+    } else if (intent === 'stallo') {
+      await segnaStallo(id);
+    } else if (intent === 'nota') {
+      await aggiornaNota(id, optionalField(form, 'nota'));
+    } else if (intent === 'vinto') {
+      const tutti = await fetchProspect();
+      const prospect = tutti.find((item) => item.id === id);
+      if (prospect === undefined) return back('Contatto non trovato.');
+      await creaLavoroDaProspect(prospect);
+    } else if (intent === 'delete') {
+      await deleteProspect(id);
+    } else {
+      return back('Richiesta non riconosciuta.');
+    }
+    return back(null);
+  } catch (error) {
+    return back(errorMessage(error, 'Operazione non riuscita.'));
+  }
+}
+
+const missing = missingSupabaseVars();
+
+let prospect: Prospect[] = [];
+let loadError: string | null = null;
+
+if (missing.length === 0) {
+  try {
+    prospect = await fetchProspect();
+  } catch (error) {
+    loadError = errorMessage(error, 'Non riesco a leggere i contatti.');
+  }
+}
+
+const giorno = oggi();
+const filtro = Astro.url.searchParams.get('stato');
+const statoValido = STATI_PROSPECT.some((stato) => stato.value === filtro);
+const elenco = statoValido ? prospect.filter((item) => item.stato === filtro) : prospect;
+
+const daFare = prospect.filter((item) => followUpDovuto(item, giorno));
+const inCoda = prospect.filter((item) => item.stato === 'da_contattare');
+const conBozza = prospect.filter((item) =>
+  ['segnalato', 'da_contattare', 'contattato', 'follow_up'].includes(item.stato),
+);
+
+const contattati = prospect.filter((item) =>
+  ['contattato', 'follow_up', 'risposto', 'stallo'].includes(item.stato),
+).length;
+const risposte = prospect.filter((item) => item.rispostoIl !== null).length;
+const tassoRisposta = contattati === 0 ? null : Math.round((risposte / contattati) * 100);
+const serbatoio = prospect.filter((item) => item.stato === 'segnalato').length;
+
+const actionError = Astro.url.searchParams.get('errore');
+
+const primaryButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-blue px-fluid-4 py-fluid-2 text-sm font-semibold text-yellow transition-soft hover:-translate-y-0.5 motion-reduce:transform-none';
+const quietButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-fg hover:text-bg';
+const dangerButton =
+  'inline-flex min-h-11 items-center justify-center rounded-md border-2 border-orange bg-bg px-fluid-3 py-fluid-2 text-sm font-semibold transition-soft hover:bg-orange hover:text-black';
+const filtroButton =
+  'inline-flex min-h-11 items-center rounded-md border-2 px-fluid-3 text-sm font-semibold transition-soft';
+---
+
+<PrivateLayout title="Prospect" section="gestionale" showLogout>
+  <Nav slot="nav" current="prospect" />
+
+  <div class="page flex flex-col gap-fluid-5 py-fluid-6">
+    <div class="flex flex-wrap items-center justify-between gap-fluid-3">
+      <h1 class="font-display text-4xl">Prospect</h1>
+      <div class="flex flex-wrap gap-fluid-2">
+        <form method="POST">
+          <input type="hidden" name="intent" value="tornata" />
+          <button type="submit" class={quietButton}>Prendi i prossimi {QUANTI_PER_TORNATA}</button>
+        </form>
+        <button type="button" data-dialog-open="prospect-nuovo" class={primaryButton}>
+          Nuovo contatto
+        </button>
+      </div>
+    </div>
+
+    {actionError !== null && <Alert message={actionError} />}
+    {loadError !== null && <Alert message={loadError} />}
+
+    {
+      missing.length > 0 && (
+        <div class="rounded-md border-2 border-fg bg-bg px-fluid-4 py-fluid-3">
+          <p class="font-semibold">Il gestionale non è ancora collegato a Supabase.</p>
+          <ul class="mt-fluid-2 list-disc pl-fluid-4 text-sm">
+            {missing.map((variabile) => (
+              <li>
+                <code class="font-mono">{variabile.name}</code>
+                <span class="text-muted"> — {variabile.presence}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      missing.length === 0 && (
+        <dl class="grid grid-cols-2 gap-fluid-3 lg:grid-cols-4">
+          <div class="rounded-md border-2 border-fg bg-surface px-fluid-3 py-fluid-3">
+            <dt class="text-xs font-semibold uppercase tracking-[0.1em] text-muted">In serbatoio</dt>
+            <dd class="mt-fluid-1 font-display text-3xl">{serbatoio}</dd>
+          </div>
+          <div class="rounded-md border-2 border-fg bg-surface px-fluid-3 py-fluid-3">
+            <dt class="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Contattati</dt>
+            <dd class="mt-fluid-1 font-display text-3xl">{contattati}</dd>
+          </div>
+          <div class="rounded-md border-2 border-fg bg-surface px-fluid-3 py-fluid-3">
+            <dt class="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Risposte</dt>
+            <dd class="mt-fluid-1 font-display text-3xl">{risposte}</dd>
+          </div>
+          <div class="rounded-md border-2 border-fg bg-surface px-fluid-3 py-fluid-3">
+            <dt class="text-xs font-semibold uppercase tracking-[0.1em] text-muted">
+              Tasso di risposta
+            </dt>
+            <dd class="mt-fluid-1 font-display text-3xl">
+              {tassoRisposta === null ? '—' : `${tassoRisposta}%`}
+            </dd>
+          </div>
+        </dl>
+      )
+    }
+
+    {
+      daFare.length > 0 && (
+        <section class="rounded-lg border-2 border-orange bg-bg px-fluid-4 py-fluid-4">
+          <h2 class="font-sans text-lg font-bold">Follow-up da mandare</h2>
+          <p class="mt-fluid-1 text-sm text-muted">
+            Contattati da più di dodici giorni, nessuna risposta. Seconda e ultima email.
+          </p>
+          <ul class="mt-fluid-3 flex list-none flex-col gap-fluid-2 p-0">
+            {daFare.map((item) => (
+              <li class="flex flex-wrap items-center justify-between gap-fluid-2 border-t border-border pt-fluid-2">
+                <span class="font-semibold">
+                  {item.azienda}
+                  <span class="text-muted font-normal"> — scaduto il {formatData(scadenzaFollowUp(item))}</span>
+                </span>
+                <div class="flex flex-wrap gap-fluid-2">
+                  <button type="button" data-dialog-open={`email-${item.id}`} class={quietButton}>
+                    Testo email
+                  </button>
+                  <form method="POST">
+                    <input type="hidden" name="intent" value="followup" />
+                    <input type="hidden" name="id" value={item.id} />
+                    <button type="submit" class={primaryButton}>Mandato</button>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      inCoda.length > 0 && (
+        <section class="rounded-lg border-2 border-fg bg-beige px-fluid-4 py-fluid-4">
+          <h2 class="font-sans text-lg font-bold">In coda, da scrivere</h2>
+          <p class="mt-fluid-1 text-sm">
+            Li hai accettati ma la prima email non è ancora partita.
+          </p>
+          <ul class="mt-fluid-3 flex list-none flex-col gap-fluid-2 p-0">
+            {inCoda.map((item) => {
+              const canale = canaleProspect(item);
+              return (
+                <li class="flex flex-wrap items-center justify-between gap-fluid-2 border-t border-fg/20 pt-fluid-2">
+                  <span class="font-semibold">
+                    {item.azienda}
+                    <span class="font-normal">
+                      {' — '}
+                      {canale.tipo === 'email' ? canale.valore : null}
+                      {canale.tipo === 'modulo' ? 'dal modulo del sito' : null}
+                      {canale.tipo === 'nessuno' ? 'nessun recapito' : null}
+                    </span>
+                  </span>
+                  <div class="flex flex-wrap gap-fluid-2">
+                    <button type="button" data-dialog-open={`email-${item.id}`} class={quietButton}>
+                      Testo email
+                    </button>
+                    <form method="POST">
+                      <input type="hidden" name="intent" value="contattato" />
+                      <input type="hidden" name="id" value={item.id} />
+                      <button type="submit" class={primaryButton}>Mandata</button>
+                    </form>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )
+    }
+
+    <nav aria-label="Filtra per stato" class="flex flex-wrap gap-fluid-2">
+      <a
+        href={self}
+        aria-current={statoValido ? undefined : 'page'}
+        class={`${filtroButton} ${statoValido ? 'border-fg hover:bg-fg hover:text-bg' : 'border-fg bg-fg text-bg'}`}
+      >
+        Tutti ({prospect.length})
+      </a>
+      {
+        STATI_PROSPECT.map((stato) => {
+          const quanti = prospect.filter((item) => item.stato === stato.value).length;
+          return (
+            <a
+              href={`${self}?stato=${stato.value}`}
+              aria-current={filtro === stato.value ? 'page' : undefined}
+              class={`${filtroButton} ${
+                filtro === stato.value
+                  ? 'border-fg bg-fg text-bg'
+                  : 'border-fg hover:bg-fg hover:text-bg'
+              }`}
+            >
+              {stato.label} ({quanti})
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    {
+      missing.length === 0 && elenco.length === 0 && loadError === null && (
+        <p class="text-muted">Nessun contatto in questo stato.</p>
+      )
+    }
+
+    {
+      elenco.length > 0 && (
+        <div class="overflow-x-auto rounded-lg border-2 border-fg bg-bg">
+          <table class="w-full border-collapse text-left text-sm">
+            <caption class="sr-only">Contatti da lavorare</caption>
+            <thead class="border-b-2 border-fg">
+              <tr>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Attività</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Stato</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Il fatto</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 font-semibold">Date</th>
+                <th scope="col" class="px-fluid-3 py-fluid-3 text-right font-semibold">Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {elenco.map((item) => (
+                <tr class="border-t border-border align-top">
+                  <th scope="row" class="px-fluid-3 py-fluid-3 text-left font-semibold">
+                    {item.azienda}
+                    <a
+                      href={`${item.https ? 'https' : 'http'}://${item.dominio}`}
+                      rel="nofollow noopener"
+                      target="_blank"
+                      class="mt-fluid-1 block font-normal text-muted underline underline-offset-4"
+                    >
+                      {item.dominio}
+                      <span class="sr-only"> (si apre in una nuova scheda)</span>
+                    </a>
+                    {item.nota !== null && (
+                      <span class="mt-fluid-1 block max-w-60 font-normal text-muted">{item.nota}</span>
+                    )}
+                  </th>
+                  <td class="px-fluid-3 py-fluid-3">
+                    <ProspectBadge stato={item.stato} />
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3 text-muted">
+                    <ul class="m-0 flex list-none flex-col gap-[0.15rem] p-0">
+                      {!item.https && <li>senza HTTPS</li>}
+                      {item.wordpress !== null && <li>WordPress {item.wordpress}</li>}
+                      {item.php !== null && <li>PHP {item.php}</li>}
+                      {item.ttfbMs !== null && <li>risposta {item.ttfbMs} ms</li>}
+                      {item.pesoMb !== null && <li>{item.pesoMb} MB</li>}
+                      {item.anniFermo !== null && <li>fermo da {item.anniFermo} anni</li>}
+                    </ul>
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3 text-muted">
+                    <ul class="m-0 flex list-none flex-col gap-[0.15rem] p-0">
+                      {item.contattatoIl !== null && <li>1ª {formatData(item.contattatoIl)}</li>}
+                      {item.followUpIl !== null && <li>2ª {formatData(item.followUpIl)}</li>}
+                      {item.rispostoIl !== null && <li>risposta {formatData(item.rispostoIl)}</li>}
+                      {item.contattatoIl === null && <li>—</li>}
+                    </ul>
+                  </td>
+                  <td class="px-fluid-3 py-fluid-3">
+                    <div class="flex flex-wrap justify-end gap-fluid-2">
+                      {item.stato === 'segnalato' && (
+                        <form method="POST">
+                          <input type="hidden" name="intent" value="accetta" />
+                          <input type="hidden" name="id" value={item.id} />
+                          <button type="submit" class={quietButton}>Accetta</button>
+                        </form>
+                      )}
+                      <button type="button" data-dialog-open={`risposta-${item.id}`} class={quietButton}>
+                        Risposta
+                      </button>
+                      <button type="button" data-dialog-open={`prospect-${item.id}`} class={quietButton}>
+                        Modifica
+                      </button>
+                      <form method="POST" data-confirm={`Creare cliente e progetto per "${item.azienda}"?`}>
+                        <input type="hidden" name="intent" value="vinto" />
+                        <input type="hidden" name="id" value={item.id} />
+                        <button type="submit" class={quietButton}>Diventa lavoro</button>
+                      </form>
+                      <form method="POST" data-confirm={`Eliminare "${item.azienda}"?`}>
+                        <input type="hidden" name="intent" value="delete" />
+                        <input type="hidden" name="id" value={item.id} />
+                        <button type="submit" class={dangerButton}>Elimina</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </div>
+
+  <Dialog id="prospect-nuovo" title="Nuovo contatto">
+    <form method="POST" class="flex flex-col gap-fluid-3">
+      <input type="hidden" name="intent" value="create" />
+      <Field id="nuovo-azienda" name="azienda" label="Attività" required />
+      <Field id="nuovo-dominio" name="dominio" label="Dominio" required hint="senza http://" />
+      <Field id="nuovo-citta" name="citta" label="Città" />
+      <Field id="nuovo-email" name="email" label="Email" type="email" />
+      <Field id="nuovo-modulo" name="urlModulo" label="URL del modulo di contatto" />
+      <Field id="nuovo-punteggio" name="punteggio" label="Punteggio" type="number" />
+      <div class="flex items-center gap-fluid-2">
+        <input id="nuovo-https" name="https" type="checkbox" class="h-5 w-5" />
+        <label for="nuovo-https" class="text-sm font-semibold">Ha HTTPS</label>
+      </div>
+      <Field id="nuovo-wordpress" name="wordpress" label="Versione WordPress" />
+      <Field id="nuovo-php" name="php" label="Versione PHP" />
+      <Field id="nuovo-anni" name="anniFermo" label="Anni senza aggiornamenti" type="number" />
+      <Field id="nuovo-peso" name="pesoMb" label="Peso home (MB)" type="number" step="0.01" />
+      <Field id="nuovo-peso-dopo" name="pesoDopoMb" label="Peso dopo conversione (MB)" type="number" step="0.01" />
+      <Field id="nuovo-ttfb" name="ttfbMs" label="Tempo di risposta (ms)" type="number" />
+      <Field id="nuovo-caricamento" name="caricamentoS" label="Caricamento completo (s)" type="number" step="0.1" />
+      <div class="flex justify-end gap-fluid-2">
+        <button type="button" data-dialog-close class={quietButton}>Annulla</button>
+        <button type="submit" class={primaryButton}>Salva</button>
+      </div>
+    </form>
+  </Dialog>
+
+  {
+    prospect.map((item) => (
+      <Dialog id={`prospect-${item.id}`} title={`Modifica ${item.azienda}`}>
+        <form method="POST" class="flex flex-col gap-fluid-3">
+          <input type="hidden" name="intent" value="update" />
+          <input type="hidden" name="id" value={item.id} />
+          <Field id={`azienda-${item.id}`} name="azienda" label="Attività" value={item.azienda} required />
+          <Field id={`dominio-${item.id}`} name="dominio" label="Dominio" value={item.dominio} required />
+          <Field id={`citta-${item.id}`} name="citta" label="Città" value={item.citta} />
+          <Field id={`email-${item.id}`} name="email" label="Email" type="email" value={item.email} />
+          <Field id={`modulo-${item.id}`} name="urlModulo" label="URL del modulo di contatto" value={item.urlModulo} />
+          <Field id={`punteggio-${item.id}`} name="punteggio" label="Punteggio" type="number" value={item.punteggio} />
+          <div class="flex items-center gap-fluid-2">
+            <input id={`https-${item.id}`} name="https" type="checkbox" checked={item.https} class="h-5 w-5" />
+            <label for={`https-${item.id}`} class="text-sm font-semibold">Ha HTTPS</label>
+          </div>
+          <Field id={`wordpress-${item.id}`} name="wordpress" label="Versione WordPress" value={item.wordpress} />
+          <Field id={`php-${item.id}`} name="php" label="Versione PHP" value={item.php} />
+          <Field id={`anni-${item.id}`} name="anniFermo" label="Anni senza aggiornamenti" type="number" value={item.anniFermo} />
+          <Field id={`peso-${item.id}`} name="pesoMb" label="Peso home (MB)" type="number" step="0.01" value={item.pesoMb} />
+          <Field id={`peso-dopo-${item.id}`} name="pesoDopoMb" label="Peso dopo conversione (MB)" type="number" step="0.01" value={item.pesoDopoMb} />
+          <Field id={`ttfb-${item.id}`} name="ttfbMs" label="Tempo di risposta (ms)" type="number" value={item.ttfbMs} />
+          <Field id={`caricamento-${item.id}`} name="caricamentoS" label="Caricamento completo (s)" type="number" step="0.1" value={item.caricamentoS} />
+          <div class="flex justify-end gap-fluid-2">
+            <button type="button" data-dialog-close class={quietButton}>Annulla</button>
+            <button type="submit" class={primaryButton}>Salva</button>
+          </div>
+        </form>
+      </Dialog>
+    ))
+  }
+
+  {
+    prospect.map((item) => (
+      <Dialog id={`risposta-${item.id}`} title={`Cosa ha detto ${item.azienda}`}>
+        <div class="flex flex-col gap-fluid-4">
+          <form method="POST" class="flex flex-col gap-fluid-3">
+            <input type="hidden" name="intent" value="risposta" />
+            <input type="hidden" name="id" value={item.id} />
+            <div class="flex flex-col gap-fluid-1">
+              <label for={`nota-${item.id}`} class="text-sm font-semibold">
+                Nota — cosa ha risposto, cosa resta da capire
+              </label>
+              <textarea
+                id={`nota-${item.id}`}
+                name="nota"
+                rows="5"
+                class="w-full rounded-md border-2 border-fg bg-bg px-fluid-3 py-fluid-2 text-sm">{item.nota ?? ''}</textarea>
+            </div>
+            <button type="submit" class={primaryButton}>Ha risposto, salva la nota</button>
+          </form>
+          <div class="flex flex-wrap gap-fluid-2 border-t border-border pt-fluid-3">
+            <form method="POST">
+              <input type="hidden" name="intent" value="stallo" />
+              <input type="hidden" name="id" value={item.id} />
+              <button type="submit" class={quietButton}>Segna in stallo</button>
+            </form>
+            <form method="POST">
+              <input type="hidden" name="intent" value="scarta" />
+              <input type="hidden" name="id" value={item.id} />
+              <button type="submit" class={dangerButton}>Chiudi, non interessa</button>
+            </form>
+          </div>
+        </div>
+      </Dialog>
+    ))
+  }
+
+  {
+    conBozza.map((item) => (
+      <Dialog id={`email-${item.id}`} title={`Email per ${item.azienda}`}>
+        <div class="flex flex-col gap-fluid-5">
+          <BozzaEmail id={`prima-${item.id}`} titolo="Prima email" bozza={primaEmail(item)} />
+          <BozzaEmail id={`seconda-${item.id}`} titolo="Follow-up" bozza={followUpEmail(item)} />
+        </div>
+      </Dialog>
+    ))
+  }
+
+  <DialogController />
+  <CopiaController />
+</PrivateLayout>

@@ -1,0 +1,22 @@
+<script>
+  for (const trigger of document.querySelectorAll<HTMLButtonElement>('[data-copia]')) {
+    trigger.addEventListener('click', async () => {
+      const sorgente = document.getElementById(trigger.dataset.copia ?? '');
+      const esito = document.getElementById(`${trigger.dataset.copia ?? ''}-esito`);
+      if (!(sorgente instanceof HTMLTextAreaElement)) return;
+      let messaggio = 'Copiato negli appunti';
+      try {
+        await navigator.clipboard.writeText(sorgente.value);
+      } catch {
+        sorgente.focus();
+        sorgente.setSelectionRange(0, sorgente.value.length);
+        messaggio = 'Testo selezionato: copialo con cmd+C';
+      }
+      if (esito === null) return;
+      esito.textContent = messaggio;
+      window.setTimeout(() => {
+        esito.textContent = '';
+      }, 4000);
+    });
+  }
+</script>
