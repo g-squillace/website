@@ -58,6 +58,30 @@ const guadagni: Guadagno[] = [
   },
 ];
 
+interface AltroLavoro {
+  name: string;
+  text: string;
+  href: string;
+}
+
+const altriLavori: AltroLavoro[] = [
+  {
+    name: 'Siti nuovi e rifacimenti',
+    text: "Quando il problema non è il motore ma l'aspetto: il sito è fermo a dieci anni fa e non assomiglia più a quello che fai.",
+    href: '/servizi#siti-vetrina',
+  },
+  {
+    name: 'Applicazioni e gestionali su misura',
+    text: 'Quando il software che si trova in giro non fa quello che ti serve, e il processo lo tieni in piedi con fogli di calcolo e email.',
+    href: '/servizi#web-app',
+  },
+  {
+    name: "Automazioni con l'intelligenza artificiale",
+    text: 'Le attività ripetitive — documenti da smistare, risposte da scrivere, report da mettere insieme — fatte fare a una macchina.',
+    href: '/intelligenza-artificiale',
+  },
+];
+
 const incluso: string[] = [
   'Analisi preliminare e verifica di fattibilità',
   'Conversione di tutto il sito, fino a 50 pagine',
@@ -495,6 +519,49 @@ const spuntaClass = 'mt-[0.3em] w-5 h-5 shrink-0';
           </details>
         ))}
       </div>
+    </div>
+  </section>
+
+  <section class="bg-beige py-fluid-7">
+    <div class="page">
+      <div class="max-w-prose mb-fluid-6">
+        <p class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] text-highlight mb-fluid-3">
+          Faccio anche
+        </p>
+        <h2 class="font-display text-3xl text-blue m-0 mb-fluid-4 leading-[1.05] tracking-[-0.02em]">
+          E se invece il sito andasse rifatto davvero?
+        </h2>
+        <p class="text-lg leading-[1.55] text-fg m-0">
+          Togliere WordPress è un lavoro piccolo, con un prezzo deciso prima.
+          A volte però il motore non c'entra: il sito funziona, ma non racconta
+          più quello che fai. Quello è un altro discorso, e lo faccio anche io.
+        </p>
+      </div>
+
+      <ul role="list" class="list-none m-0 p-0 grid grid-cols-1 gap-fluid-3 md:grid-cols-3">
+        {
+          altriLavori.map((lavoro) => (
+            <li>
+              <a
+                href={lavoro.href}
+                class="group flex h-full flex-col gap-fluid-2 rounded-lg border-2 border-fg bg-bg px-fluid-4 py-fluid-4 no-underline transition-cta hover:-translate-y-[0.3rem] hover:shadow-[0.4rem_0.5rem_0_var(--color-blue)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-blue motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              >
+                <span class="font-display text-xl font-bold leading-[1.15] text-blue">{lavoro.name}</span>
+                <span class="text-base leading-[1.55] text-fg">{lavoro.text}</span>
+                <span class="mt-auto pt-fluid-2 font-sans text-sm font-bold text-blue underline underline-offset-4">
+                  Come funziona
+                  <span class="sr-only"> — {lavoro.name}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="text-base text-fg mt-fluid-5 m-0">
+        Tutti i tipi di lavoro, con tempi e modalità, stanno su
+        <a href="/servizi" class="font-semibold text-blue underline underline-offset-4 hover:text-highlight">la pagina dei servizi</a>.
+      </p>
     </div>
   </section>
 
