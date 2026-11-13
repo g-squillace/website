@@ -245,7 +245,7 @@ const filtroButton =
                   <span class="text-muted font-normal"> — scaduto il {formatData(scadenzaFollowUp(item))}</span>
                 </span>
                 <div class="flex flex-wrap gap-fluid-2">
-                  <button type="button" data-dialog-open={`email-${item.id}`} class={quietButton}>
+                  <button type="button" data-dialog-open={`bozza-${item.id}`} class={quietButton}>
                     Testo email
                   </button>
                   <form method="POST">
@@ -283,7 +283,7 @@ const filtroButton =
                     </span>
                   </span>
                   <div class="flex flex-wrap gap-fluid-2">
-                    <button type="button" data-dialog-open={`email-${item.id}`} class={quietButton}>
+                    <button type="button" data-dialog-open={`bozza-${item.id}`} class={quietButton}>
                       Testo email
                     </button>
                     <form method="POST">
@@ -520,7 +520,7 @@ const filtroButton =
 
   {
     conBozza.map((item) => (
-      <Dialog id={`email-${item.id}`} title={`Email per ${item.azienda}`}>
+      <Dialog id={`bozza-${item.id}`} title={`Email per ${item.azienda}`}>
         <div class="flex flex-col gap-fluid-5">
           <BozzaEmail id={`prima-${item.id}`} titolo="Prima email" bozza={primaEmail(item)} />
           <BozzaEmail id={`seconda-${item.id}`} titolo="Follow-up" bozza={followUpEmail(item)} />

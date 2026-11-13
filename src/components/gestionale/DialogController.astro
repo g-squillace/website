@@ -1,8 +1,16 @@
 <script>
   for (const trigger of document.querySelectorAll<HTMLElement>('[data-dialog-open]')) {
     trigger.addEventListener('click', () => {
-      const target = document.getElementById(trigger.dataset.dialogOpen ?? '');
-      if (target instanceof HTMLDialogElement) target.showModal();
+      const atteso = trigger.dataset.dialogOpen ?? '';
+      const target = document.getElementById(atteso);
+      if (target instanceof HTMLDialogElement) {
+        target.showModal();
+        return;
+      }
+      console.warn(
+        `Nessun dialog con id "${atteso}": l'id manca oppure appartiene a un altro elemento della pagina.`,
+        target,
+      );
     });
   }
 
