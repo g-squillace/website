@@ -6,6 +6,12 @@
   NODE_VERSION = "22"
 
 [[redirects]]
+  from = "https://guidosquillace.netlify.app/*"
+  to = "https://www.guidosquillace.it/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/sitemap.xml"
   to = "/sitemap-index.xml"
   status = 200
